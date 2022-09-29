@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@mdi/svg": "^7.0.96",
+    "esbuild": "^0.15.9"
+  },
+  "scripts": {
+    "build": "esbuild ./src/index.ts --bundle --outfile=build.js",
+    "watch": "esbuild ./src/index.ts --bundle --sourcemap --outfile=build.js --watch"
+  }
+}

@@ -1,0 +1,3 @@
+interface IUpdatable{
+    update(): void;
+}
