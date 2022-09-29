@@ -294,15 +294,57 @@
     }
   };
 
+  // src/ui/elements/InteractiveElement.ts
+  var InteractiveElement = class extends RectangleElement {
+    constructor() {
+      super(...arguments);
+      this.events = {};
+    }
+    setOn(event, callback) {
+      this.events[event] = callback;
+    }
+    getOn(event) {
+      return this.events[event];
+    }
+    moveEvent(point) {
+      this.onMove(point);
+    }
+    set onMove(callback) {
+      this.setOn("move", callback);
+    }
+    setOnMove(callback) {
+      this.onMove = callback;
+      return this;
+    }
+    get onMove() {
+      return this.getOn("move");
+    }
+  };
+
+  // src/datatypes/PointerPoint.ts
+  var PointerPoint = class extends Point2D {
+    constructor(x, y, pressure) {
+      super(x, y);
+      this.pressure = pressure;
+    }
+  };
+
   // src/index.ts
   console.log("loading index.ts");
   function main() {
-    let c = CubismCanvasManager.createFromId("mainCanvas");
+    let canvas = document.getElementById("mainCanvas");
+    let c = CubismCanvasManager.createFromCanvas(canvas);
+    let interactive = new InteractiveElement().setOnMove((point) => {
+      console.log("move", point);
+    }).setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(40, 40);
+    canvas.onpointermove = (e) => {
+      interactive.moveEvent(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+    };
     c.init(
       new LayoutElement(
         new RectangleElement().setWidth(100).setHeight(100).setBackgroundColor("red").setPosFromXY(0, 0),
         new RectangleElement().setWidth(100).setHeight(100).setBackgroundColor("blue").setPosFromXY(40, 40).setLineWidth(5),
-        new RectangleElement().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(40, 40)
+        interactive
       )
     );
   }
