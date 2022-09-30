@@ -1,5 +1,5 @@
 import {Point2D} from "./Datatypes/Point";
-import {CubismState} from "./State";
+import {CubismCanvasState} from "./State";
 import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
 import {Values} from "./Constants/Constants";
 
@@ -7,14 +7,16 @@ export class CanvasDrawer {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-    state: CubismState;
+    state: CubismCanvasState;
 
     globalEvent: CubismGlobalEventSystem;
 
     constructor(canvas: HTMLCanvasElement, globalEvent: CubismGlobalEventSystem) {
-        this.state = new CubismState();
+
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+        this.state = new CubismCanvasState(canvas, this.ctx);
         this.globalEvent = globalEvent;
         this.registerFrameUpdate();
     }
@@ -32,11 +34,6 @@ export class CanvasDrawer {
         }
     }
 
-    // fixedUpdate() {
-    //     // this.state.needsRedraw = true;
-    //     console.log("Fixed update");
-    // }
-
     clear() {
         this.canvas.width = this.canvas.width;
     }
@@ -46,20 +43,17 @@ export class CanvasDrawer {
         this.state.fillStyle = color;
     }
 
-    restoreFillStyle() {
-        this.ctx.fillStyle = this.state.popFillStyle();
-    }
+    //
+    // restoreFillStyle() {
+    //     this.ctx.fillStyle = this.state.popFillStyle();
+    // }
 
     translate(offset: Point2D) {
-        console.log("translate", offset);
         this.state.translate = offset;
-        this.ctx.translate(offset.x, offset.y);
     }
 
     restoreTranslate() {
-        let lastTranslate = this.state.popTranslate();
-        console.log("restoreTranslate", lastTranslate.x, lastTranslate.y);
-        this.ctx.translate(-lastTranslate.x, -lastTranslate.y);
+        this.state.restoreTranslate();
     }
 
     drawText(text: string, x: number, y: number) {
@@ -68,20 +62,10 @@ export class CanvasDrawer {
 
     setStrokeStyle(color: string) {
         this.ctx.strokeStyle = color;
-        this.state.strokeStyle = color;
-    }
-
-    restoreStrokeStyle() {
-        this.ctx.strokeStyle = this.state.popStrokeStyle();
     }
 
     setStrokeWidth(width: number) {
         this.ctx.lineWidth = width;
-        this.state.lineWidth = width;
-    }
-
-    restoreStrokeWidth() {
-        this.ctx.lineWidth = this.state.popLineWidth();
     }
 
     drawLineWithPoints(begin: Point2D, end: Point2D) {

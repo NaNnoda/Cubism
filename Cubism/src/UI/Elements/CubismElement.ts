@@ -1,9 +1,7 @@
 import {Point2D} from "../../Datatypes/Point";
 import {CanvasDrawer} from "../../CanvasDrawer";
-import {LayoutValues, Values} from "../../Constants/Constants";
 import {Log} from "../../Debug/Log";
 import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
-import {CubismState} from "../../State";
 
 export class CubismElement implements IRenderable {
     _position: Point2D;

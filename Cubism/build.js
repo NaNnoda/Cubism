@@ -1,55 +1,105 @@
 "use strict";
 (() => {
-  // src/Datatypes/Point.ts
-  var Point2D = class {
-    constructor(x, y) {
-      this.arr = [x, y];
+  // src/Datatypes/Two2DTransform.ts
+  var TwoDTransformMatrix = class {
+    constructor(m11, m12, m21, m22, dx, dy) {
+      this.m11 = m11;
+      this.m12 = m12;
+      this.m21 = m21;
+      this.m22 = m22;
+      this.dx = dx;
+      this.dy = dy;
+      this.arr = [];
+      this.arr = [
+        [m11, m12, dx],
+        [m21, m22, dy],
+        [0, 0, 1]
+      ];
     }
-    get x() {
-      return this.arr[0];
+    static makeFromArray(arr) {
+      return new TwoDTransformMatrix(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
     }
-    set x(value) {
-      this.arr[0] = value;
+    get(x, y) {
+      return this.arr[x][y];
     }
-    get y() {
-      return this.arr[1];
+    set(x, y, value) {
+      console.log(`Setting ${x}, ${y} to ${value}`);
+      this.arr[x][y] = value;
     }
-    set y(value) {
-      this.arr[1] = value;
+    static identity() {
+      return new TwoDTransformMatrix(1, 0, 0, 1, 0, 0);
     }
-    sub(other) {
-      return new Point2D(this.x - other.x, this.y - other.y);
+    static zero() {
+      return new TwoDTransformMatrix(0, 0, 0, 0, 0, 0);
     }
-    offset(offset) {
-      this.x += offset.x;
-      this.y += offset.y;
+    static translation(x, y) {
+      return new TwoDTransformMatrix(1, 0, 0, 1, x, y);
     }
-    nOffset(offset) {
-      this.x -= offset.x;
-      this.y -= offset.y;
+    static rotation(angle) {
+      let cos = Math.cos(angle);
+      let sin = Math.sin(angle);
+      return new TwoDTransformMatrix(cos, -sin, sin, cos, 0, 0);
     }
-    add(other) {
-      return new Point2D(this.x + other.x, this.y + other.y);
+    static scale(x, y) {
+      return new TwoDTransformMatrix(x, 0, 0, y, 0, 0);
     }
-    mul(other) {
-      return new Point2D(this.x * other.x, this.y * other.y);
+    clone() {
+      return new TwoDTransformMatrix(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
     }
-    scale(n) {
-      return new Point2D(this.x * n, this.y * n);
+    multiply(other) {
+      console.log(`Multiplying
+${this.toString()}
+ with
+${other.toString()}`);
+      let test = [];
+      for (let i = 0; i < 3; i++) {
+        test.push([]);
+      }
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          let dotProduct = 0;
+          for (let k = 0; k < 3; k++) {
+            dotProduct += this.get(i, k) * other.get(k, j);
+          }
+          test[i].push(dotProduct);
+        }
+      }
+      console.log(`Result:
+${test[0]}
+${test[1]}
+${test[2]}`);
+      let newMatrix = TwoDTransformMatrix.makeFromArray(test);
+      console.log(`Result:
+${newMatrix.toString()}`);
+      return newMatrix;
+    }
+    translate(x, y) {
+      return this.multiply(TwoDTransformMatrix.translation(x, y));
+    }
+    rotate(angle) {
+      return this.multiply(TwoDTransformMatrix.rotation(angle));
+    }
+    scale(x, y) {
+      return this.multiply(TwoDTransformMatrix.scale(x, y));
+    }
+    static nMultiply(a, others) {
+      return a.clone().multiply(others);
     }
     toString() {
-      return `(${this.x}, ${this.y})`;
+      return `(${this.m11}, ${this.m12}, ${this.dx})
+(${this.m21}, ${this.m22}, ${this.dy})`;
     }
   };
 
   // src/State.ts
-  var CubismState = class {
-    constructor() {
+  var CubismCanvasState = class {
+    constructor(canvas, ctx) {
       this.lineWidths = [10];
       this.fillStyles = ["gray"];
-      this.strokeStyles = ["black"];
-      this.translates = [new Point2D(0, 0)];
+      this.translates = [TwoDTransformMatrix.identity()];
       this._needsRedraw = true;
+      this.canvas = canvas;
+      this.ctx = ctx;
     }
     set lineWidth(lineWidth) {
       this.lineWidths.push(lineWidth);
@@ -69,38 +119,31 @@
     get fillStyle() {
       return this.fillStyles[this.fillStyles.length - 1];
     }
-    popFillStyle() {
-      if (this.fillStyles.length > 1) {
-        this.fillStyles.pop();
-      }
-      return this.fillStyle;
-    }
-    set strokeStyle(style) {
-      this.strokeStyles.push(style);
-    }
-    get strokeStyle() {
-      return this.strokeStyles[this.strokeStyles.length - 1];
-    }
-    popStrokeStyle() {
-      if (this.strokeStyles.length > 1) {
-        this.strokeStyles.pop();
-      }
-      return this.strokeStyle;
-    }
     set translate(offset) {
       console.log("set translate", offset.x, offset.y);
-      this.translates.push(offset);
-      console.log("Current translates", this.translates);
-      console.log("Size", this.translates.length);
+      let newTranslate = TwoDTransformMatrix.translation(offset.x, offset.y);
+      let translateMatrix = this.translateMatrix.clone().multiply(newTranslate);
+      this.translates.push(translateMatrix);
+      console.log("translate matrix: \n" + translateMatrix);
+      this.setCtxTransform(translateMatrix);
     }
-    get translate() {
+    setCtxTransform(t) {
+      this.ctx.setTransform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy);
+    }
+    restoreTranslate() {
+      let lastTranslate = this.popTranslate();
+      console.log("restore translate", lastTranslate);
+      this.setCtxTransform(lastTranslate);
+    }
+    get translateMatrix() {
       return this.translates[this.translates.length - 1];
     }
     popTranslate() {
       if (this.translates.length > 1) {
-        this.translates.pop();
+        console.log("pop translate");
+        return this.translates.pop();
       }
-      return this.translate;
+      return this.translates[0];
     }
     get needsRedraw() {
       return this._needsRedraw;
@@ -145,9 +188,9 @@
   // src/CanvasDrawer.ts
   var CanvasDrawer = class {
     constructor(canvas, globalEvent) {
-      this.state = new CubismState();
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
+      this.state = new CubismCanvasState(canvas, this.ctx);
       this.globalEvent = globalEvent;
       this.registerFrameUpdate();
     }
@@ -168,35 +211,20 @@
       this.ctx.fillStyle = color;
       this.state.fillStyle = color;
     }
-    restoreFillStyle() {
-      this.ctx.fillStyle = this.state.popFillStyle();
-    }
     translate(offset) {
-      console.log("translate", offset);
       this.state.translate = offset;
-      this.ctx.translate(offset.x, offset.y);
     }
     restoreTranslate() {
-      let lastTranslate = this.state.popTranslate();
-      console.log("restoreTranslate", lastTranslate.x, lastTranslate.y);
-      this.ctx.translate(-lastTranslate.x, -lastTranslate.y);
+      this.state.restoreTranslate();
     }
     drawText(text, x, y) {
       this.ctx.fillText(text, x, y);
     }
     setStrokeStyle(color) {
       this.ctx.strokeStyle = color;
-      this.state.strokeStyle = color;
-    }
-    restoreStrokeStyle() {
-      this.ctx.strokeStyle = this.state.popStrokeStyle();
     }
     setStrokeWidth(width) {
       this.ctx.lineWidth = width;
-      this.state.lineWidth = width;
-    }
-    restoreStrokeWidth() {
-      this.ctx.lineWidth = this.state.popLineWidth();
     }
     drawLineWithPoints(begin, end) {
       this.drawLine(begin.x, begin.y, end.x, end.y);
@@ -290,6 +318,48 @@
     startFrameUpdate() {
       this.globalEvent.triggerGlobalEvent(Values.FRAME_UPDATE);
       window.requestAnimationFrame(this.startFrameUpdate.bind(this));
+    }
+  };
+
+  // src/Datatypes/Point.ts
+  var Point2D = class {
+    constructor(x, y) {
+      this.arr = [x, y];
+    }
+    get x() {
+      return this.arr[0];
+    }
+    set x(value) {
+      this.arr[0] = value;
+    }
+    get y() {
+      return this.arr[1];
+    }
+    set y(value) {
+      this.arr[1] = value;
+    }
+    sub(other) {
+      return new Point2D(this.x - other.x, this.y - other.y);
+    }
+    offset(offset) {
+      this.x += offset.x;
+      this.y += offset.y;
+    }
+    nOffset(offset) {
+      this.x -= offset.x;
+      this.y -= offset.y;
+    }
+    add(other) {
+      return new Point2D(this.x + other.x, this.y + other.y);
+    }
+    mul(other) {
+      return new Point2D(this.x * other.x, this.y * other.y);
+    }
+    scale(n) {
+      return new Point2D(this.x * n, this.y * n);
+    }
+    toString() {
+      return `(${this.x}, ${this.y})`;
     }
   };
 
@@ -657,7 +727,6 @@
       c.translate(this.position);
       c.drawRect(0, 0, this.absWidth, this.absHeight);
       c.restoreTranslate();
-      c.restoreFillStyle();
     }
   };
 
@@ -775,7 +844,7 @@
       new PointerHandleableLayout(
         new InteractiveRect().setWidth(LayoutValues.MATCH_PARENT).setHeight(LayoutValues.MATCH_PARENT).setBackgroundColor("red").setPosFromXY(0, 0),
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("blue").setPosFromXY(40, 40).setLineWidth(5),
-        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(200, 200).setLineWidth(5)
+        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(80, 80).setLineWidth(5)
       )
     );
   }

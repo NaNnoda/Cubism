@@ -48,7 +48,7 @@ function main() {
                 .setWidth(100)
                 .setHeight(100)
                 .setBackgroundColor("green")
-                .setPosFromXY(200, 200)
+                .setPosFromXY(80, 80)
                 .setLineWidth(5)
         )
     );

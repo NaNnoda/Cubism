@@ -49,6 +49,5 @@ export class InteractiveRect extends PointerHandleableElement {
         c.translate(this.position);
         c.drawRect(0, 0, this.absWidth, this.absHeight);
         c.restoreTranslate();
-        c.restoreFillStyle();
     }
 }
