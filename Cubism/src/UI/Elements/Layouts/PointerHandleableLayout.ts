@@ -21,23 +21,36 @@ export class PointerHandleableLayout extends PointerHandleableElement {
         }
     }
 
-    resize(x: number, y: number) {
-        super.resize(x, y);
+    updateShape(x: number, y: number) {
+        super.updateShape(x, y);
+        this.updateChildrenShape()
+    }
+
+    updateChildrenShape() {
+        this.updateChildrenSize();
+        this.updateChildrenPosition();
+    }
+
+    updateChildrenSize() {
         Log.logDebug("absSize", this.absSize);
         for (let child of this.children) {
             let x = child.width;
             let y = child.height;
             if (x === LayoutValues.MATCH_PARENT) {
-                Log.log("Match parent X", child);
+                Log.logDebug("Match parent X", child);
                 x = this.absWidth;
             }
             if (y === LayoutValues.MATCH_PARENT) {
-                Log.log("Match parent Y", child);
+                Log.logDebug("Match parent Y", child);
                 y = this.absHeight;
                 console.log("this.absHeight", this.absHeight);
             }
-            child.resize(x, y);
+            child.updateShape(x, y);
         }
+    }
+
+    updateChildrenPosition() {
+
     }
 
     get children(): PointerHandleableElement[] {
@@ -59,9 +72,11 @@ export class PointerHandleableLayout extends PointerHandleableElement {
 
     render() {
         super.render();
+        this.c?.translate(this.position);
         for (let child of this.children) {
             child.render();
         }
+        this.c?.restoreTranslate();
     }
 
     setCanvasDrawer(c: CanvasDrawer) {

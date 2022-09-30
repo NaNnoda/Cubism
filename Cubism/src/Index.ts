@@ -7,6 +7,10 @@ import {LayoutValues} from "./Constants/Constants";
 import {InteractiveRect} from "./UI/Elements/InteractiveRect";
 import {PointerHandleableLayout} from "./UI/Elements/Layouts/PointerHandleableLayout";
 import {DraggableRect} from "./UI/Elements/DraggableRect";
+import {VerticalLayout} from "./UI/Elements/Layouts/VerticalLayout";
+import {HorizontalLayout} from "./UI/Elements/Layouts/HorizontalLayout";
+import {ButtonElement} from "./UI/Elements/ButtonElement";
+import {RectWithChild} from "./UI/Elements/RectWithChild";
 
 console.log("loading Index.ts");
 
@@ -32,12 +36,12 @@ function main() {
     // }
 
     c.init(
-        new PointerHandleableLayout(
-            new InteractiveRect()
-                .setWidth(LayoutValues.MATCH_PARENT)
-                .setHeight(LayoutValues.MATCH_PARENT)
-                .setBackgroundColor("red")
-                .setPosFromXY(0, 0),
+        new HorizontalLayout(
+            // new InteractiveRect()
+            //     .setWidth(LayoutValues.MATCH_PARENT)
+            //     .setHeight(LayoutValues.MATCH_PARENT)
+            //     .setBackgroundColor("red")
+            //     .setPosFromXY(0, 0),
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
@@ -49,7 +53,26 @@ function main() {
                 .setHeight(100)
                 .setBackgroundColor("green")
                 .setPosFromXY(80, 80)
+                .setLineWidth(5),
+            new ButtonElement("Button")
+                .setHeight(50)
+                .setWidth(100)
+                .setPosFromXY(120, 120)
+                .setLineWidth(5),
+            new RectWithChild()
+                .setHeight(200)
+                .setWidth(200)
+                .setPosFromXY(160, 160)
                 .setLineWidth(5)
+                .setBackgroundColor("yellow")
+                .setChild(
+                    new HorizontalLayout(
+                        new DraggableRect()
+                            .setWidth(100)
+                            .setHeight(100)
+                            .setBackgroundColor("blue")
+                    )
+                )
         )
     );
 }

@@ -3,18 +3,48 @@
   // src/Datatypes/Two2DTransform.ts
   var TwoDTransformMatrix = class {
     constructor(m11, m12, m21, m22, dx, dy) {
-      this.m11 = m11;
-      this.m12 = m12;
-      this.m21 = m21;
-      this.m22 = m22;
-      this.dx = dx;
-      this.dy = dy;
       this.arr = [];
       this.arr = [
         [m11, m12, dx],
         [m21, m22, dy],
         [0, 0, 1]
       ];
+    }
+    get m11() {
+      return this.arr[0][0];
+    }
+    set m11(value) {
+      this.arr[0][0] = value;
+    }
+    get m12() {
+      return this.arr[0][1];
+    }
+    set m12(value) {
+      this.arr[0][1] = value;
+    }
+    get m21() {
+      return this.arr[1][0];
+    }
+    set m21(value) {
+      this.arr[1][0] = value;
+    }
+    get m22() {
+      return this.arr[1][1];
+    }
+    set m22(value) {
+      this.arr[1][1] = value;
+    }
+    get dx() {
+      return this.arr[0][2];
+    }
+    set dx(value) {
+      this.arr[0][2] = value;
+    }
+    get dy() {
+      return this.arr[1][2];
+    }
+    set dy(value) {
+      this.arr[1][2] = value;
     }
     static makeFromArray(arr) {
       return new TwoDTransformMatrix(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
@@ -23,7 +53,6 @@
       return this.arr[x][y];
     }
     set(x, y, value) {
-      console.log(`Setting ${x}, ${y} to ${value}`);
       this.arr[x][y] = value;
     }
     static identity() {
@@ -47,30 +76,16 @@
       return new TwoDTransformMatrix(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
     }
     multiply(other) {
-      console.log(`Multiplying
-${this.toString()}
- with
-${other.toString()}`);
-      let test = [];
-      for (let i = 0; i < 3; i++) {
-        test.push([]);
-      }
+      let newMatrix = TwoDTransformMatrix.zero();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           let dotProduct = 0;
           for (let k = 0; k < 3; k++) {
             dotProduct += this.get(i, k) * other.get(k, j);
           }
-          test[i].push(dotProduct);
+          newMatrix.set(i, j, dotProduct);
         }
       }
-      console.log(`Result:
-${test[0]}
-${test[1]}
-${test[2]}`);
-      let newMatrix = TwoDTransformMatrix.makeFromArray(test);
-      console.log(`Result:
-${newMatrix.toString()}`);
       return newMatrix;
     }
     translate(x, y) {
@@ -81,9 +96,6 @@ ${newMatrix.toString()}`);
     }
     scale(x, y) {
       return this.multiply(TwoDTransformMatrix.scale(x, y));
-    }
-    static nMultiply(a, others) {
-      return a.clone().multiply(others);
     }
     toString() {
       return `(${this.m11}, ${this.m12}, ${this.dx})
@@ -120,11 +132,8 @@ ${newMatrix.toString()}`);
       return this.fillStyles[this.fillStyles.length - 1];
     }
     set translate(offset) {
-      console.log("set translate", offset.x, offset.y);
-      let newTranslate = TwoDTransformMatrix.translation(offset.x, offset.y);
-      let translateMatrix = this.translateMatrix.clone().multiply(newTranslate);
+      let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
       this.translates.push(translateMatrix);
-      console.log("translate matrix: \n" + translateMatrix);
       this.setCtxTransform(translateMatrix);
     }
     setCtxTransform(t) {
@@ -132,7 +141,6 @@ ${newMatrix.toString()}`);
     }
     restoreTranslate() {
       let lastTranslate = this.popTranslate();
-      console.log("restore translate", lastTranslate);
       this.setCtxTransform(lastTranslate);
     }
     get translateMatrix() {
@@ -140,7 +148,6 @@ ${newMatrix.toString()}`);
     }
     popTranslate() {
       if (this.translates.length > 1) {
-        console.log("pop translate");
         return this.translates.pop();
       }
       return this.translates[0];
@@ -175,6 +182,8 @@ ${newMatrix.toString()}`);
   Values.ON_PARENT_DOWN = "onParentDown";
   Values.ON_PARENT_UP = "onParentUp";
   Values.ON_PARENT_CLICK = "onParentClick";
+  Values.ON_ENTER = "onEnter";
+  Values.ON_LEAVE = "onLeave";
   Values.POINTER_DOWN = "onMouseDown";
   Values.POINTER_UP = "onMouseUp";
   Values.POINTER_MOVE = "onMouseMove";
@@ -217,7 +226,7 @@ ${newMatrix.toString()}`);
     restoreTranslate() {
       this.state.restoreTranslate();
     }
-    drawText(text, x, y) {
+    fillText(text, x, y) {
       this.ctx.fillText(text, x, y);
     }
     setStrokeStyle(color) {
@@ -381,6 +390,11 @@ ${newMatrix.toString()}`);
         _Log.log(message, ...args);
       }
     }
+    static logD(message, ...args) {
+      if (_Log.debugFlag) {
+        console.log(message, ...args);
+      }
+    }
   };
   var Log = _Log;
   Log.debugFlag = true;
@@ -422,13 +436,13 @@ ${newMatrix.toString()}`);
     }
     init(c, parentSize, globalEvent) {
       this.setCanvasDrawer(c);
-      this.resize(parentSize.x, parentSize.y);
+      this.updateShape(parentSize.x, parentSize.y);
       this.setGlobalEventSystem(globalEvent);
     }
     setGlobalEventSystem(globalEvent) {
       this.globalEvent = globalEvent;
     }
-    resize(x, y) {
+    updateShape(x, y) {
       Log.logDebug("Resizing", this, "to", x, y);
       this.absWidth = x;
       this.absHeight = y;
@@ -518,8 +532,12 @@ ${newMatrix.toString()}`);
   var PointerHandleableElement = class extends InteractiveElement {
     constructor() {
       super();
-      this.pushOn(Values.ON_PARENT_MOVE, (point) => {
+      this.pointerWasNotInRange = true;
+      this.pushOnParentMove((point) => {
         this.onParentMove(point);
+      });
+      this.pushOnParentDown((point) => {
+        this.onParentDown(point);
       });
       this.pushOn(Values.ON_MOVE, (point) => {
         this.onMove(point);
@@ -535,6 +553,12 @@ ${newMatrix.toString()}`);
       });
       this.pushOn(Values.ON_UP, (point) => {
         this.onUp(point);
+      });
+      this.pushOn(Values.ON_ENTER, (point) => {
+        this.onEnter(point);
+      });
+      this.pushOn(Values.ON_LEAVE, (point) => {
+        this.onLeave(point);
       });
     }
     triggerOnParentDown(point) {
@@ -594,6 +618,14 @@ ${newMatrix.toString()}`);
       if (this.inRange(point)) {
         this.triggerOnMove(point);
       }
+      if (this.inRange(point) && this.pointerWasNotInRange) {
+        this.pointerWasNotInRange = false;
+        this.triggerOnEnter(point);
+      }
+      if (!this.inRange(point) && !this.pointerWasNotInRange) {
+        this.pointerWasNotInRange = true;
+        this.triggerOnLeave(point);
+      }
     }
     pushOnParentMove(...callbacks) {
       this.pushOn(Values.ON_PARENT_MOVE, ...callbacks);
@@ -607,6 +639,26 @@ ${newMatrix.toString()}`);
     }
     inRange(point) {
       return point.x >= this.position.x && point.x <= this.position.x + this.absWidth && point.y >= this.position.y && point.y <= this.position.y + this.absHeight;
+    }
+    onEnter(point) {
+    }
+    triggerOnEnter(point) {
+      let e = this.getOn(Values.ON_ENTER);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    pushOnParentDown(...callbacks) {
+      this.pushOn(Values.ON_PARENT_DOWN, ...callbacks);
+      return this;
+    }
+    triggerOnLeave(point) {
+      let e = this.getOn(Values.ON_LEAVE);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onLeave(point) {
     }
   };
 
@@ -730,6 +782,30 @@ ${newMatrix.toString()}`);
     }
   };
 
+  // src/UI/Elements/DraggableRect.ts
+  var DraggableRect = class extends InteractiveRect {
+    constructor() {
+      super(...arguments);
+      this.pointerRelativePosition = null;
+    }
+    onDown(point) {
+      super.onDown(point);
+      this.pointerRelativePosition = new Point2D(point.x - this.position.x, point.y - this.position.y);
+    }
+    onParentMove(point) {
+      var _a;
+      super.onParentMove(point);
+      if (this.pointerRelativePosition !== null) {
+        this.position = point.sub(this.pointerRelativePosition);
+        (_a = this.c) == null ? void 0 : _a.triggerRedraw();
+      }
+    }
+    onUp(point) {
+      super.onUp(point);
+      this.pointerRelativePosition = null;
+    }
+  };
+
   // src/UI/Elements/Layouts/PointerHandleableLayout.ts
   var PointerHandleableLayout = class extends PointerHandleableElement {
     constructor(...children) {
@@ -744,23 +820,32 @@ ${newMatrix.toString()}`);
         child.setGlobalEventSystem(globalEvent);
       }
     }
-    resize(x, y) {
-      super.resize(x, y);
+    updateShape(x, y) {
+      super.updateShape(x, y);
+      this.updateChildrenShape();
+    }
+    updateChildrenShape() {
+      this.updateChildrenSize();
+      this.updateChildrenPosition();
+    }
+    updateChildrenSize() {
       Log.logDebug("absSize", this.absSize);
       for (let child of this.children) {
-        let x2 = child.width;
-        let y2 = child.height;
-        if (x2 === LayoutValues.MATCH_PARENT) {
-          Log.log("Match parent X", child);
-          x2 = this.absWidth;
+        let x = child.width;
+        let y = child.height;
+        if (x === LayoutValues.MATCH_PARENT) {
+          Log.logDebug("Match parent X", child);
+          x = this.absWidth;
         }
-        if (y2 === LayoutValues.MATCH_PARENT) {
-          Log.log("Match parent Y", child);
-          y2 = this.absHeight;
+        if (y === LayoutValues.MATCH_PARENT) {
+          Log.logDebug("Match parent Y", child);
+          y = this.absHeight;
           console.log("this.absHeight", this.absHeight);
         }
-        child.resize(x2, y2);
+        child.updateShape(x, y);
       }
+    }
+    updateChildrenPosition() {
     }
     get children() {
       return this._children;
@@ -776,10 +861,13 @@ ${newMatrix.toString()}`);
       this.children.splice(this.children.indexOf(child), 1);
     }
     render() {
+      var _a, _b;
       super.render();
+      (_a = this.c) == null ? void 0 : _a.translate(this.position);
       for (let child of this.children) {
         child.render();
       }
+      (_b = this.c) == null ? void 0 : _b.restoreTranslate();
     }
     setCanvasDrawer(c) {
       super.setCanvasDrawer(c);
@@ -810,11 +898,89 @@ ${newMatrix.toString()}`);
     }
   };
 
-  // src/UI/Elements/DraggableRect.ts
-  var DraggableRect = class extends InteractiveRect {
+  // src/UI/Elements/Layouts/LinearLayout.ts
+  var LinearLayout = class extends PointerHandleableLayout {
+  };
+
+  // src/UI/Elements/Layouts/HorizontalLayout.ts
+  var HorizontalLayout = class extends LinearLayout {
+    updateChildrenPosition() {
+      super.updateChildrenPosition();
+      let x = 0;
+      let y = 0;
+      for (let child of this.children) {
+        child.position = new Point2D(x, y);
+        x += child.width;
+      }
+    }
+  };
+
+  // src/UI/Elements/ButtonElement.ts
+  var ButtonElement = class extends InteractiveRect {
+    constructor(text) {
+      super();
+      this.text = text;
+    }
+    updateShape(x, y) {
+      super.updateShape(x, y);
+    }
+    onMove(point) {
+      super.onMove(point);
+    }
+    onEnter(point) {
+      var _a;
+      super.onEnter(point);
+      this.background = "gray";
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    onLeave(point) {
+      var _a;
+      super.onLeave(point);
+      this.background = "white";
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    render() {
+      super.render();
+      let c = this.c;
+      c.fillText("hello", 0, 0);
+    }
+  };
+
+  // src/UI/Elements/RectWithChild.ts
+  var RectWithChild = class extends PointerHandleableLayout {
     constructor() {
       super(...arguments);
+      this.background = "white";
+      this.lineWidth = 1;
       this.pointerRelativePosition = null;
+    }
+    setChild(child) {
+      this.child = child;
+      return this;
+    }
+    set child(child) {
+      this.children = [child];
+    }
+    get child() {
+      return this.children[0];
+    }
+    setLineWidth(lineWidth) {
+      this.lineWidth = lineWidth;
+      return this;
+    }
+    setBackgroundColor(color) {
+      this.background = color;
+      return this;
+    }
+    render() {
+      let c = this.c;
+      c.setFillStyle(this.background);
+      c.setStrokeStyle("black");
+      c.setStrokeWidth(this.lineWidth);
+      c.translate(this.position);
+      c.drawRect(0, 0, this.absWidth, this.absHeight);
+      c.restoreTranslate();
+      super.render();
     }
     onDown(point) {
       super.onDown(point);
@@ -830,7 +996,6 @@ ${newMatrix.toString()}`);
     }
     onUp(point) {
       super.onUp(point);
-      Log.logDebug("up on", this);
       this.pointerRelativePosition = null;
     }
   };
@@ -841,10 +1006,15 @@ ${newMatrix.toString()}`);
     let canvas = document.getElementById("mainCanvas");
     let c = Cubism.createFromCanvas(canvas);
     c.init(
-      new PointerHandleableLayout(
-        new InteractiveRect().setWidth(LayoutValues.MATCH_PARENT).setHeight(LayoutValues.MATCH_PARENT).setBackgroundColor("red").setPosFromXY(0, 0),
+      new HorizontalLayout(
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("blue").setPosFromXY(40, 40).setLineWidth(5),
-        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(80, 80).setLineWidth(5)
+        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(80, 80).setLineWidth(5),
+        new ButtonElement("Button").setHeight(50).setWidth(100).setPosFromXY(120, 120).setLineWidth(5),
+        new RectWithChild().setHeight(200).setWidth(200).setPosFromXY(160, 160).setLineWidth(5).setBackgroundColor("yellow").setChild(
+          new HorizontalLayout(
+            new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("blue")
+          )
+        )
       )
     );
   }

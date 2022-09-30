@@ -19,6 +19,9 @@ export class Values{
     public static readonly ON_PARENT_DOWN = "onParentDown";
     public static readonly ON_PARENT_UP = "onParentUp";
     public static readonly ON_PARENT_CLICK = "onParentClick";
+    public static readonly ON_ENTER = "onEnter";
+    public static readonly ON_LEAVE = "onLeave";
+
 
     public static readonly POINTER_DOWN = "onMouseDown";
     public static readonly POINTER_UP = "onMouseUp";

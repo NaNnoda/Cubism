@@ -16,15 +16,12 @@ export class DraggableRect extends InteractiveRect {
         super.onParentMove(point);
         if (this.pointerRelativePosition !== null) {
             this.position = point.sub(this.pointerRelativePosition);
-            // this.triggerOnMove(point);
-            // this.globalEvent?.triggerGlobalEvent(Values.REDRAW, this);
             this.c?.triggerRedraw();
         }
-        // this.position = point;
     }
     onUp(point: PointerPoint) {
         super.onUp(point);
-        Log.logDebug("up on", this);
+        // Log.logDebug("up on", this);
         this.pointerRelativePosition = null;
     }
 }

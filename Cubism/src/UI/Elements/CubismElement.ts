@@ -51,7 +51,7 @@ export class CubismElement implements IRenderable {
 
     init(c: CanvasDrawer, parentSize: Point2D, globalEvent: CubismGlobalEventSystem) {
         this.setCanvasDrawer(c);
-        this.resize(parentSize.x, parentSize.y);
+        this.updateShape(parentSize.x, parentSize.y);
         this.setGlobalEventSystem(globalEvent);
     }
 
@@ -59,7 +59,7 @@ export class CubismElement implements IRenderable {
         this.globalEvent = globalEvent;
     }
 
-    resize(x: number, y: number) {
+    updateShape(x: number, y: number) {
         Log.logDebug("Resizing", this, "to", x, y);
         this.absWidth = x;
         this.absHeight = y;

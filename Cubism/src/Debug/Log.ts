@@ -25,4 +25,11 @@ export class Log {
             Log.log(message, ...args);
         }
     }
+
+    static logD(message: string, ...args: any[]): void {
+        if (Log.debugFlag) {
+            console.log(message, ...args);
+        }
+        // Log.logDebug(message, ...args);
+    }
 }

@@ -56,7 +56,7 @@ export class CanvasDrawer {
         this.state.restoreTranslate();
     }
 
-    drawText(text: string, x: number, y: number) {
+    fillText(text: string, x: number, y: number) {
         this.ctx.fillText(text, x, y);
     }
 

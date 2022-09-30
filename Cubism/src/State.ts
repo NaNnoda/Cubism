@@ -44,12 +44,8 @@ export class CubismCanvasState {
     private translates: TwoDTransformMatrix[] = [TwoDTransformMatrix.identity()];
 
     set translate(offset: Point2D) {
-        console.log("set translate", offset.x, offset.y);
-        let newTranslate = TwoDTransformMatrix.translation(offset.x, offset.y);
-        // let translateMatrix = this.translateMatrix.clone().translate(offset.x, offset.y);
-        let translateMatrix = this.translateMatrix.clone().multiply(newTranslate);
+        let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
         this.translates.push(translateMatrix);
-        console.log("translate matrix: \n"+ translateMatrix);
         this.setCtxTransform(translateMatrix);
     }
 
@@ -59,7 +55,6 @@ export class CubismCanvasState {
 
     restoreTranslate() {
         let lastTranslate = this.popTranslate();
-        console.log("restore translate", lastTranslate);
         this.setCtxTransform(lastTranslate);
     }
 
@@ -69,7 +64,7 @@ export class CubismCanvasState {
 
     popTranslate(): TwoDTransformMatrix {
         if (this.translates.length > 1) {
-            console.log("pop translate");
+            // console.log("pop translate");
             return this.translates.pop() as TwoDTransformMatrix;
         }
         return this.translates[0];

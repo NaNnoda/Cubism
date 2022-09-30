@@ -13,13 +13,62 @@ export class TwoDTransformMatrix {
      * @param dx  Horizontal translation (moving).
      * @param dy Vertical translation (moving).
      */
-    constructor(public m11: number, public m12: number, public m21: number, public m22: number, public dx: number, public dy: number) {
+    constructor(m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
         this.arr = [
             [m11, m12, dx],
             [m21, m22, dy],
             [0, 0, 1]
         ];
     }
+
+    get m11(): number {
+        return this.arr[0][0];
+    }
+
+    set m11(value: number) {
+        this.arr[0][0] = value;
+    }
+
+    get m12(): number {
+        return this.arr[0][1];
+    }
+
+    set m12(value: number) {
+        this.arr[0][1] = value;
+    }
+
+    get m21(): number {
+        return this.arr[1][0];
+    }
+
+    set m21(value: number) {
+        this.arr[1][0] = value;
+    }
+
+    get m22(): number {
+        return this.arr[1][1];
+    }
+
+    set m22(value: number) {
+        this.arr[1][1] = value;
+    }
+
+    get dx(): number {
+        return this.arr[0][2];
+    }
+
+    set dx(value: number) {
+        this.arr[0][2] = value;
+    }
+
+    get dy(): number {
+        return this.arr[1][2];
+    }
+
+    set dy(value: number) {
+        this.arr[1][2] = value;
+    }
+
 
     static makeFromArray(arr: number[][]): TwoDTransformMatrix {
         return new TwoDTransformMatrix(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
@@ -30,13 +79,14 @@ export class TwoDTransformMatrix {
     }
 
     set(x: number, y: number, value: number) {
-        console.log(`Setting ${x}, ${y} to ${value}`);
+        // console.log(`Setting ${x}, ${y} to ${value}`);
         this.arr[x][y] = value;
     }
 
     static identity(): TwoDTransformMatrix {
         return new TwoDTransformMatrix(1, 0, 0, 1, 0, 0);
     }
+
     static zero(): TwoDTransformMatrix {
         return new TwoDTransformMatrix(0, 0, 0, 0, 0, 0);
     }
@@ -60,27 +110,17 @@ export class TwoDTransformMatrix {
     }
 
     multiply(other: TwoDTransformMatrix): TwoDTransformMatrix {
-        console.log(`Multiplying\n${this.toString()}\n with\n${other.toString()}`);
-        let test:number[][] = [];
-        for (let i = 0; i < 3; i++) {
-            test.push([]);
-        }
+        let newMatrix = TwoDTransformMatrix.zero();
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 let dotProduct = 0;
                 for (let k = 0; k < 3; k++) {
                     dotProduct += this.get(i, k) * other.get(k, j);
                 }
-                test[i].push(dotProduct);
-                // newMatrix.set(i, j, dotProduct);
+                newMatrix.set(i, j, dotProduct);
             }
         }
-
-        console.log(`Result:\n${test[0]}\n${test[1]}\n${test[2]}`);
-        let newMatrix = TwoDTransformMatrix.makeFromArray(test);
-        console.log(`Result:\n${newMatrix.toString()}`);
         return newMatrix;
-        // return this;
     }
 
     translate(x: number, y: number): TwoDTransformMatrix {
@@ -93,10 +133,6 @@ export class TwoDTransformMatrix {
 
     scale(x: number, y: number): TwoDTransformMatrix {
         return this.multiply(TwoDTransformMatrix.scale(x, y));
-    }
-
-    static nMultiply(a: TwoDTransformMatrix, others: TwoDTransformMatrix): TwoDTransformMatrix {
-        return a.clone().multiply(others);
     }
 
     toString(): string {
