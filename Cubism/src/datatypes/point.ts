@@ -31,4 +31,7 @@ export class Point2D {
     scale(n: number): Point2D {
         return new Point2D(this.x * n, this.y * n);
     }
+    toString() {
+        return `(${this.x}, ${this.y})`;
+    }
 }

@@ -1,12 +1,17 @@
 import {CanvasDrawer} from "./CanvasDrawer";
 import {CubismElement} from "./elements/CubismElement";
+import {CubismGlobalEventSystem} from "./CubismGlobalEventSystem";
 
-export class CubismCanvasManager extends CanvasDrawer implements IUpdatable {
+export class CubismCanvasManager implements IUpdatable {
     root: CubismElement;
 
+    canvasDrawer: CanvasDrawer;
+    globalEvent: CubismGlobalEventSystem;
+
     constructor(canvas: HTMLCanvasElement) {
-        super(canvas);
         this.root = new CubismElement();
+        this.canvasDrawer = new CanvasDrawer(canvas);
+        this.globalEvent = new CubismGlobalEventSystem();
     }
 
     static createFromCanvas(canvas: HTMLCanvasElement) {
@@ -18,14 +23,14 @@ export class CubismCanvasManager extends CanvasDrawer implements IUpdatable {
     }
 
     init(root: CubismElement) {
-        this.clear();
+        this.canvasDrawer.clear();
         this.setRootElement(root);
         this.setElementCanvas();
         this.update();
     }
 
     setElementCanvas() {
-        this.root.setCanvasDrawer(this);
+        this.root.setCanvasDrawer(this.canvasDrawer);
     }
 
     setRootElement(root: CubismElement) {

@@ -9,23 +9,23 @@ console.log("loading index.ts");
 
 
 /**
- * entry point
+ * Demo of a simple layout
  */
 function main() {
     let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
     let c = CubismCanvasManager.createFromCanvas(canvas);
 
     let interactive = new InteractiveElement()
-        .setOnMove((point: PointerPoint) => {
-            console.log("move", point);
+        .pushOnMove((point: PointerPoint) => {
+            console.log("move" + point);
         })
         .setWidth(100)
         .setHeight(100)
         .setBackgroundColor("green")
-        .setPosFromXY(40, 40)
+        .setPosFromXY(40, 40);
 
     canvas.onpointermove = (e) => {
-        interactive.moveEvent(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+        interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
     }
 
     c.init(
@@ -43,48 +43,7 @@ function main() {
                 .setLineWidth(5),
             interactive
         )
-    )
-
-
+    );
 }
-
-/**
- * Initialize the game
- */
-export function init() {
-    console.log("init");
-    // initConsole();
-    // initCanvas();
-    // initWindows();
-}
-
-//
-// function initCanvas() {
-//     // canvas.width = window.innerWidth;
-//     // canvas.height = window.innerHeight;
-//
-//     canvas.addEventListener("pointermove", onMove, false);
-//     canvas.addEventListener("pointerdown", onDown, false);
-//     canvas.addEventListener("pointerup", onUp, false);
-//     // return ctx;
-// }
-//
-// function initWindows() {
-//     rootWindow.addWindows
-//     (
-//         newWindow(500, 200)
-//             .setTitle("Sub Window 1")
-//             .setOffsetNum(50, 50)
-//             .addWindows(
-//                 new WindowScene(100, 100)
-//                     .setTitle("Sub Window 2")
-//                     .setOffsetNum(50, 50)
-//             ),
-//         newWindow(100, 200)
-//             .setTitle("Sub Window 3")
-//             .setOffsetX(600)
-//     )
-// }
-//
 
 main()

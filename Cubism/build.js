@@ -29,6 +29,9 @@
     scale(n) {
       return new Point2D(this.x * n, this.y * n);
     }
+    toString() {
+      return `(${this.x}, ${this.y})`;
+    }
   };
 
   // src/ui/State.ts
@@ -214,11 +217,33 @@
     }
   };
 
+  // src/ui/CubismGlobalEventSystem.ts
+  var CubismGlobalEventSystem = class {
+    constructor() {
+      this._globalEventListeners = {};
+    }
+    registerGlobalEvent(event, callback) {
+      if (this._globalEventListeners[event] === void 0) {
+        this._globalEventListeners[event] = [];
+      }
+      this._globalEventListeners[event].push(callback);
+    }
+    unregisterGlobalEvent(event, callback) {
+      this._globalEventListeners[event].splice(this._globalEventListeners[event].indexOf(callback), 1);
+    }
+    triggerGlobalEvent(event, ...args) {
+      this._globalEventListeners[event].forEach((callback) => {
+        callback(...args);
+      });
+    }
+  };
+
   // src/ui/Cubism.ts
-  var CubismCanvasManager = class extends CanvasDrawer {
+  var CubismCanvasManager = class {
     constructor(canvas) {
-      super(canvas);
       this.root = new CubismElement();
+      this.canvasDrawer = new CanvasDrawer(canvas);
+      this.globalEvent = new CubismGlobalEventSystem();
     }
     static createFromCanvas(canvas) {
       return new CubismCanvasManager(canvas);
@@ -227,13 +252,13 @@
       return CubismCanvasManager.createFromCanvas(document.getElementById(id));
     }
     init(root) {
-      this.clear();
+      this.canvasDrawer.clear();
       this.setRootElement(root);
       this.setElementCanvas();
       this.update();
     }
     setElementCanvas() {
-      this.root.setCanvasDrawer(this);
+      this.root.setCanvasDrawer(this.canvasDrawer);
     }
     setRootElement(root) {
       this.root = root;
@@ -300,21 +325,29 @@
       super(...arguments);
       this.events = {};
     }
-    setOn(event, callback) {
-      this.events[event] = callback;
+    pushOn(event, ...callbacks) {
+      if (this.events[event] === void 0) {
+        this.events[event] = [];
+      }
+      this.events[event].push(...callbacks);
     }
     getOn(event) {
       return this.events[event];
     }
-    moveEvent(point) {
-      this.onMove(point);
+    removeOn(event, callback) {
+      this.events[event].splice(this.events[event].indexOf(callback), 1);
     }
-    set onMove(callback) {
-      this.setOn("move", callback);
+    triggerOnMove(point) {
+      for (let callback of this.onMove) {
+        callback(point);
+      }
     }
-    setOnMove(callback) {
-      this.onMove = callback;
+    pushOnMove(...callbacks) {
+      this.pushOn("move", ...callbacks);
       return this;
+    }
+    removeOnMove(callback) {
+      this.removeOn("move", callback);
     }
     get onMove() {
       return this.getOn("move");
@@ -334,11 +367,11 @@
   function main() {
     let canvas = document.getElementById("mainCanvas");
     let c = CubismCanvasManager.createFromCanvas(canvas);
-    let interactive = new InteractiveElement().setOnMove((point) => {
-      console.log("move", point);
+    let interactive = new InteractiveElement().pushOnMove((point) => {
+      console.log("move" + point);
     }).setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(40, 40);
     canvas.onpointermove = (e) => {
-      interactive.moveEvent(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
     };
     c.init(
       new LayoutElement(
@@ -347,9 +380,6 @@
         interactive
       )
     );
-  }
-  function init() {
-    console.log("init");
   }
   main();
 })();
