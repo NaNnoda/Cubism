@@ -1,7 +1,8 @@
 import {PointerPoint} from "../../datatypes/PointerPoint";
-import {RectangleElement} from "./RectangleElement";
 
-export class InteractiveElement extends RectangleElement {
+import {CubismElement} from "./CubismElement";
+
+export class InteractiveElement extends CubismElement {
     private events: { [key: string]: Function[] } = {};
 
     pushOn(event: string, ...callbacks: Function[]): void {
@@ -17,24 +18,5 @@ export class InteractiveElement extends RectangleElement {
 
     removeOn(event: string, callback: Function): void {
         this.events[event].splice(this.events[event].indexOf(callback), 1);
-    }
-
-    public triggerOnMove(point: PointerPoint): void {
-        for (let callback of this.onMove) {
-            callback(point);
-        }
-    }
-
-    pushOnMove(...callbacks: Function[]): InteractiveElement {
-        this.pushOn("move", ...callbacks);
-        return this;
-    }
-
-    removeOnMove(callback: Function): void {
-        this.removeOn("move", callback);
-    }
-
-    get onMove(): Function[] {
-        return this.getOn("move");
     }
 }

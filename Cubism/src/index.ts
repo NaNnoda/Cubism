@@ -1,10 +1,12 @@
-
-import {RectangleElement} from "./ui/elements/RectangleElement";
-import {LayoutElement} from "./ui/elements/layouts/LayoutElement";
 import {InteractiveElement} from "./ui/elements/InteractiveElement";
 import {Point2D} from "./datatypes/point";
 import {PointerPoint} from "./datatypes/PointerPoint";
 import {Cubism} from "./ui/Cubism";
+import {Log} from "./debug/Log";
+import {LayoutValues} from "./constants/constants";
+import {InteractiveRect} from "./ui/elements/InteractiveRect";
+import {PointerHandleableLayout} from "./ui/elements/layouts/PointerHandleableLayout";
+import {DraggableRect} from "./ui/elements/DraggableRect";
 
 console.log("loading index.ts");
 
@@ -16,33 +18,38 @@ function main() {
     let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
     let c = Cubism.createFromCanvas(canvas);
 
-    let interactive = new InteractiveElement()
-        .pushOnMove((point: PointerPoint) => {
-            console.log("move" + point);
-        })
-        .setWidth(100)
-        .setHeight(100)
-        .setBackgroundColor("green")
-        .setPosFromXY(40, 40);
+    // let interactive = new InteractiveRect()
+    //     .pushOnMove((point: PointerPoint) => {
+    //         // Log.logDebug("onMove", point);
+    //     })
+    //     .setWidth(100)
+    //     .setHeight(100)
+    //     .setBackgroundColor("green")
+    //     .setPosFromXY(40, 40);
 
-    canvas.onpointermove = (e) => {
-        interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    }
+    // canvas.onpointermove = (e) => {
+    //     interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+    // }
 
     c.init(
-        new LayoutElement(
-            new RectangleElement()
-                .setWidth(100)
-                .setHeight(100)
+        new PointerHandleableLayout(
+            new InteractiveRect()
+                .setWidth(LayoutValues.MATCH_PARENT)
+                .setHeight(LayoutValues.MATCH_PARENT)
                 .setBackgroundColor("red")
                 .setPosFromXY(0, 0),
-            new RectangleElement()
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
                 .setBackgroundColor("blue")
                 .setPosFromXY(40, 40)
                 .setLineWidth(5),
-            interactive
+            new DraggableRect()
+                .setWidth(100)
+                .setHeight(100)
+                .setBackgroundColor("green")
+                .setPosFromXY(200, 200)
+                .setLineWidth(5)
         )
     );
 }

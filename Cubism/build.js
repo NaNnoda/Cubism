@@ -20,6 +20,14 @@
     sub(other) {
       return new Point2D(this.x - other.x, this.y - other.y);
     }
+    offset(offset) {
+      this.x += offset.x;
+      this.y += offset.y;
+    }
+    nOffset(offset) {
+      this.x -= offset.x;
+      this.y -= offset.y;
+    }
     add(other) {
       return new Point2D(this.x + other.x, this.y + other.y);
     }
@@ -34,135 +42,6 @@
     }
   };
 
-  // src/ui/elements/CubismElement.ts
-  var CubismElement = class {
-    constructor() {
-      this.position = new Point2D(0, 0);
-      this.size = new Point2D(0, 0);
-      this.c = null;
-    }
-    setCanvasDrawer(c) {
-      this.c = c;
-    }
-    setWidth(width) {
-      this.size.x = width;
-      return this;
-    }
-    setHeight(height) {
-      this.size.y = height;
-      return this;
-    }
-    setPosFromPoint(pos) {
-      this.position = pos;
-      return this;
-    }
-    setPosFromXY(x, y) {
-      this.position.x = x;
-      this.position.y = y;
-      return this;
-    }
-    render() {
-      if (this.c === null) {
-        throw new Error("CubismElement.render(): CubismCanvasManager is null");
-      }
-    }
-  };
-
-  // src/ui/elements/RectangleElement.ts
-  var RectangleElement = class extends CubismElement {
-    constructor() {
-      super();
-      this.background = "white";
-      this.lineWidth = 10;
-    }
-    setLineWidth(width) {
-      this.lineWidth = width;
-      return this;
-    }
-    setBackgroundColor(color) {
-      this.background = color;
-      return this;
-    }
-    render() {
-      super.render();
-      let c = this.c;
-      c.setFillStyle(this.background);
-      c.setStrokeStyle("black");
-      c.setStrokeWidth(this.lineWidth);
-      c.translate(this.position);
-      c.drawRect(0, 0, this.size.x, this.size.y);
-      c.restoreTranslate();
-      c.restoreFillStyle();
-    }
-  };
-
-  // src/ui/elements/layouts/LayoutElement.ts
-  var LayoutElement = class extends CubismElement {
-    constructor(...children) {
-      super();
-      this.children = [];
-      this.children = children;
-    }
-    render() {
-      super.render();
-      for (let child of this.children) {
-        child.render();
-      }
-    }
-    setCanvasDrawer(c) {
-      super.setCanvasDrawer(c);
-      for (let child of this.children) {
-        child.setCanvasDrawer(c);
-      }
-    }
-  };
-
-  // src/ui/elements/InteractiveElement.ts
-  var InteractiveElement = class extends RectangleElement {
-    constructor() {
-      super(...arguments);
-      this.events = {};
-    }
-    pushOn(event, ...callbacks) {
-      if (this.events[event] === void 0) {
-        this.events[event] = [];
-      }
-      this.events[event].push(...callbacks);
-    }
-    getOn(event) {
-      return this.events[event];
-    }
-    removeOn(event, callback) {
-      this.events[event].splice(this.events[event].indexOf(callback), 1);
-    }
-    triggerOnMove(point) {
-      for (let callback of this.onMove) {
-        callback(point);
-      }
-    }
-    pushOnMove(...callbacks) {
-      this.pushOn("move", ...callbacks);
-      return this;
-    }
-    removeOnMove(callback) {
-      this.removeOn("move", callback);
-    }
-    get onMove() {
-      return this.getOn("move");
-    }
-  };
-
-  // src/datatypes/PointerPoint.ts
-  var PointerPoint = class extends Point2D {
-    constructor(x, y, pressure) {
-      super(x, y);
-      this.pressure = pressure;
-    }
-    toString() {
-      return `(x:${this.x}, y:${this.y}, p:${this.pressure})`;
-    }
-  };
-
   // src/ui/State.ts
   var CubismState = class {
     constructor() {
@@ -170,7 +49,7 @@
       this.fillStyles = ["gray"];
       this.strokeStyles = ["black"];
       this.translates = [new Point2D(0, 0)];
-      this.needsRedraw = true;
+      this._needsRedraw = true;
     }
     set lineWidth(lineWidth) {
       this.lineWidths.push(lineWidth);
@@ -223,6 +102,12 @@
       }
       return this.translate;
     }
+    get needsRedraw() {
+      return this._needsRedraw;
+    }
+    set needsRedraw(value) {
+      this._needsRedraw = value;
+    }
   };
 
   // src/constants/constants.ts
@@ -231,9 +116,31 @@
   Values.FRAME_UPDATE = "onFrameUpdate";
   Values.FIX_UPDATE = "onFixUpdate";
   Values.REDRAW = "onRedraw";
+  Values.ON_MOVE = "onMove";
+  Values.ON_DOWN = "onDown";
+  Values.ON_UP = "onUp";
+  Values.ON_CLICK = "onClick";
+  Values.ON_DOUBLE_CLICK = "onDoubleClick";
+  Values.ON_DRAG = "onDrag";
+  Values.ON_DRAG_START = "onDragStart";
+  Values.ON_DRAG_END = "onDragEnd";
+  Values.ON_DRAG_ENTER = "onDragEnter";
+  Values.ON_DRAG_LEAVE = "onDragLeave";
+  Values.ON_DRAG_OVER = "onDragOver";
+  Values.ON_DROP = "onDrop";
+  Values.ON_PARENT_MOVE = "onParentMove";
+  Values.ON_PARENT_DOWN = "onParentDown";
+  Values.ON_PARENT_UP = "onParentUp";
+  Values.ON_PARENT_CLICK = "onParentClick";
   Values.POINTER_DOWN = "onMouseDown";
   Values.POINTER_UP = "onMouseUp";
   Values.POINTER_MOVE = "onMouseMove";
+  var LayoutValues = class {
+  };
+  LayoutValues.DEFAULT_PADDING = 10;
+  LayoutValues.DEFAULT_MARGIN = 10;
+  LayoutValues.DEFAULT_BORDER = 1;
+  LayoutValues.MATCH_PARENT = -1;
 
   // src/ui/CanvasDrawer.ts
   var CanvasDrawer = class {
@@ -333,33 +240,41 @@
       this.ctx.fill();
       this.ctx.stroke();
     }
+    setRedraw(redraw) {
+      this.state.needsRedraw = redraw;
+    }
+    triggerRedraw() {
+      this.globalEvent.triggerGlobalEvent(Values.REDRAW);
+    }
   };
 
-  // src/ui/CubismGlobalEventSystem.ts
+  // src/events/CubismGlobalEventSystem.ts
   var CubismGlobalEventSystem = class {
     constructor() {
       this._globalEventListeners = {};
     }
     registerGlobalEvent(event, callback) {
-      if (this._globalEventListeners[event] === void 0) {
-        this._globalEventListeners[event] = [];
-      }
-      this._globalEventListeners[event].push(callback);
+      this.getEvent(event).push(callback);
     }
     unregisterGlobalEvent(event, callback) {
       this._globalEventListeners[event].splice(this._globalEventListeners[event].indexOf(callback), 1);
     }
-    triggerGlobalEvent(event, ...args) {
+    getEvent(event) {
       if (this._globalEventListeners[event] === void 0) {
-        return;
+        this._globalEventListeners[event] = [];
+        this._globalEventListeners[event].push(() => {
+        });
       }
-      this._globalEventListeners[event].forEach((callback) => {
+      return this._globalEventListeners[event];
+    }
+    triggerGlobalEvent(event, ...args) {
+      this.getEvent(event).forEach((callback) => {
         callback(...args);
       });
     }
   };
 
-  // src/ui/CubismEventManager.ts
+  // src/events/CubismEventManager.ts
   var CubismEventManager = class {
     constructor(globalEvent) {
       this.globalEvent = globalEvent;
@@ -378,17 +293,306 @@
     }
   };
 
+  // src/debug/Log.ts
+  var _Log = class {
+    static log(message, ...args) {
+      let s = message;
+      if (args.length !== 0) {
+        s += ": ";
+      }
+      s += "\n";
+      for (let i = 0; i < args.length; i++) {
+        s += args[i] + "\n";
+      }
+      console.log(s);
+    }
+    static logDebug(message, ...args) {
+      if (_Log.debugFlag) {
+        _Log.log(message, ...args);
+      }
+    }
+  };
+  var Log = _Log;
+  Log.debugFlag = true;
+
+  // src/ui/elements/CubismElement.ts
+  var CubismElement = class {
+    constructor() {
+      this.globalEvent = null;
+      this._position = new Point2D(0, 0);
+      this._size = new Point2D(0, 0);
+      this._absSize = new Point2D(0, 0);
+      this.c = null;
+      this.needsResize = true;
+    }
+    set position(pos) {
+      var _a;
+      this._position = pos;
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    get position() {
+      return this._position;
+    }
+    get size() {
+      return this._size;
+    }
+    set size(size) {
+      var _a;
+      this._size = size;
+      this.needsResize = true;
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    get absSize() {
+      return this._absSize;
+    }
+    set absSize(size) {
+      var _a;
+      this._absSize = size;
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    init(c, parentSize, globalEvent) {
+      this.setCanvasDrawer(c);
+      this.resize(parentSize.x, parentSize.y);
+      this.setGlobalEventSystem(globalEvent);
+    }
+    setGlobalEventSystem(globalEvent) {
+      this.globalEvent = globalEvent;
+    }
+    resize(x, y) {
+      Log.logDebug("Resizing", this, "to", x, y);
+      this.absWidth = x;
+      this.absHeight = y;
+      this.needsResize = false;
+    }
+    get height() {
+      return this.size.y;
+    }
+    set height(y) {
+      this.size.y = y;
+      this.needsResize = true;
+    }
+    get width() {
+      return this.size.x;
+    }
+    set width(x) {
+      this.size.x = x;
+      this.needsResize = true;
+    }
+    get absWidth() {
+      return this.absSize.x;
+    }
+    set absWidth(x) {
+      this.absSize.x = x;
+    }
+    get absHeight() {
+      return this.absSize.y;
+    }
+    set absHeight(y) {
+      this.absSize.y = y;
+    }
+    setCanvasDrawer(c) {
+      this.c = c;
+    }
+    setWidth(width) {
+      this.width = width;
+      return this;
+    }
+    setHeight(height) {
+      this.height = height;
+      return this;
+    }
+    setPosFromPoint(pos) {
+      this.position = pos;
+      return this;
+    }
+    setPosFromXY(x, y) {
+      this.position.x = x;
+      this.position.y = y;
+      return this;
+    }
+    render() {
+      if (this.c === null) {
+        throw new Error("CubismElement.render(): CubismCanvasManager is null");
+      }
+      Log.logDebug("Rendering", this);
+    }
+    toString() {
+      return `${this.elementName} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
+    }
+    get elementName() {
+      return this.constructor.name;
+    }
+  };
+
+  // src/ui/elements/InteractiveElement.ts
+  var InteractiveElement = class extends CubismElement {
+    constructor() {
+      super(...arguments);
+      this.events = {};
+    }
+    pushOn(event, ...callbacks) {
+      if (this.events[event] === void 0) {
+        this.events[event] = [];
+      }
+      this.events[event].push(...callbacks);
+    }
+    getOn(event) {
+      return this.events[event];
+    }
+    removeOn(event, callback) {
+      this.events[event].splice(this.events[event].indexOf(callback), 1);
+    }
+  };
+
+  // src/ui/elements/PointerHandleableElement.ts
+  var PointerHandleableElement = class extends InteractiveElement {
+    constructor() {
+      super();
+      this.pushOn(Values.ON_PARENT_MOVE, (point) => {
+        this.onParentMove(point);
+      });
+      this.pushOn(Values.ON_MOVE, (point) => {
+        this.onMove(point);
+      });
+      this.pushOn(Values.ON_PARENT_DOWN, (point) => {
+        this.onParentDown(point);
+      });
+      this.pushOn(Values.ON_DOWN, (point) => {
+        this.onDown(point);
+      });
+      this.pushOn(Values.ON_PARENT_UP, (point) => {
+        this.onParentUp(point);
+      });
+      this.pushOn(Values.ON_UP, (point) => {
+        this.onUp(point);
+      });
+    }
+    triggerOnParentDown(point) {
+      let e = this.getOn(Values.ON_PARENT_DOWN);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onParentDown(point) {
+      if (this.inRange(point)) {
+        this.triggerOnDown(point);
+      }
+    }
+    triggerOnParentUp(point) {
+      let e = this.getOn(Values.ON_PARENT_UP);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onParentUp(point) {
+      if (this.inRange(point)) {
+        this.triggerOnUp(point);
+      }
+    }
+    triggerOnUp(point) {
+      let e = this.getOn(Values.ON_UP);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onUp(point) {
+    }
+    triggerOnDown(point) {
+      let e = this.getOn(Values.ON_DOWN);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onDown(point) {
+    }
+    triggerOnMove(point) {
+      let e = this.getOn(Values.ON_MOVE);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    onMove(point) {
+    }
+    pushOnMove(...callbacks) {
+      this.pushOn(Values.ON_MOVE, ...callbacks);
+      return this;
+    }
+    removeOnMove(callback) {
+      this.removeOn(Values.ON_MOVE, callback);
+    }
+    onParentMove(point) {
+      if (this.inRange(point)) {
+        this.triggerOnMove(point);
+      }
+    }
+    pushOnParentMove(...callbacks) {
+      this.pushOn(Values.ON_PARENT_MOVE, ...callbacks);
+      return this;
+    }
+    triggerOnParentMove(point) {
+      let e = this.getOn(Values.ON_PARENT_MOVE);
+      for (let callback of e) {
+        callback(point);
+      }
+    }
+    inRange(point) {
+      return point.x >= this.position.x && point.x <= this.position.x + this.absWidth && point.y >= this.position.y && point.y <= this.position.y + this.absHeight;
+    }
+  };
+
+  // src/datatypes/PointerPoint.ts
+  var PointerPoint = class extends Point2D {
+    constructor(x, y, pressure) {
+      super(x, y);
+      this.pressure = pressure;
+    }
+    static createFromPointerEvent(e) {
+      return new PointerPoint(e.offsetX, e.offsetY, e.pressure);
+    }
+    toString() {
+      return `(x:${this.x}, y:${this.y}, p:${this.pressure})`;
+    }
+    sub(other) {
+      return new PointerPoint(this.x - other.x, this.y - other.y, this.pressure);
+    }
+  };
+
   // src/ui/Cubism.ts
   var Cubism = class {
     constructor(canvas) {
-      this.root = new CubismElement();
+      this.root = new PointerHandleableElement();
       this.globalEvent = new CubismGlobalEventSystem();
       this.canvasDrawer = new CanvasDrawer(canvas, this.globalEvent);
       this.eventManger = new CubismEventManager(this.globalEvent);
+      this.canvas = canvas;
       this.registerRedraw();
+      this.registerPointerEvents();
+    }
+    registerPointerEvents() {
+      this.canvas.onpointermove = (e) => {
+        this.globalEvent.triggerGlobalEvent(Values.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      };
+      this.globalEvent.registerGlobalEvent(Values.ON_MOVE, (point) => {
+        this.root.triggerOnMove(point);
+      });
+      this.canvas.onpointerdown = (e) => {
+        this.globalEvent.triggerGlobalEvent(Values.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      };
+      this.globalEvent.registerGlobalEvent(Values.ON_DOWN, (point) => {
+        this.root.triggerOnDown(point);
+      });
+      this.canvas.onpointerup = (e) => {
+        this.globalEvent.triggerGlobalEvent(Values.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      };
+      this.globalEvent.registerGlobalEvent(Values.ON_UP, (point) => {
+        this.root.triggerOnUp(point);
+      });
     }
     registerRedraw() {
       this.globalEvent.registerGlobalEvent(Values.REDRAW, this.update.bind(this));
+    }
+    registerOnMove() {
+      this.globalEvent.registerGlobalEvent(Values.ON_MOVE, this.registerOnMove.bind(this));
     }
     static createFromCanvas(canvas) {
       return new Cubism(canvas);
@@ -398,11 +602,15 @@
     }
     init(root) {
       this.setRootElement(root);
-      this.setElementCanvas();
+      this.initRootElement();
       this.canvasDrawer.state.needsRedraw = true;
     }
-    setElementCanvas() {
-      this.root.setCanvasDrawer(this.canvasDrawer);
+    initRootElement() {
+      this.root.init(
+        this.canvasDrawer,
+        new Point2D(this.canvas.width, this.canvas.height),
+        this.globalEvent
+      );
     }
     setRootElement(root) {
       this.root = root;
@@ -415,22 +623,159 @@
     }
   };
 
+  // src/ui/elements/InteractiveRect.ts
+  var InteractiveRect = class extends PointerHandleableElement {
+    constructor() {
+      super();
+      this.background = "white";
+      this.lineWidth = 10;
+    }
+    setLineWidth(width) {
+      this.lineWidth = width;
+      return this;
+    }
+    setBackgroundColor(color) {
+      this.background = color;
+      return this;
+    }
+    onMove(point) {
+      super.onMove(point);
+    }
+    onDown(point) {
+      super.onDown(point);
+      Log.logDebug("down on", this);
+    }
+    toString() {
+      return super.toString() + ` background:${this.background} lineWidth:${this.lineWidth}`;
+    }
+    render() {
+      super.render();
+      let c = this.c;
+      c.setFillStyle(this.background);
+      c.setStrokeStyle("black");
+      c.setStrokeWidth(this.lineWidth);
+      c.translate(this.position);
+      c.drawRect(0, 0, this.absWidth, this.absHeight);
+      c.restoreTranslate();
+      c.restoreFillStyle();
+    }
+  };
+
+  // src/ui/elements/layouts/PointerHandleableLayout.ts
+  var PointerHandleableLayout = class extends PointerHandleableElement {
+    constructor(...children) {
+      super();
+      this._children = [];
+      this._children = children;
+      Log.logDebug("Children", this._children);
+    }
+    setGlobalEventSystem(globalEvent) {
+      super.setGlobalEventSystem(globalEvent);
+      for (let child of this.children) {
+        child.setGlobalEventSystem(globalEvent);
+      }
+    }
+    resize(x, y) {
+      super.resize(x, y);
+      Log.logDebug("absSize", this.absSize);
+      for (let child of this.children) {
+        let x2 = child.width;
+        let y2 = child.height;
+        if (x2 === LayoutValues.MATCH_PARENT) {
+          Log.log("Match parent X", child);
+          x2 = this.absWidth;
+        }
+        if (y2 === LayoutValues.MATCH_PARENT) {
+          Log.log("Match parent Y", child);
+          y2 = this.absHeight;
+          console.log("this.absHeight", this.absHeight);
+        }
+        child.resize(x2, y2);
+      }
+    }
+    get children() {
+      return this._children;
+    }
+    set children(children) {
+      this._children = children;
+    }
+    pushChildren(...children) {
+      this.children.push(...children);
+      return this;
+    }
+    removeChild(child) {
+      this.children.splice(this.children.indexOf(child), 1);
+    }
+    render() {
+      super.render();
+      for (let child of this.children) {
+        child.render();
+      }
+    }
+    setCanvasDrawer(c) {
+      super.setCanvasDrawer(c);
+      for (let child of this.children) {
+        child.setCanvasDrawer(c);
+      }
+    }
+    triggerOnMove(point) {
+      super.triggerOnMove(point);
+      let pointInChild = point.sub(this.position);
+      for (let child of this.children) {
+        child.triggerOnParentMove(pointInChild);
+      }
+    }
+    triggerOnDown(point) {
+      super.triggerOnDown(point);
+      let pointInChild = new PointerPoint(point.x - this.position.x, point.y - this.position.y, point.pressure);
+      for (let child of this.children) {
+        child.triggerOnParentDown(pointInChild);
+      }
+    }
+    triggerOnUp(point) {
+      super.triggerOnUp(point);
+      let pointInChild = point.sub(this.position);
+      for (let child of this.children) {
+        child.triggerOnParentUp(pointInChild);
+      }
+    }
+  };
+
+  // src/ui/elements/DraggableRect.ts
+  var DraggableRect = class extends InteractiveRect {
+    constructor() {
+      super(...arguments);
+      this.pointerRelativePosition = null;
+    }
+    onDown(point) {
+      super.onDown(point);
+      this.pointerRelativePosition = new Point2D(point.x - this.position.x, point.y - this.position.y);
+    }
+    onParentMove(point) {
+      var _a;
+      super.onParentMove(point);
+      if (this.pointerRelativePosition !== null) {
+        this.position = point.sub(this.pointerRelativePosition);
+        (_a = this.c) == null ? void 0 : _a.triggerRedraw();
+      }
+    }
+    onUp(point) {
+      super.onUp(point);
+      Log.logDebug("up on", this);
+      this.pointerRelativePosition = null;
+    }
+  };
+
   // src/index.ts
   console.log("loading index.ts");
   function main() {
     let canvas = document.getElementById("mainCanvas");
     let c = Cubism.createFromCanvas(canvas);
-    let interactive = new InteractiveElement().pushOnMove((point) => {
-      console.log("move" + point);
-    }).setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(40, 40);
-    canvas.onpointermove = (e) => {
-      interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    };
     c.init(
-      new LayoutElement(
-        new RectangleElement().setWidth(100).setHeight(100).setBackgroundColor("red").setPosFromXY(0, 0),
-        new RectangleElement().setWidth(100).setHeight(100).setBackgroundColor("blue").setPosFromXY(40, 40).setLineWidth(5),
-        interactive
+      new PointerHandleableLayout(
+        new InteractiveRect().setWidth(LayoutValues.MATCH_PARENT).setHeight(LayoutValues.MATCH_PARENT).setBackgroundColor("red").setPosFromXY(0, 0),
+        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("blue").setPosFromXY(40, 40).setLineWidth(5),
+        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("green").setPosFromXY(200, 200).setLineWidth(5)
       )
     );
   }

@@ -1,6 +1,6 @@
 import {Point2D} from "../datatypes/point";
 import {CubismState} from "./State";
-import {CubismGlobalEventSystem} from "./CubismGlobalEventSystem";
+import {CubismGlobalEventSystem} from "../events/CubismGlobalEventSystem";
 import {Values} from "../constants/constants";
 
 export class CanvasDrawer {
@@ -132,5 +132,14 @@ export class CanvasDrawer {
         this.ctx.closePath();
         this.ctx.fill();
         this.ctx.stroke();
+    }
+
+
+    setRedraw(redraw: boolean) {
+        this.state.needsRedraw = redraw;
+    }
+
+    triggerRedraw() {
+        this.globalEvent.triggerGlobalEvent(Values.REDRAW);
     }
 }

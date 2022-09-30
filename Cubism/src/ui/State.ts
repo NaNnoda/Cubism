@@ -73,12 +73,12 @@ export class CubismState {
         return this.translate;
     }
 
-    needsRedraw: boolean = true;
-    // public get needsRedraw() {
-    //     return this._needsRedraw;
-    // }
-    //
-    // public set needsRedraw(needsRedraw: boolean) {
-    //     this._needsRedraw = needsRedraw;
-    // }
+    _needsRedraw: boolean = true;
+    get needsRedraw() {
+        return this._needsRedraw;
+    }
+
+    set needsRedraw(value: boolean) {
+        this._needsRedraw = value;
+    }
 }

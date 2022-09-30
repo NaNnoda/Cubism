@@ -22,6 +22,14 @@ export class Point2D {
     sub(other: Point2D): Point2D {
         return new Point2D(this.x - other.x, this.y - other.y);
     }
+    offset(offset: Point2D) {
+        this.x += offset.x;
+        this.y += offset.y;
+    }
+    nOffset(offset: Point2D) {
+        this.x -= offset.x;
+        this.y -= offset.y;
+    }
     add(other: Point2D): Point2D {
         return new Point2D(this.x + other.x, this.y + other.y);
     }
