@@ -1,4 +1,4 @@
-import {Log} from "../debug/Log";
+import {Log} from "../Debug/Log";
 
 export class CubismGlobalEventSystem {
     private _globalEventListeners: { [key: string]: Function[] } = {};

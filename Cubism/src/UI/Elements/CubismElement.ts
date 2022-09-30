@@ -1,8 +1,8 @@
-import {Point2D} from "../../datatypes/Point";
+import {Point2D} from "../../Datatypes/Point";
 import {CanvasDrawer} from "../CanvasDrawer";
-import {LayoutValues, Values} from "../../constants/Constants";
-import {Log} from "../../debug/Log";
-import {CubismGlobalEventSystem} from "../../events/CubismGlobalEventSystem";
+import {LayoutValues, Values} from "../../Constants/Constants";
+import {Log} from "../../Debug/Log";
+import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
 import {CubismState} from "../State";
 
 export class CubismElement implements IRenderable {

@@ -1,7 +1,7 @@
-import {Point2D} from "../datatypes/Point";
+import {Point2D} from "../Datatypes/Point";
 import {CubismState} from "./State";
-import {CubismGlobalEventSystem} from "../events/CubismGlobalEventSystem";
-import {Values} from "../constants/Constants";
+import {CubismGlobalEventSystem} from "../Events/CubismGlobalEventSystem";
+import {Values} from "../Constants/Constants";
 
 export class CanvasDrawer {
     canvas: HTMLCanvasElement;

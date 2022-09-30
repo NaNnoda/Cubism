@@ -1,4 +1,4 @@
-import {PointerPoint} from "../../datatypes/PointerPoint";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
 
 import {CubismElement} from "./CubismElement";
 

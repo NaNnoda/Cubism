@@ -1,6 +1,6 @@
 "use strict";
 (() => {
-  // src/datatypes/Point.ts
+  // src/Datatypes/Point.ts
   var Point2D = class {
     constructor(x, y) {
       this.arr = [x, y];
@@ -42,7 +42,7 @@
     }
   };
 
-  // src/ui/State.ts
+  // src/UI/State.ts
   var CubismState = class {
     constructor() {
       this.lineWidths = [10];
@@ -110,7 +110,7 @@
     }
   };
 
-  // src/constants/Constants.ts
+  // src/Constants/Constants.ts
   var Values = class {
   };
   Values.FRAME_UPDATE = "onFrameUpdate";
@@ -142,7 +142,7 @@
   LayoutValues.DEFAULT_BORDER = 1;
   LayoutValues.MATCH_PARENT = -1;
 
-  // src/ui/CanvasDrawer.ts
+  // src/UI/CanvasDrawer.ts
   var CanvasDrawer = class {
     constructor(canvas, globalEvent) {
       this.state = new CubismState();
@@ -248,7 +248,7 @@
     }
   };
 
-  // src/events/CubismGlobalEventSystem.ts
+  // src/Events/CubismGlobalEventSystem.ts
   var CubismGlobalEventSystem = class {
     constructor() {
       this._globalEventListeners = {};
@@ -274,7 +274,7 @@
     }
   };
 
-  // src/events/CubismEventManager.ts
+  // src/Events/CubismEventManager.ts
   var CubismEventManager = class {
     constructor(globalEvent) {
       this.globalEvent = globalEvent;
@@ -293,7 +293,7 @@
     }
   };
 
-  // src/debug/Log.ts
+  // src/Debug/Log.ts
   var _Log = class {
     static log(message, ...args) {
       let s = message;
@@ -315,7 +315,7 @@
   var Log = _Log;
   Log.debugFlag = true;
 
-  // src/ui/elements/CubismElement.ts
+  // src/UI/Elements/CubismElement.ts
   var CubismElement = class {
     constructor() {
       this.globalEvent = null;
@@ -424,7 +424,7 @@
     }
   };
 
-  // src/ui/elements/InteractiveElement.ts
+  // src/UI/Elements/InteractiveElement.ts
   var InteractiveElement = class extends CubismElement {
     constructor() {
       super(...arguments);
@@ -444,7 +444,7 @@
     }
   };
 
-  // src/ui/elements/PointerHandleableElement.ts
+  // src/UI/Elements/PointerHandleableElement.ts
   var PointerHandleableElement = class extends InteractiveElement {
     constructor() {
       super();
@@ -540,7 +540,7 @@
     }
   };
 
-  // src/datatypes/PointerPoint.ts
+  // src/Datatypes/PointerPoint.ts
   var PointerPoint = class extends Point2D {
     constructor(x, y, pressure) {
       super(x, y);
@@ -557,7 +557,7 @@
     }
   };
 
-  // src/ui/Cubism.ts
+  // src/UI/Cubism.ts
   var Cubism = class {
     constructor(canvas) {
       this.root = new PointerHandleableElement();
@@ -623,7 +623,7 @@
     }
   };
 
-  // src/ui/elements/InteractiveRect.ts
+  // src/UI/Elements/InteractiveRect.ts
   var InteractiveRect = class extends PointerHandleableElement {
     constructor() {
       super();
@@ -661,7 +661,7 @@
     }
   };
 
-  // src/ui/elements/layouts/PointerHandleableLayout.ts
+  // src/UI/Elements/Layouts/PointerHandleableLayout.ts
   var PointerHandleableLayout = class extends PointerHandleableElement {
     constructor(...children) {
       super();
@@ -741,7 +741,7 @@
     }
   };
 
-  // src/ui/elements/DraggableRect.ts
+  // src/UI/Elements/DraggableRect.ts
   var DraggableRect = class extends InteractiveRect {
     constructor() {
       super(...arguments);
@@ -766,7 +766,7 @@
     }
   };
 
-  // src/index.ts
+  // src/Index.ts
   console.log("loading Index.ts");
   function main() {
     let canvas = document.getElementById("mainCanvas");

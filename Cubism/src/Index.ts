@@ -1,12 +1,12 @@
-import {InteractiveElement} from "./ui/elements/InteractiveElement";
-import {Point2D} from "./datatypes/Point";
-import {PointerPoint} from "./datatypes/PointerPoint";
-import {Cubism} from "./ui/Cubism";
-import {Log} from "./debug/Log";
-import {LayoutValues} from "./constants/Constants";
-import {InteractiveRect} from "./ui/elements/InteractiveRect";
-import {PointerHandleableLayout} from "./ui/elements/layouts/PointerHandleableLayout";
-import {DraggableRect} from "./ui/elements/DraggableRect";
+import {InteractiveElement} from "./UI/Elements/InteractiveElement";
+import {Point2D} from "./Datatypes/Point";
+import {PointerPoint} from "./Datatypes/PointerPoint";
+import {Cubism} from "./UI/Cubism";
+import {Log} from "./Debug/Log";
+import {LayoutValues} from "./Constants/Constants";
+import {InteractiveRect} from "./UI/Elements/InteractiveRect";
+import {PointerHandleableLayout} from "./UI/Elements/Layouts/PointerHandleableLayout";
+import {DraggableRect} from "./UI/Elements/DraggableRect";
 
 console.log("loading Index.ts");
 

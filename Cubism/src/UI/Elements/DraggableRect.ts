@@ -1,7 +1,7 @@
 import {InteractiveRect} from "./InteractiveRect";
-import {PointerPoint} from "../../datatypes/PointerPoint";
-import {Point2D} from "../../datatypes/Point";
-import {Log} from "../../debug/Log";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
+import {Point2D} from "../../Datatypes/Point";
+import {Log} from "../../Debug/Log";
 
 export class DraggableRect extends InteractiveRect {
     private pointerRelativePosition: Point2D | null = null;

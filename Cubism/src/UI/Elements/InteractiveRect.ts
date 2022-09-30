@@ -1,9 +1,9 @@
 import {InteractiveElement} from "./InteractiveElement";
 import {CanvasDrawer} from "../CanvasDrawer";
 import {PointerHandleableElement} from "./PointerHandleableElement";
-import {PointerPoint} from "../../datatypes/PointerPoint";
-import {Log} from "../../debug/Log";
-import {Values} from "../../constants/Constants";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
+import {Log} from "../../Debug/Log";
+import {Values} from "../../Constants/Constants";
 
 export class InteractiveRect extends PointerHandleableElement {
     background: string;

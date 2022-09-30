@@ -1,4 +1,4 @@
-import { Point2D } from "../datatypes/Point";
+import { Point2D } from "../Datatypes/Point";
 
 export function initConsole() {
     let w = window as any;

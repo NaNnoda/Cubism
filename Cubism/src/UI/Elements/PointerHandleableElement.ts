@@ -1,6 +1,6 @@
 import {InteractiveElement} from "./InteractiveElement";
-import {PointerPoint} from "../../datatypes/PointerPoint";
-import {Values} from "../../constants/Constants";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
+import {Values} from "../../Constants/Constants";
 
 export class PointerHandleableElement extends InteractiveElement {
     constructor() {
