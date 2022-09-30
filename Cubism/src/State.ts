@@ -1,4 +1,4 @@
-import {Point2D} from "../Datatypes/Point";
+import {Point2D} from "./Datatypes/Point";
 
 export class CubismState {
     private lineWidths: number[] = [10];

@@ -1,14 +1,12 @@
 import {CanvasDrawer} from "./CanvasDrawer";
-import {CubismElement} from "./Elements/CubismElement";
-import {CubismGlobalEventSystem} from "../Events/CubismGlobalEventSystem";
-import {CubismEventManager} from "../Events/CubismEventManager";
-import {Values} from "../Constants/Constants";
-import {Point2D} from "../Datatypes/Point";
-import {PointerHandleableElement} from "./Elements/PointerHandleableElement";
-import {PointerPoint} from "../Datatypes/PointerPoint";
-import {Log} from "../Debug/Log";
+import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
+import {CubismEventManager} from "./Events/CubismEventManager";
+import {Values} from "./Constants/Constants";
+import {Point2D} from "./Datatypes/Point";
+import {PointerHandleableElement} from "./UI/Elements/PointerHandleableElement";
+import {PointerPoint} from "./Datatypes/PointerPoint";
 
-export class Cubism implements IUpdatable {
+export class Cubism {
     root: PointerHandleableElement;
     canvasDrawer: CanvasDrawer;
     globalEvent: CubismGlobalEventSystem;

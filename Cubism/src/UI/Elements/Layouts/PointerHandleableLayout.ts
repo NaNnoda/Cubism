@@ -1,4 +1,4 @@
-import {CanvasDrawer} from "../../CanvasDrawer";
+import {CanvasDrawer} from "../../../CanvasDrawer";
 import {PointerPoint} from "../../../Datatypes/PointerPoint";
 import {Log} from "../../../Debug/Log";
 import {LayoutValues} from "../../../Constants/Constants";

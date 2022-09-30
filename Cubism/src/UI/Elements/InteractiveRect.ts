@@ -1,5 +1,5 @@
 import {InteractiveElement} from "./InteractiveElement";
-import {CanvasDrawer} from "../CanvasDrawer";
+import {CanvasDrawer} from "../../CanvasDrawer";
 import {PointerHandleableElement} from "./PointerHandleableElement";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Log} from "../../Debug/Log";

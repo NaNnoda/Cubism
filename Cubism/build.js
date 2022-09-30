@@ -42,7 +42,7 @@
     }
   };
 
-  // src/UI/State.ts
+  // src/State.ts
   var CubismState = class {
     constructor() {
       this.lineWidths = [10];
@@ -142,7 +142,7 @@
   LayoutValues.DEFAULT_BORDER = 1;
   LayoutValues.MATCH_PARENT = -1;
 
-  // src/UI/CanvasDrawer.ts
+  // src/CanvasDrawer.ts
   var CanvasDrawer = class {
     constructor(canvas, globalEvent) {
       this.state = new CubismState();
@@ -557,7 +557,7 @@
     }
   };
 
-  // src/UI/Cubism.ts
+  // src/Cubism.ts
   var Cubism = class {
     constructor(canvas) {
       this.root = new PointerHandleableElement();
