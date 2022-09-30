@@ -1,32 +1,45 @@
 import {CanvasDrawer} from "./CanvasDrawer";
 import {CubismElement} from "./elements/CubismElement";
 import {CubismGlobalEventSystem} from "./CubismGlobalEventSystem";
+import {CubismEventManager} from "./CubismEventManager";
+import {Values} from "../constants/constants";
 
-export class CubismCanvasManager implements IUpdatable {
+export class Cubism implements IUpdatable {
     root: CubismElement;
-
     canvasDrawer: CanvasDrawer;
     globalEvent: CubismGlobalEventSystem;
+    eventManger: CubismEventManager;
 
     constructor(canvas: HTMLCanvasElement) {
         this.root = new CubismElement();
-        this.canvasDrawer = new CanvasDrawer(canvas);
+
         this.globalEvent = new CubismGlobalEventSystem();
+
+        this.canvasDrawer = new CanvasDrawer(canvas, this.globalEvent);
+        this.eventManger = new CubismEventManager(this.globalEvent);
+
+        this.registerRedraw();
+    }
+
+    registerRedraw() {
+        this.globalEvent.registerGlobalEvent(Values.REDRAW, this.update.bind(this));
     }
 
     static createFromCanvas(canvas: HTMLCanvasElement) {
-        return new CubismCanvasManager(canvas);
+        return new Cubism(canvas);
     }
 
     static createFromId(id: string) {
-        return CubismCanvasManager.createFromCanvas(document.getElementById(id) as HTMLCanvasElement);
+        return Cubism.createFromCanvas(document.getElementById(id) as HTMLCanvasElement);
     }
 
     init(root: CubismElement) {
-        this.canvasDrawer.clear();
+        // this.canvasDrawer.clear();
         this.setRootElement(root);
         this.setElementCanvas();
-        this.update();
+        this.canvasDrawer.state.needsRedraw = true;
+
+        // this.update();
     }
 
     setElementCanvas() {
@@ -38,6 +51,7 @@ export class CubismCanvasManager implements IUpdatable {
     }
 
     update() {
+        this.canvasDrawer.clear();
         if (this.root) {
             this.root.render();
         }

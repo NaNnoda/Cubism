@@ -1,9 +1,10 @@
-import {CubismCanvasManager} from "./ui/Cubism";
+
 import {RectangleElement} from "./ui/elements/RectangleElement";
 import {LayoutElement} from "./ui/elements/layouts/LayoutElement";
 import {InteractiveElement} from "./ui/elements/InteractiveElement";
 import {Point2D} from "./datatypes/point";
 import {PointerPoint} from "./datatypes/PointerPoint";
+import {Cubism} from "./ui/Cubism";
 
 console.log("loading index.ts");
 
@@ -13,7 +14,7 @@ console.log("loading index.ts");
  */
 function main() {
     let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
-    let c = CubismCanvasManager.createFromCanvas(canvas);
+    let c = Cubism.createFromCanvas(canvas);
 
     let interactive = new InteractiveElement()
         .pushOnMove((point: PointerPoint) => {

@@ -1,5 +1,7 @@
 import {Point2D} from "../datatypes/point";
 import {CubismState} from "./State";
+import {CubismGlobalEventSystem} from "./CubismGlobalEventSystem";
+import {Values} from "../constants/constants";
 
 export class CanvasDrawer {
     canvas: HTMLCanvasElement;
@@ -7,11 +9,33 @@ export class CanvasDrawer {
 
     state: CubismState;
 
-    constructor(canvas: HTMLCanvasElement) {
+    globalEvent: CubismGlobalEventSystem;
+
+    constructor(canvas: HTMLCanvasElement, globalEvent: CubismGlobalEventSystem) {
         this.state = new CubismState();
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+        this.globalEvent = globalEvent;
+        this.registerFrameUpdate();
     }
+
+    private registerFrameUpdate() {
+        this.globalEvent.registerGlobalEvent(Values.FRAME_UPDATE, this.frameUpdate.bind(this));
+    }
+
+    private frameUpdate() {
+        // console.log("Frame update");
+        if (this.state.needsRedraw) {
+            console.log("this.state.needsRedraw: Redraw");
+            this.globalEvent.triggerGlobalEvent(Values.REDRAW);
+            this.state.needsRedraw = false;
+        }
+    }
+
+    // fixedUpdate() {
+    //     // this.state.needsRedraw = true;
+    //     console.log("Fixed update");
+    // }
 
     clear() {
         this.canvas.width = this.canvas.width;

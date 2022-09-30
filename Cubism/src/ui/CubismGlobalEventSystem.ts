@@ -12,6 +12,10 @@ export class CubismGlobalEventSystem{
         this._globalEventListeners[event].splice(this._globalEventListeners[event].indexOf(callback), 1);
     }
     triggerGlobalEvent(event: string, ...args: any[]): void {
+        if (this._globalEventListeners[event] === undefined) {
+            // console.log("No listeners for event", event);
+            return;
+        }
         this._globalEventListeners[event].forEach((callback) => {
             callback(...args);
         });
