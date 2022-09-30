@@ -1,6 +1,6 @@
 "use strict";
 (() => {
-  // src/datatypes/point.ts
+  // src/datatypes/Point.ts
   var Point2D = class {
     constructor(x, y) {
       this.arr = [x, y];
@@ -110,7 +110,7 @@
     }
   };
 
-  // src/constants/constants.ts
+  // src/constants/Constants.ts
   var Values = class {
   };
   Values.FRAME_UPDATE = "onFrameUpdate";
@@ -767,7 +767,7 @@
   };
 
   // src/index.ts
-  console.log("loading index.ts");
+  console.log("loading Index.ts");
   function main() {
     let canvas = document.getElementById("mainCanvas");
     let c = Cubism.createFromCanvas(canvas);

@@ -1,14 +1,14 @@
 import {InteractiveElement} from "./ui/elements/InteractiveElement";
-import {Point2D} from "./datatypes/point";
+import {Point2D} from "./datatypes/Point";
 import {PointerPoint} from "./datatypes/PointerPoint";
 import {Cubism} from "./ui/Cubism";
 import {Log} from "./debug/Log";
-import {LayoutValues} from "./constants/constants";
+import {LayoutValues} from "./constants/Constants";
 import {InteractiveRect} from "./ui/elements/InteractiveRect";
 import {PointerHandleableLayout} from "./ui/elements/layouts/PointerHandleableLayout";
 import {DraggableRect} from "./ui/elements/DraggableRect";
 
-console.log("loading index.ts");
+console.log("loading Index.ts");
 
 
 /**

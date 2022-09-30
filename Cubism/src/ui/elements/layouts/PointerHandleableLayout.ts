@@ -1,7 +1,7 @@
 import {CanvasDrawer} from "../../CanvasDrawer";
 import {PointerPoint} from "../../../datatypes/PointerPoint";
 import {Log} from "../../../debug/Log";
-import {LayoutValues} from "../../../constants/constants";
+import {LayoutValues} from "../../../constants/Constants";
 import {PointerHandleableElement} from "../PointerHandleableElement";
 import {CubismGlobalEventSystem} from "../../../events/CubismGlobalEventSystem";
 

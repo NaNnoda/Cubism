@@ -4,7 +4,7 @@
     "esbuild": "^0.15.9"
   },
   "scripts": {
-    "build": "esbuild ./src/index.ts --bundle --outfile=build.js",
-    "watch": "esbuild ./src/index.ts --bundle --sourcemap --outfile=build.js --watch"
+    "build": "esbuild src/Index.ts --bundle --outfile=build.js",
+    "watch": "esbuild src/Index.ts --bundle --sourcemap --outfile=build.js --watch"
   }
 }

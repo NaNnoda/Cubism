@@ -1,4 +1,4 @@
-import {Values} from "../constants/constants";
+import {Values} from "../constants/Constants";
 import {CubismGlobalEventSystem} from "./CubismGlobalEventSystem";
 
 export class CubismEventManager{

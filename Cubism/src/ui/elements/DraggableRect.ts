@@ -1,6 +1,6 @@
 import {InteractiveRect} from "./InteractiveRect";
 import {PointerPoint} from "../../datatypes/PointerPoint";
-import {Point2D} from "../../datatypes/point";
+import {Point2D} from "../../datatypes/Point";
 import {Log} from "../../debug/Log";
 
 export class DraggableRect extends InteractiveRect {

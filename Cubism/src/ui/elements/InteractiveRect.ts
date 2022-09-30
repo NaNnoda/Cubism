@@ -3,7 +3,7 @@ import {CanvasDrawer} from "../CanvasDrawer";
 import {PointerHandleableElement} from "./PointerHandleableElement";
 import {PointerPoint} from "../../datatypes/PointerPoint";
 import {Log} from "../../debug/Log";
-import {Values} from "../../constants/constants";
+import {Values} from "../../constants/Constants";
 
 export class InteractiveRect extends PointerHandleableElement {
     background: string;
