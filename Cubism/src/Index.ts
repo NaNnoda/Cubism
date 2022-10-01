@@ -23,20 +23,6 @@ console.log("loading Index.ts");
 function main() {
     let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
     let c = Cubism.createFromCanvas(canvas);
-
-    // let interactive = new InteractiveRect()
-    //     .pushOnMove((point: PointerPoint) => {
-    //         // Log.logDebug("onMove", point);
-    //     })
-    //     .setWidth(100)
-    //     .setHeight(100)
-    //     .setBackgroundColor("green")
-    //     .setPosFromXY(40, 40);
-
-    // canvas.onpointermove = (e) => {
-    //     interactive.triggerOnMove(new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    // }
-
     c.init(
         new HorizontalLayout(
             new DraggableRect()
@@ -53,20 +39,6 @@ function main() {
                 .setHeight(50)
                 .setWidth(100)
                 .setLineWidth(5),
-            new RectWithChild()
-                .setHeight(200)
-                .setWidth(200)
-                .setLineWidth(5)
-                .setBackgroundColor(Colors.cyan500)
-                .setChild(
-                    new HorizontalLayout(
-                        new DraggableRect()
-                            .setWidth(100)
-                            .setHeight(100)
-                            .setBackgroundColor("blue"),
-                        new TextElement("Hello World")
-                    )
-                )
         )
     );
 }

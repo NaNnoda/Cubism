@@ -1160,79 +1160,6 @@
     }
   };
 
-  // src/UI/Elements/RectWithChild.ts
-  var RectWithChild = class extends PointerHandleableLayout {
-    constructor() {
-      super(...arguments);
-      this.background = "white";
-      this.lineWidth = 1;
-      this.pointerRelativePosition = null;
-    }
-    setChild(child) {
-      this.child = child;
-      return this;
-    }
-    set child(child) {
-      this.children = [child];
-    }
-    get child() {
-      return this.children[0];
-    }
-    setLineWidth(lineWidth) {
-      this.lineWidth = lineWidth;
-      return this;
-    }
-    setBackgroundColor(color) {
-      this.background = color;
-      return this;
-    }
-    render() {
-      let c = this.c;
-      c.setFillStyle(this.background);
-      c.setStrokeStyle("black");
-      c.setStrokeWidth(this.lineWidth);
-      c.translate(this.position);
-      c.drawRect(0, 0, this.absWidth, this.absHeight);
-      c.restoreTranslate();
-      super.render();
-    }
-    onDown(point) {
-      super.onDown(point);
-      this.pointerRelativePosition = new Point2D(point.x - this.position.x, point.y - this.position.y);
-    }
-    onParentMove(point) {
-      var _a;
-      super.onParentMove(point);
-      if (this.pointerRelativePosition !== null) {
-        this.position = point.sub(this.pointerRelativePosition);
-        (_a = this.c) == null ? void 0 : _a.triggerRedraw();
-      }
-    }
-    onUp(point) {
-      super.onUp(point);
-      this.pointerRelativePosition = null;
-    }
-  };
-
-  // src/UI/Elements/TextElement.ts
-  var TextElement = class extends PointerHandleableElement {
-    constructor(text) {
-      super();
-      this.text = text;
-    }
-    render() {
-      super.render();
-      let c = this.c;
-      let ctx = c.ctx;
-      ctx.font = "30px Arial";
-      c.translate(this.position);
-      let textWidth = ctx.measureText(this.text).width;
-      let textHeight = 30;
-      ctx.fillText(this.text, 0, textHeight);
-      c.restoreTranslate();
-    }
-  };
-
   // src/Index.ts
   console.log("loading Index.ts");
   function main() {
@@ -1242,13 +1169,7 @@
       new HorizontalLayout(
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.blue500).setLineWidth(5),
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.green200).setLineWidth(5),
-        new ButtonElement("Button").setHeight(50).setWidth(100).setLineWidth(5),
-        new RectWithChild().setHeight(200).setWidth(200).setLineWidth(5).setBackgroundColor(Colors.cyan500).setChild(
-          new HorizontalLayout(
-            new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor("blue"),
-            new TextElement("Hello World")
-          )
-        )
+        new ButtonElement("Button").setHeight(50).setWidth(100).setLineWidth(5)
       )
     );
   }
