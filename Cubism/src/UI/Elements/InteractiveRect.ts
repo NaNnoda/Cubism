@@ -4,31 +4,25 @@ import {PointerHandleableElement} from "./PointerHandleableElement";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Log} from "../../Debug/Log";
 import {Values} from "../../Constants/Constants";
+import {TName} from "../../Theme/Theme";
 
 export class InteractiveRect extends PointerHandleableElement {
-    background: string;
-    lineWidth: number;
-
     constructor() {
         super();
-        this.background = "white";
-        this.lineWidth = 10;
     }
 
     setLineWidth(width: number) {
-        this.lineWidth = width;
+        this.theme[TName.STROKE_WIDTH] = width;
         return this;
     }
 
     setBackgroundColor(color: string) {
-        this.background = color;
+        this.theme[TName.BACKGROUND] = color;
         return this;
     }
 
     onMove(point: PointerPoint) {
         super.onMove(point);
-        // Log.logDebug("hover on", this);
-
     }
 
     onDown(point: PointerPoint) {
@@ -36,16 +30,19 @@ export class InteractiveRect extends PointerHandleableElement {
         Log.logDebug("down on", this);
     }
 
-    toString(): string {
-        return super.toString() + ` background:${this.background} lineWidth:${this.lineWidth}`;
-    }
-
     render(): void {
         super.render();
         let c = this.c as CanvasDrawer;
-        c.setFillStyle(this.background);
-        c.setStrokeStyle("black");
-        c.setStrokeWidth(this.lineWidth);
+        c.setFillStyle(this.theme[TName.BACKGROUND]);
+        if (this.hovered) {
+            c.setFillStyle(this.theme[TName.HOVER]);
+        }
+        if (this.pressed) {
+            c.setFillStyle(this.theme[TName.ON_CLICK]);
+        }
+        // c.setFillStyle(currBackground)
+        c.setStrokeStyle(this.theme["stroke"]);
+        c.setStrokeWidth(this.theme["strokeWidth"]);
         c.translate(this.position);
         c.drawRect(0, 0, this.absWidth, this.absHeight);
         c.restoreTranslate();

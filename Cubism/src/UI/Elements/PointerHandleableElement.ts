@@ -3,7 +3,27 @@ import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Values} from "../../Constants/Constants";
 
 export class PointerHandleableElement extends InteractiveElement {
-    pointerWasNotInRange: boolean = true;
+    _pointerWasNotInRange: boolean = true;
+    _hovered: boolean = false;
+    _pressed: boolean = false;
+
+    // _lastPoint: PointerPoint | null = null;
+
+    get pressed(): boolean {
+        return this._pressed;
+    }
+
+    set pressed(value: boolean) {
+        this._pressed = value;
+    }
+
+    get hovered(): boolean {
+        return this._hovered;
+    }
+
+    set hovered(value: boolean) {
+        this._hovered = value;
+    }
 
     constructor() {
         super();
@@ -70,7 +90,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public onUp(point: PointerPoint): void {
-
+        this.pressed = false;
     }
 
     public triggerOnDown(point: PointerPoint): void {
@@ -81,7 +101,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public onDown(point: PointerPoint): void {
-
+        this.pressed = true;
     }
 
     public triggerOnMove(point: PointerPoint): void {
@@ -108,12 +128,13 @@ export class PointerHandleableElement extends InteractiveElement {
         if (this.inRange(point)) {
             this.triggerOnMove(point);
         }
-        if (this.inRange(point) && this.pointerWasNotInRange) {
-            this.pointerWasNotInRange = false;
+        if (this.inRange(point) && this._pointerWasNotInRange) {
+            this._pointerWasNotInRange = false;
             this.triggerOnEnter(point);
+
         }
-        if (!this.inRange(point) && !this.pointerWasNotInRange) {
-            this.pointerWasNotInRange = true;
+        if (!this.inRange(point) && !this._pointerWasNotInRange) {
+            this._pointerWasNotInRange = true;
             this.triggerOnLeave(point);
         }
     }
@@ -138,7 +159,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public onEnter(point: PointerPoint): void {
-
+        this.hovered = true;
     }
 
     triggerOnEnter(point: PointerPoint): void {
@@ -161,6 +182,6 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     onLeave(point: PointerPoint): void {
-
+        this.hovered = false;
     }
 }

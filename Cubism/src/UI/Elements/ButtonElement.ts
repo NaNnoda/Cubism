@@ -1,7 +1,7 @@
-import {PointerHandleableElement} from "./PointerHandleableElement";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {CanvasDrawer} from "../../CanvasDrawer";
 import {InteractiveRect} from "./InteractiveRect";
+import {TName} from "../../Theme/Theme";
 
 export class ButtonElement extends InteractiveRect {
     text: string;
@@ -17,23 +17,37 @@ export class ButtonElement extends InteractiveRect {
 
     onMove(point: PointerPoint) {
         super.onMove(point);
+        this.c?.setRedraw(true);
     }
 
     onEnter(point: PointerPoint) {
         super.onEnter(point);
-        this.background = "gray";
+        console.log("Enter" + this.elementName);
+        this.c?.setRedraw(true);
+    }
+
+    //
+    onDown(point: PointerPoint) {
+        super.onDown(point);
+        this.c?.setRedraw(true);
+    }
+
+    onUp(point: PointerPoint) {
+        super.onUp(point);
         this.c?.setRedraw(true);
     }
 
     onLeave(point: PointerPoint) {
         super.onLeave(point);
-        this.background = "white";
         this.c?.setRedraw(true);
     }
 
     render(): void {
         super.render();
         let c = this.c as CanvasDrawer;
-        c.fillText("hello", 0, 0);
+        let ctx = c.ctx;
+        c.setFillStyle(this.theme[TName.TEXT_COLOR]);
+        ctx.font = `${this.theme[TName.FONT_SIZE]}px ${this.theme[TName.FONT_FAMILY]}`;
+        c.fillText(this.text, 10, 30);
     }
 }

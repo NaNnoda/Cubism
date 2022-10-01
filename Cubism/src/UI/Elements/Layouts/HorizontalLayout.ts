@@ -2,11 +2,6 @@ import {LinearLayout} from "./LinearLayout";
 import {Point2D} from "../../../Datatypes/Point";
 
 export class HorizontalLayout extends LinearLayout {
-    // constructor() {
-    //     super();
-    //     // this._element.style.display = "flex";
-    //     // this._element.style.flexDirection = "row";
-    // }
     updateChildrenPosition() {
         super.updateChildrenPosition();
         let x = 0;

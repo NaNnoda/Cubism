@@ -11,6 +11,8 @@ import {VerticalLayout} from "./UI/Elements/Layouts/VerticalLayout";
 import {HorizontalLayout} from "./UI/Elements/Layouts/HorizontalLayout";
 import {ButtonElement} from "./UI/Elements/ButtonElement";
 import {RectWithChild} from "./UI/Elements/RectWithChild";
+import {TextElement} from "./UI/Elements/TextElement";
+import {Colors} from "./Theme/Colors";
 
 console.log("loading Index.ts");
 
@@ -37,40 +39,32 @@ function main() {
 
     c.init(
         new HorizontalLayout(
-            // new InteractiveRect()
-            //     .setWidth(LayoutValues.MATCH_PARENT)
-            //     .setHeight(LayoutValues.MATCH_PARENT)
-            //     .setBackgroundColor("red")
-            //     .setPosFromXY(0, 0),
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("blue")
-                .setPosFromXY(40, 40)
+                .setBackgroundColor(Colors.blue500)
                 .setLineWidth(5),
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("green")
-                .setPosFromXY(80, 80)
+                .setBackgroundColor(Colors.green200)
                 .setLineWidth(5),
             new ButtonElement("Button")
                 .setHeight(50)
                 .setWidth(100)
-                .setPosFromXY(120, 120)
                 .setLineWidth(5),
             new RectWithChild()
                 .setHeight(200)
                 .setWidth(200)
-                .setPosFromXY(160, 160)
                 .setLineWidth(5)
-                .setBackgroundColor("yellow")
+                .setBackgroundColor(Colors.cyan500)
                 .setChild(
                     new HorizontalLayout(
                         new DraggableRect()
                             .setWidth(100)
                             .setHeight(100)
-                            .setBackgroundColor("blue")
+                            .setBackgroundColor("blue"),
+                        new TextElement("Hello World")
                     )
                 )
         )

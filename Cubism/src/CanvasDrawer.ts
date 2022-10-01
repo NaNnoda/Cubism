@@ -57,6 +57,7 @@ export class CanvasDrawer {
     }
 
     fillText(text: string, x: number, y: number) {
+        console.log("fillText" + text);
         this.ctx.fillText(text, x, y);
     }
 
@@ -117,8 +118,6 @@ export class CanvasDrawer {
         this.ctx.fill();
         this.ctx.stroke();
     }
-
-
     setRedraw(redraw: boolean) {
         this.state.needsRedraw = redraw;
     }
