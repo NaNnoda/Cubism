@@ -6,7 +6,6 @@ export class TextElement extends PointerHandleableElement {
     constructor(public text: string) {
         super();
     }
-
     render() {
         super.render();
         let c = this.c as CanvasDrawer;

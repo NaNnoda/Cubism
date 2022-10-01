@@ -28,17 +28,14 @@ function main() {
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor(Colors.blue500)
-                .setLineWidth(5),
+                .setBackgroundColor(Colors.blue500),
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor(Colors.green200)
-                .setLineWidth(5),
+                .setBackgroundColor(Colors.green200),
             new ButtonElement("Button")
                 .setHeight(50)
                 .setWidth(100)
-                .setLineWidth(5),
         )
     );
 }
