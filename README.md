@@ -1,38 +1,68 @@
 # Cubism
 HTML Canvas based UI framework
 
-## Example
-Code:
-```typescript
+## Examples
 
+### VerticalLayout
+```typescript
 /**
- * entry point
+ * Demo of a simple layout
  */
 function main() {
-    let c = CubismCanvasManager.createFromId("mainCanvas");
+    let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+    let c = Cubism.createFromCanvas(canvas);
     c.init(
-        new LayoutElement(
-            new RectangleElement()
+        new VerticalLayout(
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("red")
-                .setPosFromXY(0, 0),
-            new RectangleElement()
+                .setBackgroundColor(Colors.blue500)
+                .setLineWidth(5),
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("blue")
-                .setPosFromXY(40, 40),
-            new RectangleElement()
+                .setBackgroundColor(Colors.green200)
+                .setLineWidth(5),
+            new ButtonElement("Button")
+                .setHeight(50)
                 .setWidth(100)
-                .setHeight(100)
-                .setBackgroundColor("green")
-                .setPosFromXY(80, 80),
+                .setLineWidth(5),
         )
-    )
+    );
+}
+```
+
+![image](https://user-images.githubusercontent.com/34388992/193383469-02e7d9b5-107c-4b7c-b1f9-1c97fe0782ee.png)
+
+### HorizontalLayout
+Code:
+```typescript
+/**
+ * Demo of a simple layout
+ */
+function main() {
+    let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+    let c = Cubism.createFromCanvas(canvas);
+    c.init(
+        new HorizontalLayout(
+            new DraggableRect()
+                .setWidth(100)
+                .setHeight(100)
+                .setBackgroundColor(Colors.blue500)
+                .setLineWidth(5),
+            new DraggableRect()
+                .setWidth(100)
+                .setHeight(100)
+                .setBackgroundColor(Colors.green200)
+                .setLineWidth(5),
+            new ButtonElement("Button")
+                .setHeight(50)
+                .setWidth(100)
+                .setLineWidth(5),
+        )
+    );
 }
 ```
 Output:
 
-![image](https://user-images.githubusercontent.com/114621472/192913392-a6a97178-f27b-4974-8c52-04ce393839cb.png)
-
-
+![image](https://user-images.githubusercontent.com/34388992/193382577-52f6bd7f-a816-4d34-8612-4ad61e4bcac9.png)
