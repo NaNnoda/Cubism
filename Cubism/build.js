@@ -1102,15 +1102,15 @@
   var LinearLayout = class extends PointerHandleableLayout {
   };
 
-  // src/UI/Elements/Layouts/HorizontalLayout.ts
-  var HorizontalLayout = class extends LinearLayout {
+  // src/UI/Elements/Layouts/VerticalLayout.ts
+  var VerticalLayout = class extends LinearLayout {
     updateChildrenPosition() {
       super.updateChildrenPosition();
       let x = 0;
       let y = 0;
       for (let child of this.children) {
         child.position = new Point2D(x, y);
-        x += child.width;
+        y += child.height;
       }
     }
   };
@@ -1166,7 +1166,7 @@
     let canvas = document.getElementById("mainCanvas");
     let c = Cubism.createFromCanvas(canvas);
     c.init(
-      new HorizontalLayout(
+      new VerticalLayout(
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.blue500).setLineWidth(5),
         new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.green200).setLineWidth(5),
         new ButtonElement("Button").setHeight(50).setWidth(100).setLineWidth(5)

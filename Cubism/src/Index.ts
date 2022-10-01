@@ -24,7 +24,7 @@ function main() {
     let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
     let c = Cubism.createFromCanvas(canvas);
     c.init(
-        new HorizontalLayout(
+        new VerticalLayout(
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
