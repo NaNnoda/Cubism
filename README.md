@@ -4,35 +4,35 @@ HTML Canvas based UI framework
 ## Example
 Code:
 ```typescript
-
 /**
- * entry point
+ * Demo of a simple layout
  */
 function main() {
-    let c = CubismCanvasManager.createFromId("mainCanvas");
+    let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+    let c = Cubism.createFromCanvas(canvas);
     c.init(
-        new LayoutElement(
-            new RectangleElement()
+        new VerticalLayout(
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("red")
-                .setPosFromXY(0, 0),
-            new RectangleElement()
+                .setBackgroundColor(Colors.blue500)
+                .setLineWidth(5),
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor("blue")
-                .setPosFromXY(40, 40),
-            new RectangleElement()
+                .setBackgroundColor(Colors.green200)
+                .setLineWidth(5),
+            new ButtonElement("Button")
+                .setHeight(50)
                 .setWidth(100)
-                .setHeight(100)
-                .setBackgroundColor("green")
-                .setPosFromXY(80, 80),
+                .setLineWidth(5),
         )
-    )
+    );
 }
 ```
 Output:
 
-![image](https://user-images.githubusercontent.com/114621472/192913392-a6a97178-f27b-4974-8c52-04ce393839cb.png)
+![image](https://user-images.githubusercontent.com/114621472/193383887-5963361f-698a-4741-ac91-29af25f7ad0b.png)
+
 
 
