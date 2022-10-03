@@ -1,4 +1,4 @@
-![image](/Assets/icon.png)
+![image](/Assets/icon.png =100x)
 # Cubism
 HTML Canvas based UI framework
 
