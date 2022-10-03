@@ -1,7 +1,6 @@
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {CanvasDrawer} from "../../CanvasDrawer";
 import {InteractiveRect} from "./InteractiveRect";
-import {TName} from "../../Theme/Theme";
 
 export class ButtonElement extends InteractiveRect {
     text: string;
@@ -45,9 +44,6 @@ export class ButtonElement extends InteractiveRect {
     render(): void {
         super.render();
         let c = this.c as CanvasDrawer;
-        let ctx = c.ctx;
-        c.setFillStyle(this.theme[TName.TEXT_COLOR]);
-        ctx.font = `${this.theme[TName.FONT_SIZE]}px ${this.theme[TName.FONT_FAMILY]}`;
         c.fillText(this.text, 10, 30);
     }
 }

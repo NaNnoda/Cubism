@@ -26,10 +26,9 @@ export class Log {
         }
     }
 
-    static logD(message: string, ...args: any[]): void {
+    static debug(message: string, ...args: any[]): void {
         if (Log.debugFlag) {
             console.log(message, ...args);
         }
-        // Log.logDebug(message, ...args);
     }
 }

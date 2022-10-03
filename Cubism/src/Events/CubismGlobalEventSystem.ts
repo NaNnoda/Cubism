@@ -1,5 +1,8 @@
 import {Log} from "../Debug/Log";
 
+/**
+ * System that handles the registration and trigger of global events
+ */
 export class CubismGlobalEventSystem {
     private _globalEventListeners: { [key: string]: Function[] } = {};
 
@@ -20,7 +23,6 @@ export class CubismGlobalEventSystem {
             this._globalEventListeners[event].push(() => {
                 // Log.logDebug(`Event ${event} triggered`);
             });
-
         }
         return this._globalEventListeners[event];
     }

@@ -1,24 +1,7 @@
 "use strict";
 (() => {
-  var __defProp = Object.defineProperty;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a, b) => {
-    for (var prop in b ||= {})
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a, prop, b[prop]);
-      }
-    return a;
-  };
-
-  // src/Datatypes/Two2DTransform.ts
-  var TwoDTransformMatrix = class {
+  // src/Datatypes/TransformMatrix2D.ts
+  var TransformMatrix2D = class {
     constructor(m11, m12, m21, m22, dx, dy) {
       this.arr = [];
       this.arr = [
@@ -64,7 +47,7 @@
       this.arr[1][2] = value;
     }
     static makeFromArray(arr) {
-      return new TwoDTransformMatrix(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
+      return new TransformMatrix2D(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
     }
     get(x, y) {
       return this.arr[x][y];
@@ -73,27 +56,27 @@
       this.arr[x][y] = value;
     }
     static identity() {
-      return new TwoDTransformMatrix(1, 0, 0, 1, 0, 0);
+      return new TransformMatrix2D(1, 0, 0, 1, 0, 0);
     }
     static zero() {
-      return new TwoDTransformMatrix(0, 0, 0, 0, 0, 0);
+      return new TransformMatrix2D(0, 0, 0, 0, 0, 0);
     }
     static translation(x, y) {
-      return new TwoDTransformMatrix(1, 0, 0, 1, x, y);
+      return new TransformMatrix2D(1, 0, 0, 1, x, y);
     }
     static rotation(angle) {
       let cos = Math.cos(angle);
       let sin = Math.sin(angle);
-      return new TwoDTransformMatrix(cos, -sin, sin, cos, 0, 0);
+      return new TransformMatrix2D(cos, -sin, sin, cos, 0, 0);
     }
     static scale(x, y) {
-      return new TwoDTransformMatrix(x, 0, 0, y, 0, 0);
+      return new TransformMatrix2D(x, 0, 0, y, 0, 0);
     }
     clone() {
-      return new TwoDTransformMatrix(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
+      return new TransformMatrix2D(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
     }
     multiply(other) {
-      let newMatrix = TwoDTransformMatrix.zero();
+      let newMatrix = TransformMatrix2D.zero();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           let dotProduct = 0;
@@ -106,13 +89,13 @@
       return newMatrix;
     }
     translate(x, y) {
-      return this.multiply(TwoDTransformMatrix.translation(x, y));
+      return this.multiply(TransformMatrix2D.translation(x, y));
     }
     rotate(angle) {
-      return this.multiply(TwoDTransformMatrix.rotation(angle));
+      return this.multiply(TransformMatrix2D.rotation(angle));
     }
     scale(x, y) {
-      return this.multiply(TwoDTransformMatrix.scale(x, y));
+      return this.multiply(TransformMatrix2D.scale(x, y));
     }
     toString() {
       return `(${this.m11}, ${this.m12}, ${this.dx})
@@ -123,30 +106,10 @@
   // src/State.ts
   var CubismCanvasState = class {
     constructor(canvas, ctx) {
-      this.lineWidths = [10];
-      this.fillStyles = ["gray"];
-      this.translates = [TwoDTransformMatrix.identity()];
+      this.translates = [TransformMatrix2D.identity()];
       this._needsRedraw = true;
       this.canvas = canvas;
       this.ctx = ctx;
-    }
-    set lineWidth(lineWidth) {
-      this.lineWidths.push(lineWidth);
-    }
-    get lineWidth() {
-      return this.lineWidths[this.lineWidths.length - 1];
-    }
-    popLineWidth() {
-      if (this.lineWidths.length > 1) {
-        this.lineWidths.pop();
-      }
-      return this.lineWidth;
-    }
-    set fillStyle(style) {
-      this.fillStyles.push(style);
-    }
-    get fillStyle() {
-      return this.fillStyles[this.fillStyles.length - 1];
     }
     set translate(offset) {
       let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
@@ -220,22 +183,38 @@
       this.globalEvent = globalEvent;
       this.registerFrameUpdate();
     }
+    get width() {
+      return this.canvas.width;
+    }
+    set width(width) {
+      this.canvas.width = width;
+    }
+    get height() {
+      return this.canvas.height;
+    }
+    set height(height) {
+      this.canvas.height = height;
+    }
     registerFrameUpdate() {
       this.globalEvent.registerGlobalEvent(Values.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
     frameUpdate() {
       if (this.state.needsRedraw) {
-        console.log("this.state.needsRedraw: Redraw");
-        this.globalEvent.triggerGlobalEvent(Values.REDRAW);
+        this.triggerRedraw();
         this.state.needsRedraw = false;
       }
     }
     clear() {
-      this.canvas.width = this.canvas.width;
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    setFillStyle(color) {
-      this.ctx.fillStyle = color;
-      this.state.fillStyle = color;
+    setFillStyle(style) {
+      this.ctx.fillStyle = style;
+    }
+    setStrokeStyle(style) {
+      this.ctx.strokeStyle = style;
+    }
+    setStrokeWidth(width) {
+      this.ctx.lineWidth = width;
     }
     translate(offset) {
       this.state.translate = offset;
@@ -244,14 +223,7 @@
       this.state.restoreTranslate();
     }
     fillText(text, x, y) {
-      console.log("fillText" + text);
       this.ctx.fillText(text, x, y);
-    }
-    setStrokeStyle(color) {
-      this.ctx.strokeStyle = color;
-    }
-    setStrokeWidth(width) {
-      this.ctx.lineWidth = width;
     }
     drawLineWithPoints(begin, end) {
       this.drawLine(begin.x, begin.y, end.x, end.y);
@@ -264,7 +236,6 @@
     }
     drawCircle(x, y, radius) {
       this.ctx.beginPath();
-      this.ctx.lineWidth = this.state.lineWidth;
       this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
       this.closeDraw();
     }
@@ -275,6 +246,13 @@
         this.ctx.lineTo(points[i].x, points[i].y);
       }
       this.closeDraw();
+    }
+    drawRectWithPoints(p1, p2 = null) {
+      if (p2 === null) {
+        this.drawRect(0, 0, p1.x, p1.y);
+      } else {
+        this.drawRect(p1.x, p1.y, p2.x, p2.y);
+      }
     }
     drawRect(x, y, width, height) {
       this.ctx.beginPath();
@@ -408,7 +386,7 @@
         _Log.log(message, ...args);
       }
     }
-    static logD(message, ...args) {
+    static debug(message, ...args) {
       if (_Log.debugFlag) {
         console.log(message, ...args);
       }
@@ -416,165 +394,6 @@
   };
   var Log = _Log;
   Log.debugFlag = true;
-
-  // src/Theme/Colors.ts
-  var Colors = class {
-  };
-  Colors.black = "#000000";
-  Colors.white = "#ffffff";
-  Colors.pureRed = "#ff0000";
-  Colors.pureGreen = "#00ff00";
-  Colors.pureBlue = "#0000ff";
-  Colors.pureYellow = "#ffff00";
-  Colors.pureCyan = "#00ffff";
-  Colors.pureMagenta = "#ff00ff";
-  Colors.orange = "#ff8000";
-  Colors.purple = "#8000ff";
-  Colors.pink = "#ff0080";
-  Colors.brown = "#804000";
-  Colors.gray100 = "#efefef";
-  Colors.gray200 = "#a0a0a0";
-  Colors.gray300 = "#808080";
-  Colors.gray400 = "#606060";
-  Colors.gray500 = "#404040";
-  Colors.gray600 = "#202020";
-  Colors.gray700 = "#000000";
-  Colors.blue100 = "#a6d5ff";
-  Colors.blue200 = "#7ec0ff";
-  Colors.blue300 = "#57abff";
-  Colors.blue400 = "#2e96ff";
-  Colors.blue500 = "#0080ff";
-  Colors.blue600 = "#0060cc";
-  Colors.blue700 = "#004099";
-  Colors.green100 = "#a6ffcc";
-  Colors.green200 = "#7effa6";
-  Colors.green300 = "#57ff80";
-  Colors.green400 = "#2eff5a";
-  Colors.green500 = "#00ff00";
-  Colors.green600 = "#00cc00";
-  Colors.green700 = "#009900";
-  Colors.red100 = "#ffcccc";
-  Colors.red200 = "#ff9999";
-  Colors.red300 = "#ff6666";
-  Colors.red400 = "#ff3333";
-  Colors.red500 = "#ff0000";
-  Colors.red600 = "#cc0000";
-  Colors.red700 = "#990000";
-  Colors.yellow100 = "#ffffcc";
-  Colors.yellow200 = "#ffff99";
-  Colors.yellow300 = "#ffff66";
-  Colors.yellow400 = "#ffff33";
-  Colors.yellow500 = "#ffff00";
-  Colors.yellow600 = "#cccc00";
-  Colors.yellow700 = "#999900";
-  Colors.cyan100 = "#ccffff";
-  Colors.cyan200 = "#99ffff";
-  Colors.cyan300 = "#66ffff";
-  Colors.cyan400 = "#33ffff";
-  Colors.cyan500 = "#00ffff";
-  Colors.cyan600 = "#00cccc";
-  Colors.cyan700 = "#009999";
-  Colors.magenta100 = "#ffccff";
-  Colors.magenta200 = "#ff99ff";
-  Colors.magenta300 = "#ff66ff";
-  Colors.magenta400 = "#ff33ff";
-  Colors.magenta500 = "#ff00ff";
-  Colors.magenta600 = "#cc00cc";
-  Colors.magenta700 = "#990099";
-  Colors.orange100 = "#ffcc99";
-  Colors.orange200 = "#ff9966";
-  Colors.orange300 = "#ff9933";
-  Colors.orange400 = "#ff9900";
-  Colors.orange500 = "#ff8000";
-  Colors.orange600 = "#cc6600";
-  Colors.orange700 = "#994c00";
-  Colors.purple100 = "#cc99ff";
-  Colors.purple200 = "#9966ff";
-  Colors.purple300 = "#9933ff";
-  Colors.purple400 = "#9900ff";
-  Colors.purple500 = "#8000ff";
-  Colors.purple600 = "#6600cc";
-  Colors.purple700 = "#4c0099";
-  Colors.pink100 = "#ff99cc";
-  Colors.pink200 = "#ff6699";
-  Colors.pink300 = "#ff3399";
-  Colors.pink400 = "#ff0099";
-  Colors.pink500 = "#ff0080";
-  Colors.pink600 = "#cc0066";
-  Colors.pink700 = "#99004c";
-  Colors.brown100 = "#cc9966";
-  Colors.brown200 = "#996633";
-  Colors.brown300 = "#994c00";
-  Colors.brown400 = "#993300";
-  Colors.brown500 = "#804000";
-  Colors.brown600 = "#663300";
-  Colors.brown700 = "#4c2600";
-  Colors.lightGray = "#c0c0c0";
-  Colors.darkGray = "#404040";
-  Colors.lightRed = "#ff8080";
-  Colors.lightGreen = "#80ff80";
-  Colors.lightBlue = "#8080ff";
-  Colors.lightYellow = "#ffff80";
-  Colors.lightCyan = "#80ffff";
-  Colors.lightMagenta = "#ff80ff";
-  Colors.darkRed = "#800000";
-  Colors.darkGreen = "#008000";
-  Colors.darkBlue = "#000080";
-  Colors.darkYellow = "#808000";
-  Colors.darkCyan = "#008080";
-  Colors.darkMagenta = "#800080";
-  Colors.transparent = "rgba(0,0,0,0)";
-  Colors.transparentBlack = "rgba(0,0,0,0.5)";
-  Colors.transparentWhite = "rgba(255,255,255,0.5)";
-  Colors.transparentRed = "rgba(255,0,0,0.5)";
-  Colors.transparentGreen = "rgba(0,255,0,0.5)";
-  Colors.transparentBlue = "rgba(0,0,255,0.5)";
-  Colors.transparentYellow = "rgba(255,255,0,0.5)";
-  Colors.transparentCyan = "rgba(0,255,255,0.5)";
-  Colors.transparentMagenta = "rgba(255,0,255,0.5)";
-  Colors.transparentOrange = "rgba(255,128,0,0.5)";
-  Colors.transparentPurple = "rgba(128,0,255,0.5)";
-  Colors.transparentPink = "rgba(255,0,128,0.5)";
-
-  // src/Theme/Theme.ts
-  var defaultTheme = {
-    background: Colors.white,
-    strokeColor: Colors.black,
-    strokeWidth: 1,
-    fillColor: Colors.white,
-    primary: Colors.blue500,
-    secondary: Colors.cyan500,
-    disabled: Colors.gray200,
-    error: Colors.pureRed,
-    hover: Colors.gray100,
-    onClick: Colors.gray300,
-    buttonBackground: Colors.white,
-    textColor: Colors.black,
-    textDisabled: Colors.gray200,
-    textError: Colors.pureRed,
-    textSecondary: Colors.cyan500,
-    fontSize: 16,
-    fontFamily: "Arial"
-  };
-  var TName = class {
-  };
-  TName.BACKGROUND = "background";
-  TName.STROKE_COLOR = "strokeColor";
-  TName.STROKE_WIDTH = "strokeWidth";
-  TName.FILL_COLOR = "fillColor";
-  TName.PRIMARY = "primary";
-  TName.SECONDARY = "secondary";
-  TName.DISABLED = "disabled";
-  TName.ERROR = "error";
-  TName.HOVER = "hover";
-  TName.ON_CLICK = "onClick";
-  TName.BUTTON_BACKGROUND = "buttonBackground";
-  TName.TEXT_COLOR = "textColor";
-  TName.TEXT_DISABLED = "textDisabled";
-  TName.TEXT_ERROR = "textError";
-  TName.TEXT_SECONDARY = "textSecondary";
-  TName.FONT_SIZE = "fontSize";
-  TName.FONT_FAMILY = "fontFamily";
 
   // src/UI/Elements/CubismElement.ts
   var CubismElement = class {
@@ -585,7 +404,6 @@
       this._absSize = new Point2D(0, 0);
       this.c = null;
       this.needsResize = true;
-      this.theme = __spreadValues({}, defaultTheme);
     }
     set position(pos) {
       var _a;
@@ -616,9 +434,6 @@
       this.setCanvasDrawer(c);
       this.updateShape(parentSize.x, parentSize.y);
       this.setGlobalEventSystem(globalEvent);
-    }
-    setTheme(theme) {
-      this.theme = __spreadValues(__spreadValues({}, this.theme), theme);
     }
     setGlobalEventSystem(globalEvent) {
       this.globalEvent = globalEvent;
@@ -910,7 +725,7 @@
       });
     }
     registerRedraw() {
-      this.globalEvent.registerGlobalEvent(Values.REDRAW, this.update.bind(this));
+      this.globalEvent.registerGlobalEvent(Values.REDRAW, this.redraw.bind(this));
     }
     registerOnMove() {
       this.globalEvent.registerGlobalEvent(Values.ON_MOVE, this.registerOnMove.bind(this));
@@ -924,7 +739,7 @@
     init(root) {
       this.setRootElement(root);
       this.initRootElement();
-      this.canvasDrawer.state.needsRedraw = true;
+      this.canvasDrawer.setRedraw(true);
     }
     initRootElement() {
       this.root.init(
@@ -936,7 +751,7 @@
     setRootElement(root) {
       this.root = root;
     }
-    update() {
+    redraw() {
       this.canvasDrawer.clear();
       if (this.root) {
         this.root.render();
@@ -949,14 +764,6 @@
     constructor() {
       super();
     }
-    setLineWidth(width) {
-      this.theme[TName.STROKE_WIDTH] = width;
-      return this;
-    }
-    setBackgroundColor(color) {
-      this.theme[TName.BACKGROUND] = color;
-      return this;
-    }
     onMove(point) {
       super.onMove(point);
     }
@@ -967,17 +774,8 @@
     render() {
       super.render();
       let c = this.c;
-      c.setFillStyle(this.theme[TName.BACKGROUND]);
-      if (this.hovered) {
-        c.setFillStyle(this.theme[TName.HOVER]);
-      }
-      if (this.pressed) {
-        c.setFillStyle(this.theme[TName.ON_CLICK]);
-      }
-      c.setStrokeStyle(this.theme["stroke"]);
-      c.setStrokeWidth(this.theme["strokeWidth"]);
       c.translate(this.position);
-      c.drawRect(0, 0, this.absWidth, this.absHeight);
+      c.drawRectWithPoints(this.absSize);
       c.restoreTranslate();
     }
   };
@@ -1153,9 +951,6 @@
     render() {
       super.render();
       let c = this.c;
-      let ctx = c.ctx;
-      c.setFillStyle(this.theme[TName.TEXT_COLOR]);
-      ctx.font = `${this.theme[TName.FONT_SIZE]}px ${this.theme[TName.FONT_FAMILY]}`;
       c.fillText(this.text, 10, 30);
     }
   };
@@ -1163,12 +958,10 @@
   // src/Index.ts
   console.log("loading Index.ts");
   function main() {
-    let canvas = document.getElementById("mainCanvas");
-    let c = Cubism.createFromCanvas(canvas);
-    c.init(
+    Cubism.createFromId("mainCanvas").init(
       new VerticalLayout(
-        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.blue500),
-        new DraggableRect().setWidth(100).setHeight(100).setBackgroundColor(Colors.green200),
+        new DraggableRect().setWidth(100).setHeight(100),
+        new DraggableRect().setWidth(100).setHeight(100),
         new ButtonElement("Button").setHeight(50).setWidth(100)
       )
     );

@@ -6,6 +6,9 @@ import {Point2D} from "./Datatypes/Point";
 import {PointerHandleableElement} from "./UI/Elements/PointerHandleableElement";
 import {PointerPoint} from "./Datatypes/PointerPoint";
 
+/**
+ * Entry point of the application
+ */
 export class Cubism {
     root: PointerHandleableElement;
     canvasDrawer: CanvasDrawer;
@@ -19,8 +22,6 @@ export class Cubism {
         this.canvasDrawer = new CanvasDrawer(canvas, this.globalEvent);
         this.eventManger = new CubismEventManager(this.globalEvent);
         this.canvas = canvas;
-
-
         this.registerRedraw();
         this.registerPointerEvents();
     }
@@ -57,21 +58,25 @@ export class Cubism {
 
 
     registerRedraw() {
-        this.globalEvent.registerGlobalEvent(Values.REDRAW, this.update.bind(this));
+        this.globalEvent.registerGlobalEvent(Values.REDRAW, this.redraw.bind(this));
     }
 
     registerOnMove() {
         this.globalEvent.registerGlobalEvent(Values.ON_MOVE, this.registerOnMove.bind(this));
     }
 
-    // onMoveTrigger() {
-    //     this.root.triggerOnParentMove();
-    // }
-
+    /**
+     * Create a new Cubism object from a canvas object
+     * @param canvas the canvas to draw on
+     */
     static createFromCanvas(canvas: HTMLCanvasElement) {
         return new Cubism(canvas);
     }
 
+    /**
+     * Create a new Cubism object from a canvas id
+     * @param id the id of the canvas
+     */
     static createFromId(id: string) {
         return Cubism.createFromCanvas(document.getElementById(id) as HTMLCanvasElement);
     }
@@ -79,23 +84,30 @@ export class Cubism {
     init(root: PointerHandleableElement) {
         this.setRootElement(root);
         this.initRootElement();
-        this.canvasDrawer.state.needsRedraw = true;
+        this.canvasDrawer.setRedraw(true);
     }
 
-    initRootElement() {
+    private initRootElement() {
         this.root.init(
             this.canvasDrawer,
             new Point2D(this.canvas.width, this.canvas.height),
             this.globalEvent
-
         );
     }
 
-    setRootElement(root: PointerHandleableElement) {
+    /**
+     * Set the root element of the application
+     * @param root
+     * @private
+     */
+    private setRootElement(root: PointerHandleableElement) {
         this.root = root;
     }
 
-    update() {
+    /**
+     * Redraw the whole canvas from the root element
+     */
+    redraw() {
         this.canvasDrawer.clear();
         if (this.root) {
             this.root.render();

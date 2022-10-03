@@ -1,50 +1,29 @@
 import {Colors} from "./Colors";
 
-export let defaultTheme = {
-    background: Colors.white,
-    strokeColor: Colors.black,
-    strokeWidth: 1,
-    fillColor: Colors.white,
-
-    primary: Colors.blue500,
-    secondary: Colors.cyan500,
-
-    disabled: Colors.gray200,
-    error: Colors.pureRed,
-    hover: Colors.gray100,
-    onClick: Colors.gray300,
-
-    buttonBackground: Colors.white,
-
-    textColor: Colors.black,
-    textDisabled: Colors.gray200,
-    textError: Colors.pureRed,
-    textSecondary: Colors.cyan500,
-
-    fontSize: 16,
-    fontFamily: "Arial",
+class Theme {
+    color: ColorTheme;
+    font: FontTheme;
+    constructor(color: ColorTheme, font: FontTheme) {
+        this.color = color;
+        this.font = font;
+    }
 }
 
-export class TName{
-    static readonly BACKGROUND = "background";
-    static readonly STROKE_COLOR = "strokeColor";
-    static readonly STROKE_WIDTH = "strokeWidth";
-    static readonly FILL_COLOR = "fillColor";
-    static readonly PRIMARY = "primary";
-    static readonly SECONDARY = "secondary";
-    static readonly DISABLED = "disabled";
-    static readonly ERROR = "error";
-    static readonly HOVER = "hover";
-    static readonly ON_CLICK = "onClick";
+class ColorTheme {
+    primary: string = Colors.blue500;
+    secondary: string = Colors.blue700;
+    background: string = Colors.white;
+    text: string = Colors.black;
+}
+class OnClickColorTheme extends ColorTheme {
+    background: string = Colors.grey700;
+}
+class OnHoverColorTheme extends ColorTheme {
+    background: string = Colors.grey300;
+}
 
-    static readonly BUTTON_BACKGROUND = "buttonBackground";
 
-    static readonly TEXT_COLOR = "textColor";
-    static readonly TEXT_DISABLED = "textDisabled";
-    static readonly TEXT_ERROR = "textError";
-    static readonly TEXT_SECONDARY = "textSecondary";
-
-    static readonly FONT_SIZE = "fontSize";
-    static readonly FONT_FAMILY = "fontFamily";
-
+class FontTheme {
+    fontSizes: number = 14;
+    fontFamily: string = "Arial";
 }

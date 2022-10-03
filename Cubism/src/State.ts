@@ -1,6 +1,9 @@
 import {Point2D} from "./Datatypes/Point";
-import {TwoDTransformMatrix} from "./Datatypes/Two2DTransform";
+import {TransformMatrix2D} from "./Datatypes/TransformMatrix2D";
 
+/**
+ * The state of the canvas
+ */
 export class CubismCanvasState {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -8,40 +11,9 @@ export class CubismCanvasState {
     constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.ctx = ctx;
-        // this.lineWidths = [1];
-        // this.fillStyles = ['black'];
-        // this.strokeStyles = ['black'];
     }
 
-    private lineWidths: number[] = [10];
-
-    set lineWidth(lineWidth: number) {
-        this.lineWidths.push(lineWidth);
-    }
-
-    get lineWidth() {
-        return this.lineWidths[this.lineWidths.length - 1];
-    }
-
-    popLineWidth() {
-        if (this.lineWidths.length > 1) {
-            this.lineWidths.pop();
-        }
-        return this.lineWidth;
-    }
-
-    private fillStyles: string[] = ["gray"];
-
-    set fillStyle(style: string) {
-        this.fillStyles.push(style);
-    }
-
-    get fillStyle() {
-        return this.fillStyles[this.fillStyles.length - 1];
-    }
-
-
-    private translates: TwoDTransformMatrix[] = [TwoDTransformMatrix.identity()];
+    private translates: TransformMatrix2D[] = [TransformMatrix2D.identity()];
 
     set translate(offset: Point2D) {
         let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
@@ -49,7 +21,7 @@ export class CubismCanvasState {
         this.setCtxTransform(translateMatrix);
     }
 
-    setCtxTransform(t: TwoDTransformMatrix) {
+    setCtxTransform(t: TransformMatrix2D) {
         this.ctx.setTransform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy);
     }
 
@@ -58,14 +30,14 @@ export class CubismCanvasState {
         this.setCtxTransform(lastTranslate);
     }
 
-    get translateMatrix(): TwoDTransformMatrix {
+    get translateMatrix(): TransformMatrix2D {
         return this.translates[this.translates.length - 1];
     }
 
-    popTranslate(): TwoDTransformMatrix {
+    popTranslate(): TransformMatrix2D {
         if (this.translates.length > 1) {
             // console.log("pop translate");
-            return this.translates.pop() as TwoDTransformMatrix;
+            return this.translates.pop() as TransformMatrix2D;
         }
         return this.translates[0];
     }
@@ -78,5 +50,4 @@ export class CubismCanvasState {
     set needsRedraw(value: boolean) {
         this._needsRedraw = value;
     }
-
 }

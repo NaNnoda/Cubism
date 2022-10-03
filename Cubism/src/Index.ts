@@ -21,23 +21,22 @@ console.log("loading Index.ts");
  * Demo of a simple layout
  */
 function main() {
-    let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
-    let c = Cubism.createFromCanvas(canvas);
-    c.init(
-        new VerticalLayout(
-            new DraggableRect()
-                .setWidth(100)
-                .setHeight(100)
-                .setBackgroundColor(Colors.blue500),
-            new DraggableRect()
-                .setWidth(100)
-                .setHeight(100)
-                .setBackgroundColor(Colors.green200),
-            new ButtonElement("Button")
-                .setHeight(50)
-                .setWidth(100)
-        )
-    );
+    Cubism.createFromId("mainCanvas")
+        .init(
+            new VerticalLayout(
+                new DraggableRect()
+                    .setWidth(100)
+                    .setHeight(100),
+                // .setBackgroundColor(Colors.blue500),
+                new DraggableRect()
+                    .setWidth(100)
+                    .setHeight(100),
+                // .setBackgroundColor(Colors.green200),
+                new ButtonElement("Button")
+                    .setHeight(50)
+                    .setWidth(100)
+            )
+        );
 }
 
 main()

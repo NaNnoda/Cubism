@@ -1,7 +1,7 @@
 /**
  * A class representing a 2D transformation matrix.
  */
-export class TwoDTransformMatrix {
+export class TransformMatrix2D {
     arr: number[][] = [];
 
     /**
@@ -70,8 +70,8 @@ export class TwoDTransformMatrix {
     }
 
 
-    static makeFromArray(arr: number[][]): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
+    static makeFromArray(arr: number[][]): TransformMatrix2D {
+        return new TransformMatrix2D(arr[0][0], arr[0][1], arr[1][0], arr[1][1], arr[0][2], arr[1][2]);
     }
 
     get(x: number, y: number): number {
@@ -83,34 +83,34 @@ export class TwoDTransformMatrix {
         this.arr[x][y] = value;
     }
 
-    static identity(): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(1, 0, 0, 1, 0, 0);
+    static identity(): TransformMatrix2D {
+        return new TransformMatrix2D(1, 0, 0, 1, 0, 0);
     }
 
-    static zero(): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(0, 0, 0, 0, 0, 0);
+    static zero(): TransformMatrix2D {
+        return new TransformMatrix2D(0, 0, 0, 0, 0, 0);
     }
 
-    static translation(x: number, y: number): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(1, 0, 0, 1, x, y);
+    static translation(x: number, y: number): TransformMatrix2D {
+        return new TransformMatrix2D(1, 0, 0, 1, x, y);
     }
 
-    static rotation(angle: number): TwoDTransformMatrix {
+    static rotation(angle: number): TransformMatrix2D {
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
-        return new TwoDTransformMatrix(cos, -sin, sin, cos, 0, 0);
+        return new TransformMatrix2D(cos, -sin, sin, cos, 0, 0);
     }
 
-    static scale(x: number, y: number): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(x, 0, 0, y, 0, 0);
+    static scale(x: number, y: number): TransformMatrix2D {
+        return new TransformMatrix2D(x, 0, 0, y, 0, 0);
     }
 
-    clone(): TwoDTransformMatrix {
-        return new TwoDTransformMatrix(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
+    clone(): TransformMatrix2D {
+        return new TransformMatrix2D(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
     }
 
-    multiply(other: TwoDTransformMatrix): TwoDTransformMatrix {
-        let newMatrix = TwoDTransformMatrix.zero();
+    multiply(other: TransformMatrix2D): TransformMatrix2D {
+        let newMatrix = TransformMatrix2D.zero();
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 let dotProduct = 0;
@@ -123,16 +123,16 @@ export class TwoDTransformMatrix {
         return newMatrix;
     }
 
-    translate(x: number, y: number): TwoDTransformMatrix {
-        return this.multiply(TwoDTransformMatrix.translation(x, y));
+    translate(x: number, y: number): TransformMatrix2D {
+        return this.multiply(TransformMatrix2D.translation(x, y));
     }
 
-    rotate(angle: number): TwoDTransformMatrix {
-        return this.multiply(TwoDTransformMatrix.rotation(angle));
+    rotate(angle: number): TransformMatrix2D {
+        return this.multiply(TransformMatrix2D.rotation(angle));
     }
 
-    scale(x: number, y: number): TwoDTransformMatrix {
-        return this.multiply(TwoDTransformMatrix.scale(x, y));
+    scale(x: number, y: number): TransformMatrix2D {
+        return this.multiply(TransformMatrix2D.scale(x, y));
     }
 
     toString(): string {

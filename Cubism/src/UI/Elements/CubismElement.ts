@@ -2,16 +2,18 @@ import {Point2D} from "../../Datatypes/Point";
 import {CanvasDrawer} from "../../CanvasDrawer";
 import {Log} from "../../Debug/Log";
 import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
-import {defaultTheme} from "../../Theme/Theme";
-import {LayoutValues, Values} from "../../Constants/Constants";
+import {LayoutValues} from "../../Constants/Constants";
 
+/**
+ * Base class for all elements that can be rendered on the canvas
+ * With size, position, and global events
+ */
 export class CubismElement implements IRenderable {
     _position: Point2D;
     _size: Point2D;
     _absSize: Point2D; // Absolute size is the size of the element
     c: CanvasDrawer | null;
     globalEvent: CubismGlobalEventSystem | null = null;
-    theme: any;
 
     needsResize: boolean;
 
@@ -22,7 +24,6 @@ export class CubismElement implements IRenderable {
         this.c = null;
 
         this.needsResize = true;
-        this.theme = {...defaultTheme};
     }
 
     set position(pos: Point2D) {
@@ -58,10 +59,6 @@ export class CubismElement implements IRenderable {
         this.setCanvasDrawer(c);
         this.updateShape(parentSize.x, parentSize.y);
         this.setGlobalEventSystem(globalEvent);
-    }
-
-    setTheme(theme: Object) {
-        this.theme = {...this.theme, ...theme};
     }
 
     setGlobalEventSystem(globalEvent: CubismGlobalEventSystem) {
