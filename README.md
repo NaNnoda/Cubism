@@ -1,3 +1,4 @@
+![image](/Assets/icon.png)
 # Cubism
 HTML Canvas based UI framework
 
