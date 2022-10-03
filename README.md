@@ -1,6 +1,7 @@
+![image](/Assets/favicon-32x32.png)
 
 # Cubism
-![image](/Assets/favicon-32x32.png)
+
 
 HTML Canvas based UI framework
 
