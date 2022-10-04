@@ -6,8 +6,13 @@ import {ButtonElement} from "./Elements/ButtonElement";
 import {CubismElement} from "./Elements/CubismElement";
 import {PointerHandleableElement} from "./Elements/PointerHandleableElement";
 import {DraggableRect} from "./Elements/DraggableRect";
+import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
 
 export class CubismBuilder{
+
+    toString(){
+        return "CubismBuilder";
+    }
 
     get cubism(){
         return Cubism;
@@ -17,6 +22,12 @@ export class CubismBuilder{
     }
     verticalLayout(...children: PointerHandleableElement[]){
         return new VerticalLayout(...children);
+    }
+    horizontalLayout(...children: PointerHandleableElement[]){
+        return new HorizontalLayout(...children);
+    }
+    h(...children: PointerHandleableElement[]){
+        return this.horizontalLayout(...children);
     }
 
     v(...children: PointerHandleableElement[]){
@@ -32,6 +43,9 @@ export class CubismBuilder{
     }
     get button(){
         return new ButtonElement();
+    }
+    buttonWithText(text: string){
+        return new ButtonElement(text);
     }
 
     get draggableRect(){
