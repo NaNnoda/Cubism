@@ -7,49 +7,79 @@ import {ColorTheme, CubismElementThemeRoot} from "./Theme/Theme";
 
 console.log("loading Index.ts");
 
-
-(() => {
-
-    function main() {
-        // this.createApp();
-        let updateButton = document.getElementById("update") as HTMLButtonElement;
-        updateButton.onclick = this.runUserFunction;
-
-        let w = window as any;
-
-        w.c = Cubism.createFromId("mainCanvas");
-    }
-})();
-
-
+console.log();
 
 class Test {
+
+    Cubism = Cubism;
+    VerticalLayout = VerticalLayout;
+    ButtonElement = ButtonElement;
+    DraggableRect = DraggableRect;
+    CubismElementThemeRoot = CubismElementThemeRoot;
+    ColorTheme = ColorTheme;
+    Colors = Colors;
+    global
+
     codeText: HTMLTextAreaElement;
 
-    constructor() {
+    constructor(global: any) {
         console.log("Test");
         this.codeText = document.getElementById("codeText") as HTMLTextAreaElement;
-        this.codeText.value = this.getFunctionBody(this.initCode);
+        this.codeText.value = this.initFunctionToString();
+
+        this.global = global;
+        this.userFunction = this.getUserFunction();
     }
 
+    userFunction: (e: any) => void;
 
+    main() {
+        let updateButton = document.getElementById("update") as HTMLButtonElement;
+        updateButton.onclick = () => {
+            console.log("update");
+            this.updateUserFunction();
+            this.runUserFunction();
+        };
+    }
+
+    initFunctionToString() {
+
+        let s = defaultInitCode.toString();
+        // Remove the first and last line
+        s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
+        // Remove the first 4 spaces
+        s = s.replace(/^ {4}/gm, "");
+        // Add e. after new
+        s = s.replace(/new /gm, "new e.");
+        // Add e. before upper case and not after .
+        s = s.replace(/([^\.])\b([A-Z][a-z]+)\b/gm, "$1e.$2");
+
+        return s;
+    }
+
+    getUserFunction() {
+        let code = this.codeText.value;
+        console.log(`code: ${code}`);
+        return new Function("e", code) as (e: any) => void;
+    }
+
+    updateUserFunction() {
+        this.userFunction = this.getUserFunction();
+    }
 
     runUserFunction() {
-        let codeText = document.getElementById("codeText") as HTMLTextAreaElement;
-        let userFunction = new Function(codeText.value).bind(this);
-        Cubism.createFromId("mainCanvas").init(
-            userFunction.call(this)
-        );
-        // userFunction();
+        this.userFunction(this);
     }
-    getFunctionBody(func: Function): string {
-        let funcString = func.toString();
-        let start = funcString.indexOf("{") + 1;
-        let end = funcString.lastIndexOf("}");
-        return funcString.substring(start, end);
-    }
-    initCode() {
-        return new VerticalLayout(
+}
+
+function defaultInitCode(e: any) {
+    console.log(`exports is ${e}`)
+    console.log(e)
+    let c = Cubism.createFromId("mainCanvas");
+    console.log(e.VerticalLayout);
+
+    c.init(
+        new VerticalLayout(
             new DraggableRect()
                 .setWidth(100)
                 .setHeight(100)
@@ -67,7 +97,12 @@ class Test {
                 .setHeight(50)
                 .setWidth(100)
         )
-    }
+    )
 }
 
-new Test().main();
+function getCode(funcString: string) {
+    return funcString.substring(funcString.indexOf("{") + 1, funcString.lastIndexOf("}"));
+}
+
+let test = new Test(this);
+test.main();
