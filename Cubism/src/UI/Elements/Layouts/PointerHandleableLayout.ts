@@ -1,6 +1,5 @@
 import {CanvasDrawer} from "../../../CanvasDrawer";
 import {PointerPoint} from "../../../Datatypes/PointerPoint";
-import {Log} from "../../../Debug/Log";
 import {LayoutValues} from "../../../Constants/Constants";
 import {PointerHandleableElement} from "../PointerHandleableElement";
 import {CubismGlobalEventSystem} from "../../../Events/CubismGlobalEventSystem";
@@ -11,7 +10,6 @@ export class PointerHandleableLayout extends PointerHandleableElement {
     constructor(...children: PointerHandleableElement[]) {
         super();
         this._children = children;
-        Log.logDebug("Children", this._children);
     }
 
     setGlobalEventSystem(globalEvent: CubismGlobalEventSystem) {
@@ -32,16 +30,13 @@ export class PointerHandleableLayout extends PointerHandleableElement {
     }
 
     updateChildrenSize() {
-        Log.logDebug("absSize", this.absSize);
         for (let child of this.children) {
             let x = child.width;
             let y = child.height;
             if (x === LayoutValues.MATCH_PARENT) {
-                Log.logDebug("Match parent X", child);
                 x = this.absWidth;
             }
             if (y === LayoutValues.MATCH_PARENT) {
-                Log.logDebug("Match parent Y", child);
                 y = this.absHeight;
                 console.log("this.absHeight", this.absHeight);
             }

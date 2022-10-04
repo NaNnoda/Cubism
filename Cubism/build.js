@@ -141,38 +141,65 @@
   };
 
   // src/Constants/Constants.ts
-  var Values = class {
-  };
-  Values.FRAME_UPDATE = "onFrameUpdate";
-  Values.FIX_UPDATE = "onFixUpdate";
-  Values.REDRAW = "onRedraw";
-  Values.ON_MOVE = "onMove";
-  Values.ON_DOWN = "onDown";
-  Values.ON_UP = "onUp";
-  Values.ON_CLICK = "onClick";
-  Values.ON_DOUBLE_CLICK = "onDoubleClick";
-  Values.ON_DRAG = "onDrag";
-  Values.ON_DRAG_START = "onDragStart";
-  Values.ON_DRAG_END = "onDragEnd";
-  Values.ON_DRAG_ENTER = "onDragEnter";
-  Values.ON_DRAG_LEAVE = "onDragLeave";
-  Values.ON_DRAG_OVER = "onDragOver";
-  Values.ON_DROP = "onDrop";
-  Values.ON_PARENT_MOVE = "onParentMove";
-  Values.ON_PARENT_DOWN = "onParentDown";
-  Values.ON_PARENT_UP = "onParentUp";
-  Values.ON_PARENT_CLICK = "onParentClick";
-  Values.ON_ENTER = "onEnter";
-  Values.ON_LEAVE = "onLeave";
-  Values.POINTER_DOWN = "onMouseDown";
-  Values.POINTER_UP = "onMouseUp";
-  Values.POINTER_MOVE = "onMouseMove";
   var LayoutValues = class {
   };
   LayoutValues.DEFAULT_PADDING = 10;
   LayoutValues.DEFAULT_MARGIN = 10;
   LayoutValues.DEFAULT_BORDER = 1;
   LayoutValues.MATCH_PARENT = -1;
+  var Orientation = class {
+  };
+  Orientation.HORIZONTAL = 1;
+  Orientation.VERTICAL = 0;
+  var Alignment = class {
+  };
+  Alignment.START = 0;
+  Alignment.END = 1;
+  Alignment.CENTER = 2;
+  Alignment.STRETCH = 3;
+  var Direction = class {
+  };
+  Direction.LEFT = 0;
+  Direction.RIGHT = 1;
+  Direction.UP = 2;
+  Direction.DOWN = 3;
+  Direction.START = 4;
+  Direction.END = 5;
+  var Axis = class {
+  };
+  Axis.X = 0;
+  Axis.Y = 1;
+  var PointerType = class {
+  };
+  PointerType.MOUSE = 0;
+  PointerType.TOUCH = 1;
+  PointerType.PEN = 2;
+  var GEventKeys = class {
+  };
+  GEventKeys.ON_MOVE = "onMove";
+  GEventKeys.ON_DOWN = "onDown";
+  GEventKeys.ON_UP = "onUp";
+  GEventKeys.ON_CLICK = "onClick";
+  GEventKeys.ON_DOUBLE_CLICK = "onDoubleClick";
+  GEventKeys.ON_DRAG = "onDrag";
+  GEventKeys.ON_DRAG_START = "onDragStart";
+  GEventKeys.ON_DRAG_END = "onDragEnd";
+  GEventKeys.ON_DRAG_ENTER = "onDragEnter";
+  GEventKeys.ON_DRAG_LEAVE = "onDragLeave";
+  GEventKeys.ON_DRAG_OVER = "onDragOver";
+  GEventKeys.ON_DROP = "onDrop";
+  GEventKeys.ON_PARENT_MOVE = "onParentMove";
+  GEventKeys.ON_PARENT_DOWN = "onParentDown";
+  GEventKeys.ON_PARENT_UP = "onParentUp";
+  GEventKeys.ON_PARENT_CLICK = "onParentClick";
+  GEventKeys.ON_ENTER = "onEnter";
+  GEventKeys.ON_LEAVE = "onLeave";
+  GEventKeys.FRAME_UPDATE = "onFrameUpdate";
+  GEventKeys.FIX_UPDATE = "onFixUpdate";
+  GEventKeys.REDRAW = "onRedraw";
+  GEventKeys.POINTER_DOWN = "onMouseDown";
+  GEventKeys.POINTER_UP = "onMouseUp";
+  GEventKeys.POINTER_MOVE = "onMouseMove";
 
   // src/CanvasDrawer.ts
   var CanvasDrawer = class {
@@ -196,7 +223,7 @@
       this.canvas.height = height;
     }
     registerFrameUpdate() {
-      this.globalEvent.registerGlobalEvent(Values.FRAME_UPDATE, this.frameUpdate.bind(this));
+      this.globalEvent.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
     frameUpdate() {
       if (this.state.needsRedraw) {
@@ -277,7 +304,7 @@
       this.state.needsRedraw = redraw;
     }
     triggerRedraw() {
-      this.globalEvent.triggerGlobalEvent(Values.REDRAW);
+      this.globalEvent.triggerGlobalEvent(GEventKeys.REDRAW);
     }
   };
 
@@ -318,10 +345,10 @@
       setInterval(this.doFixUpdate.bind(this), 1e3 / 60);
     }
     doFixUpdate() {
-      this.globalEvent.triggerGlobalEvent(Values.FIX_UPDATE);
+      this.globalEvent.triggerGlobalEvent(GEventKeys.FIX_UPDATE);
     }
     startFrameUpdate() {
-      this.globalEvent.triggerGlobalEvent(Values.FRAME_UPDATE);
+      this.globalEvent.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
       window.requestAnimationFrame(this.startFrameUpdate.bind(this));
     }
   };
@@ -368,33 +395,6 @@
     }
   };
 
-  // src/Debug/Log.ts
-  var _Log = class {
-    static log(message, ...args) {
-      let s = message;
-      if (args.length !== 0) {
-        s += ": ";
-      }
-      s += "\n";
-      for (let i = 0; i < args.length; i++) {
-        s += args[i] + "\n";
-      }
-      console.log(s);
-    }
-    static logDebug(message, ...args) {
-      if (_Log.debugFlag) {
-        _Log.log(message, ...args);
-      }
-    }
-    static debug(message, ...args) {
-      if (_Log.debugFlag) {
-        console.log(message, ...args);
-      }
-    }
-  };
-  var Log = _Log;
-  Log.debugFlag = true;
-
   // src/UI/Elements/CubismElement.ts
   var CubismElement = class {
     constructor() {
@@ -439,7 +439,6 @@
       this.globalEvent = globalEvent;
     }
     updateShape(x, y) {
-      Log.logDebug("Resizing", this, "to", x, y);
       this.absWidth = x;
       this.absHeight = y;
       this.needsResize = false;
@@ -494,7 +493,6 @@
       if (this.c === null) {
         throw new Error("CubismElement.render(): CubismCanvasManager is null");
       }
-      Log.logDebug("Rendering", this);
     }
     toString() {
       return `${this.elementName} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
@@ -537,25 +535,25 @@
       this.pushOnParentDown((point) => {
         this.onParentDown(point);
       });
-      this.pushOn(Values.ON_MOVE, (point) => {
+      this.pushOn(GEventKeys.ON_MOVE, (point) => {
         this.onMove(point);
       });
-      this.pushOn(Values.ON_PARENT_DOWN, (point) => {
+      this.pushOn(GEventKeys.ON_PARENT_DOWN, (point) => {
         this.onParentDown(point);
       });
-      this.pushOn(Values.ON_DOWN, (point) => {
+      this.pushOn(GEventKeys.ON_DOWN, (point) => {
         this.onDown(point);
       });
-      this.pushOn(Values.ON_PARENT_UP, (point) => {
+      this.pushOn(GEventKeys.ON_PARENT_UP, (point) => {
         this.onParentUp(point);
       });
-      this.pushOn(Values.ON_UP, (point) => {
+      this.pushOn(GEventKeys.ON_UP, (point) => {
         this.onUp(point);
       });
-      this.pushOn(Values.ON_ENTER, (point) => {
+      this.pushOn(GEventKeys.ON_ENTER, (point) => {
         this.onEnter(point);
       });
-      this.pushOn(Values.ON_LEAVE, (point) => {
+      this.pushOn(GEventKeys.ON_LEAVE, (point) => {
         this.onLeave(point);
       });
     }
@@ -572,7 +570,7 @@
       this._hovered = value;
     }
     triggerOnParentDown(point) {
-      let e = this.getOn(Values.ON_PARENT_DOWN);
+      let e = this.getOn(GEventKeys.ON_PARENT_DOWN);
       for (let callback of e) {
         callback(point);
       }
@@ -583,7 +581,7 @@
       }
     }
     triggerOnParentUp(point) {
-      let e = this.getOn(Values.ON_PARENT_UP);
+      let e = this.getOn(GEventKeys.ON_PARENT_UP);
       for (let callback of e) {
         callback(point);
       }
@@ -594,7 +592,7 @@
       }
     }
     triggerOnUp(point) {
-      let e = this.getOn(Values.ON_UP);
+      let e = this.getOn(GEventKeys.ON_UP);
       for (let callback of e) {
         callback(point);
       }
@@ -603,7 +601,7 @@
       this.pressed = false;
     }
     triggerOnDown(point) {
-      let e = this.getOn(Values.ON_DOWN);
+      let e = this.getOn(GEventKeys.ON_DOWN);
       for (let callback of e) {
         callback(point);
       }
@@ -612,7 +610,7 @@
       this.pressed = true;
     }
     triggerOnMove(point) {
-      let e = this.getOn(Values.ON_MOVE);
+      let e = this.getOn(GEventKeys.ON_MOVE);
       for (let callback of e) {
         callback(point);
       }
@@ -620,11 +618,11 @@
     onMove(point) {
     }
     pushOnMove(...callbacks) {
-      this.pushOn(Values.ON_MOVE, ...callbacks);
+      this.pushOn(GEventKeys.ON_MOVE, ...callbacks);
       return this;
     }
     removeOnMove(callback) {
-      this.removeOn(Values.ON_MOVE, callback);
+      this.removeOn(GEventKeys.ON_MOVE, callback);
     }
     onParentMove(point) {
       if (this.inRange(point)) {
@@ -640,11 +638,11 @@
       }
     }
     pushOnParentMove(...callbacks) {
-      this.pushOn(Values.ON_PARENT_MOVE, ...callbacks);
+      this.pushOn(GEventKeys.ON_PARENT_MOVE, ...callbacks);
       return this;
     }
     triggerOnParentMove(point) {
-      let e = this.getOn(Values.ON_PARENT_MOVE);
+      let e = this.getOn(GEventKeys.ON_PARENT_MOVE);
       for (let callback of e) {
         callback(point);
       }
@@ -656,17 +654,17 @@
       this.hovered = true;
     }
     triggerOnEnter(point) {
-      let e = this.getOn(Values.ON_ENTER);
+      let e = this.getOn(GEventKeys.ON_ENTER);
       for (let callback of e) {
         callback(point);
       }
     }
     pushOnParentDown(...callbacks) {
-      this.pushOn(Values.ON_PARENT_DOWN, ...callbacks);
+      this.pushOn(GEventKeys.ON_PARENT_DOWN, ...callbacks);
       return this;
     }
     triggerOnLeave(point) {
-      let e = this.getOn(Values.ON_LEAVE);
+      let e = this.getOn(GEventKeys.ON_LEAVE);
       for (let callback of e) {
         callback(point);
       }
@@ -706,29 +704,29 @@
     }
     registerPointerEvents() {
       this.canvas.onpointermove = (e) => {
-        this.globalEvent.triggerGlobalEvent(Values.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+        this.globalEvent.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
       };
-      this.globalEvent.registerGlobalEvent(Values.ON_MOVE, (point) => {
+      this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, (point) => {
         this.root.triggerOnMove(point);
       });
       this.canvas.onpointerdown = (e) => {
-        this.globalEvent.triggerGlobalEvent(Values.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+        this.globalEvent.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
       };
-      this.globalEvent.registerGlobalEvent(Values.ON_DOWN, (point) => {
+      this.globalEvent.registerGlobalEvent(GEventKeys.ON_DOWN, (point) => {
         this.root.triggerOnDown(point);
       });
       this.canvas.onpointerup = (e) => {
-        this.globalEvent.triggerGlobalEvent(Values.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+        this.globalEvent.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
       };
-      this.globalEvent.registerGlobalEvent(Values.ON_UP, (point) => {
+      this.globalEvent.registerGlobalEvent(GEventKeys.ON_UP, (point) => {
         this.root.triggerOnUp(point);
       });
     }
     registerRedraw() {
-      this.globalEvent.registerGlobalEvent(Values.REDRAW, this.redraw.bind(this));
+      this.globalEvent.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
     }
     registerOnMove() {
-      this.globalEvent.registerGlobalEvent(Values.ON_MOVE, this.registerOnMove.bind(this));
+      this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
     }
     static createFromCanvas(canvas) {
       return new Cubism(canvas);
@@ -759,29 +757,259 @@
     }
   };
 
-  // src/UI/Elements/InteractiveRect.ts
-  var InteractiveRect = class extends PointerHandleableElement {
+  // src/Theme/Colors.ts
+  var Colors = class {
+  };
+  Colors.black = "#000000";
+  Colors.white = "#ffffff";
+  Colors.pureRed = "#ff0000";
+  Colors.pureGreen = "#00ff00";
+  Colors.pureBlue = "#0000ff";
+  Colors.pureYellow = "#ffff00";
+  Colors.pureCyan = "#00ffff";
+  Colors.pureMagenta = "#ff00ff";
+  Colors.orange = "#ff8000";
+  Colors.purple = "#8000ff";
+  Colors.pink = "#ff0080";
+  Colors.brown = "#804000";
+  Colors.grey100 = "#efefef";
+  Colors.grey200 = "#a0a0a0";
+  Colors.grey300 = "#808080";
+  Colors.grey400 = "#606060";
+  Colors.grey500 = "#404040";
+  Colors.grey600 = "#202020";
+  Colors.grey700 = "#000000";
+  Colors.blue100 = "#a6d5ff";
+  Colors.blue200 = "#7ec0ff";
+  Colors.blue300 = "#57abff";
+  Colors.blue400 = "#2e96ff";
+  Colors.blue500 = "#0080ff";
+  Colors.blue600 = "#0060cc";
+  Colors.blue700 = "#004099";
+  Colors.green100 = "#a6ffcc";
+  Colors.green200 = "#7effa6";
+  Colors.green300 = "#57ff80";
+  Colors.green400 = "#2eff5a";
+  Colors.green500 = "#00ff00";
+  Colors.green600 = "#00cc00";
+  Colors.green700 = "#009900";
+  Colors.red100 = "#ffcccc";
+  Colors.red200 = "#ff9999";
+  Colors.red300 = "#ff6666";
+  Colors.red400 = "#ff3333";
+  Colors.red500 = "#ff0000";
+  Colors.red600 = "#cc0000";
+  Colors.red700 = "#990000";
+  Colors.yellow100 = "#ffffcc";
+  Colors.yellow200 = "#ffff99";
+  Colors.yellow300 = "#ffff66";
+  Colors.yellow400 = "#ffff33";
+  Colors.yellow500 = "#ffff00";
+  Colors.yellow600 = "#cccc00";
+  Colors.yellow700 = "#999900";
+  Colors.cyan100 = "#ccffff";
+  Colors.cyan200 = "#99ffff";
+  Colors.cyan300 = "#66ffff";
+  Colors.cyan400 = "#33ffff";
+  Colors.cyan500 = "#00ffff";
+  Colors.cyan600 = "#00cccc";
+  Colors.cyan700 = "#009999";
+  Colors.magenta100 = "#ffccff";
+  Colors.magenta200 = "#ff99ff";
+  Colors.magenta300 = "#ff66ff";
+  Colors.magenta400 = "#ff33ff";
+  Colors.magenta500 = "#ff00ff";
+  Colors.magenta600 = "#cc00cc";
+  Colors.magenta700 = "#990099";
+  Colors.orange100 = "#ffcc99";
+  Colors.orange200 = "#ff9966";
+  Colors.orange300 = "#ff9933";
+  Colors.orange400 = "#ff9900";
+  Colors.orange500 = "#ff8000";
+  Colors.orange600 = "#cc6600";
+  Colors.orange700 = "#994c00";
+  Colors.purple100 = "#cc99ff";
+  Colors.purple200 = "#9966ff";
+  Colors.purple300 = "#9933ff";
+  Colors.purple400 = "#9900ff";
+  Colors.purple500 = "#8000ff";
+  Colors.purple600 = "#6600cc";
+  Colors.purple700 = "#4c0099";
+  Colors.pink100 = "#ff99cc";
+  Colors.pink200 = "#ff6699";
+  Colors.pink300 = "#ff3399";
+  Colors.pink400 = "#ff0099";
+  Colors.pink500 = "#ff0080";
+  Colors.pink600 = "#cc0066";
+  Colors.pink700 = "#99004c";
+  Colors.brown100 = "#cc9966";
+  Colors.brown200 = "#996633";
+  Colors.brown300 = "#994c00";
+  Colors.brown400 = "#993300";
+  Colors.brown500 = "#804000";
+  Colors.brown600 = "#663300";
+  Colors.brown700 = "#4c2600";
+  Colors.lightGray = "#c0c0c0";
+  Colors.darkGray = "#404040";
+  Colors.lightRed = "#ff8080";
+  Colors.lightGreen = "#80ff80";
+  Colors.lightBlue = "#8080ff";
+  Colors.lightYellow = "#ffff80";
+  Colors.lightCyan = "#80ffff";
+  Colors.lightMagenta = "#ff80ff";
+  Colors.darkRed = "#800000";
+  Colors.darkGreen = "#008000";
+  Colors.darkBlue = "#000080";
+  Colors.darkYellow = "#808000";
+  Colors.darkCyan = "#008080";
+  Colors.darkMagenta = "#800080";
+  Colors.transparent = "rgba(0,0,0,0)";
+  Colors.transparentBlack = "rgba(0,0,0,0.5)";
+  Colors.transparentWhite = "rgba(255,255,255,0.5)";
+  Colors.transparentRed = "rgba(255,0,0,0.5)";
+  Colors.transparentGreen = "rgba(0,255,0,0.5)";
+  Colors.transparentBlue = "rgba(0,0,255,0.5)";
+  Colors.transparentYellow = "rgba(255,255,0,0.5)";
+  Colors.transparentCyan = "rgba(0,255,255,0.5)";
+  Colors.transparentMagenta = "rgba(255,0,255,0.5)";
+  Colors.transparentOrange = "rgba(255,128,0,0.5)";
+  Colors.transparentPurple = "rgba(128,0,255,0.5)";
+  Colors.transparentPink = "rgba(255,0,128,0.5)";
+
+  // src/Theme/Theme.ts
+  var CubismElementThemeRoot = class {
+    constructor(color = new ColorTheme(), font = new FontTheme()) {
+      this.color = color;
+      this.font = font;
+    }
+  };
+  var ColorTheme = class {
+    constructor() {
+      this.primary = Colors.blue500;
+      this.secondary = Colors.blue700;
+      this.background = Colors.white;
+      this.border = this.primary;
+      this.text = Colors.black;
+    }
+    setPrimary(color) {
+      this.primary = color;
+      return this;
+    }
+    setSecondary(color) {
+      this.secondary = color;
+      return this;
+    }
+    setBackground(color) {
+      this.background = color;
+      return this;
+    }
+    setBorder(color) {
+      this.border = color;
+      return this;
+    }
+    setText(color) {
+      this.text = color;
+      return this;
+    }
+  };
+  var OnClickColorTheme = class extends ColorTheme {
+    constructor() {
+      super(...arguments);
+      this.background = Colors.grey200;
+    }
+  };
+  var OnHoverColorTheme = class extends ColorTheme {
+    constructor() {
+      super(...arguments);
+      this.background = Colors.grey100;
+    }
+  };
+  var FontTheme = class {
+    constructor() {
+      this.fontSizes = 14;
+      this.fontFamily = "Arial";
+    }
+  };
+
+  // src/UI/Elements/ThemedElement.ts
+  var ThemedElement = class extends PointerHandleableElement {
     constructor() {
       super();
+      this.defaultTheme = new CubismElementThemeRoot(
+        new ColorTheme()
+      );
+      this.hoverTheme = new CubismElementThemeRoot(
+        new OnHoverColorTheme()
+      );
+      this.pressedTheme = new CubismElementThemeRoot(
+        new OnClickColorTheme()
+      );
+      this._currTheme = this.defaultTheme;
+      this.currTheme = this.defaultTheme;
+    }
+    get currTheme() {
+      return this._currTheme;
+    }
+    set currTheme(theme) {
+      this._currTheme = theme;
     }
     onMove(point) {
+      var _a;
       super.onMove(point);
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
     }
     onDown(point) {
+      var _a;
       super.onDown(point);
-      Log.logDebug("down on", this);
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    onUp(point) {
+      var _a;
+      super.onUp(point);
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    onEnter(point) {
+      var _a;
+      super.onEnter(point);
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    onLeave(point) {
+      var _a;
+      super.onLeave(point);
+      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    }
+    setDefaultTheme(theme) {
+      this.defaultTheme = theme;
+      return this;
+    }
+    setHoverTheme(theme) {
+      this.hoverTheme = theme;
+      return this;
+    }
+    setPressTheme(theme) {
+      this.pressedTheme = theme;
+      return this;
     }
     render() {
       super.render();
       let c = this.c;
       c.translate(this.position);
+      this.currTheme = this.defaultTheme;
+      if (this.hovered) {
+        this.currTheme = this.hoverTheme;
+      }
+      if (this.pressed) {
+        this.currTheme = this.pressedTheme;
+      }
+      c.setFillStyle(this.currTheme.color.background);
+      c.setStrokeStyle(this.currTheme.color.border);
       c.drawRectWithPoints(this.absSize);
       c.restoreTranslate();
     }
   };
 
   // src/UI/Elements/DraggableRect.ts
-  var DraggableRect = class extends InteractiveRect {
+  var DraggableRect = class extends ThemedElement {
     constructor() {
       super(...arguments);
       this.pointerRelativePosition = null;
@@ -810,7 +1038,6 @@
       super();
       this._children = [];
       this._children = children;
-      Log.logDebug("Children", this._children);
     }
     setGlobalEventSystem(globalEvent) {
       super.setGlobalEventSystem(globalEvent);
@@ -827,16 +1054,13 @@
       this.updateChildrenPosition();
     }
     updateChildrenSize() {
-      Log.logDebug("absSize", this.absSize);
       for (let child of this.children) {
         let x = child.width;
         let y = child.height;
         if (x === LayoutValues.MATCH_PARENT) {
-          Log.logDebug("Match parent X", child);
           x = this.absWidth;
         }
         if (y === LayoutValues.MATCH_PARENT) {
-          Log.logDebug("Match parent Y", child);
           y = this.absHeight;
           console.log("this.absHeight", this.absHeight);
         }
@@ -914,7 +1138,7 @@
   };
 
   // src/UI/Elements/ButtonElement.ts
-  var ButtonElement = class extends InteractiveRect {
+  var ButtonElement = class extends ThemedElement {
     constructor(text) {
       super();
       this.text = text;
@@ -951,6 +1175,7 @@
     render() {
       super.render();
       let c = this.c;
+      c.setFillStyle(this.currTheme.color.text);
       c.fillText(this.text, 10, 30);
     }
   };
@@ -960,7 +1185,11 @@
   function main() {
     Cubism.createFromId("mainCanvas").init(
       new VerticalLayout(
-        new DraggableRect().setWidth(100).setHeight(100),
+        new DraggableRect().setWidth(100).setHeight(100).setDefaultTheme(
+          new CubismElementThemeRoot(
+            new ColorTheme().setBorder(Colors.red200).setBackground(Colors.blue700)
+          )
+        ),
         new DraggableRect().setWidth(100).setHeight(100),
         new ButtonElement("Button").setHeight(50).setWidth(100)
       )

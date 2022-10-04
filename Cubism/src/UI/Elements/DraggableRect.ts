@@ -1,8 +1,8 @@
-import {InteractiveRect} from "./InteractiveRect";
+import {ThemedElement} from "./ThemedElement";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
 
-export class DraggableRect extends InteractiveRect {
+export class DraggableRect extends ThemedElement {
     private pointerRelativePosition: Point2D | null = null;
 
     onDown(point: PointerPoint) {

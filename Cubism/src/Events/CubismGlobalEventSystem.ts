@@ -1,4 +1,3 @@
-import {Log} from "../Debug/Log";
 
 /**
  * System that handles the registration and trigger of global events

@@ -1,7 +1,41 @@
 export class Values{
-    public static readonly FRAME_UPDATE = "onFrameUpdate";
-    public static readonly FIX_UPDATE = "onFixUpdate";
-    public static readonly REDRAW = "onRedraw";
+
+}
+export class LayoutValues{
+    public static readonly DEFAULT_PADDING = 10;
+    public static readonly DEFAULT_MARGIN = 10;
+    public static readonly DEFAULT_BORDER = 1;
+
+    public static readonly MATCH_PARENT = -1;
+}
+export class Orientation{
+    public static readonly HORIZONTAL = 1;
+    public static readonly VERTICAL = 0;
+}
+export class Alignment{
+    public static readonly START = 0;
+    public static readonly END = 1;
+    public static readonly CENTER = 2;
+    public static readonly STRETCH = 3;
+}
+export class Direction{
+    public static readonly LEFT = 0;
+    public static readonly RIGHT = 1;
+    public static readonly UP = 2;
+    public static readonly DOWN = 3;
+    public static readonly START = 4;
+    public static readonly END = 5;
+}
+export class Axis{
+    public static readonly X = 0;
+    public static readonly Y = 1;
+}
+export class PointerType{
+    public static readonly MOUSE = 0;
+    public static readonly TOUCH = 1;
+    public static readonly PEN = 2;
+}
+export class GEventKeys{
     public static readonly ON_MOVE = "onMove";
     public static readonly ON_DOWN = "onDown";
     public static readonly ON_UP = "onUp";
@@ -22,15 +56,11 @@ export class Values{
     public static readonly ON_ENTER = "onEnter";
     public static readonly ON_LEAVE = "onLeave";
 
+    public static readonly FRAME_UPDATE = "onFrameUpdate";
+    public static readonly FIX_UPDATE = "onFixUpdate";
+    public static readonly REDRAW = "onRedraw";
 
     public static readonly POINTER_DOWN = "onMouseDown";
     public static readonly POINTER_UP = "onMouseUp";
     public static readonly POINTER_MOVE = "onMouseMove";
-}
-export class LayoutValues{
-    public static readonly DEFAULT_PADDING = 10;
-    public static readonly DEFAULT_MARGIN = 10;
-    public static readonly DEFAULT_BORDER = 1;
-
-    public static readonly MATCH_PARENT = -1;
 }

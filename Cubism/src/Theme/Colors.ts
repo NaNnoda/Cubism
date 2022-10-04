@@ -1,6 +1,5 @@
 export class Colors {
     public static readonly black = "#000000";
-
     public static readonly white = "#ffffff";
     public static readonly pureRed = "#ff0000";
     public static readonly pureGreen = "#00ff00";

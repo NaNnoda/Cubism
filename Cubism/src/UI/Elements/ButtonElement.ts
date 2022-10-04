@@ -1,8 +1,8 @@
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {CanvasDrawer} from "../../CanvasDrawer";
-import {InteractiveRect} from "./InteractiveRect";
+import {ThemedElement} from "./ThemedElement";
 
-export class ButtonElement extends InteractiveRect {
+export class ButtonElement extends ThemedElement {
     text: string;
 
     constructor(text: string) {
@@ -44,6 +44,7 @@ export class ButtonElement extends InteractiveRect {
     render(): void {
         super.render();
         let c = this.c as CanvasDrawer;
+        c.setFillStyle(this.currTheme.color.text);
         c.fillText(this.text, 10, 30);
     }
 }

@@ -1,6 +1,5 @@
 import {Point2D} from "../../Datatypes/Point";
 import {CanvasDrawer} from "../../CanvasDrawer";
-import {Log} from "../../Debug/Log";
 import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
 import {LayoutValues} from "../../Constants/Constants";
 
@@ -55,18 +54,17 @@ export class CubismElement implements IRenderable {
         this.c?.setRedraw(true);
     }
 
-    init(c: CanvasDrawer, parentSize: Point2D, globalEvent: CubismGlobalEventSystem) {
+    init(c: CanvasDrawer, parentSize: Point2D, globalEvent: CubismGlobalEventSystem): void {
         this.setCanvasDrawer(c);
         this.updateShape(parentSize.x, parentSize.y);
         this.setGlobalEventSystem(globalEvent);
     }
 
-    setGlobalEventSystem(globalEvent: CubismGlobalEventSystem) {
+    setGlobalEventSystem(globalEvent: CubismGlobalEventSystem): void {
         this.globalEvent = globalEvent;
     }
 
-    updateShape(x: number, y: number) {
-        Log.logDebug("Resizing", this, "to", x, y);
+    updateShape(x: number, y: number): void {
         this.absWidth = x;
         this.absHeight = y;
         this.needsResize = false;
@@ -77,8 +75,7 @@ export class CubismElement implements IRenderable {
         return this.size.y;
     }
 
-
-    set height(y) {
+    set height(y:number) {
         this.size.y = y;
         this.needsResize = true;
     }
@@ -109,11 +106,11 @@ export class CubismElement implements IRenderable {
         this.absSize.y = y;
     }
 
-    setCanvasDrawer(c: CanvasDrawer) {
+    setCanvasDrawer(c: CanvasDrawer): void {
         this.c = c;
     }
 
-    setWidth(width: number) {
+    setWidth(width: number){
         this.width = width;
         // this.absWidth = -1;
         return this;
@@ -129,22 +126,17 @@ export class CubismElement implements IRenderable {
         this.position = pos;
         return this;
     }
-
     setPosFromXY(x: number, y: number) {
         this.position.x = x;
         this.position.y = y;
         return this;
     }
-
     render(): void {
         if (this.c === null) {
             throw new Error("CubismElement.render(): CubismCanvasManager is null");
         }
-        Log.logDebug("Rendering", this);
     }
-
-
-    toString() {
+    toString(): string {
         return `${this.elementName} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
     }
 

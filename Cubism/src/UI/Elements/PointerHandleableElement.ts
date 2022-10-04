@@ -1,13 +1,11 @@
 import {InteractiveElement} from "./InteractiveElement";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
-import {Values} from "../../Constants/Constants";
+import {GEventKeys, Values} from "../../Constants/Constants";
 
 export class PointerHandleableElement extends InteractiveElement {
     _pointerWasNotInRange: boolean = true;
     _hovered: boolean = false;
     _pressed: boolean = false;
-
-    // _lastPoint: PointerPoint | null = null;
 
     get pressed(): boolean {
         return this._pressed;
@@ -33,31 +31,31 @@ export class PointerHandleableElement extends InteractiveElement {
         this.pushOnParentDown((point: PointerPoint) => {
             this.onParentDown(point);
         });
-        this.pushOn(Values.ON_MOVE, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_MOVE, (point: PointerPoint) => {
             this.onMove(point);
         });
-        this.pushOn(Values.ON_PARENT_DOWN, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_PARENT_DOWN, (point: PointerPoint) => {
             this.onParentDown(point);
         });
-        this.pushOn(Values.ON_DOWN, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_DOWN, (point: PointerPoint) => {
             this.onDown(point);
         });
-        this.pushOn(Values.ON_PARENT_UP, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_PARENT_UP, (point: PointerPoint) => {
             this.onParentUp(point);
         });
-        this.pushOn(Values.ON_UP, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_UP, (point: PointerPoint) => {
             this.onUp(point);
         });
-        this.pushOn(Values.ON_ENTER, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_ENTER, (point: PointerPoint) => {
             this.onEnter(point);
         });
-        this.pushOn(Values.ON_LEAVE, (point: PointerPoint) => {
+        this.pushOn(GEventKeys.ON_LEAVE, (point: PointerPoint) => {
             this.onLeave(point);
         });
     }
 
     public triggerOnParentDown(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_PARENT_DOWN);
+        let e = this.getOn(GEventKeys.ON_PARENT_DOWN);
         for (let callback of e) {
             callback(point);
         }
@@ -70,7 +68,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public triggerOnParentUp(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_PARENT_UP);
+        let e = this.getOn(GEventKeys.ON_PARENT_UP);
         for (let callback of e) {
             callback(point);
         }
@@ -83,7 +81,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public triggerOnUp(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_UP);
+        let e = this.getOn(GEventKeys.ON_UP);
         for (let callback of e) {
             callback(point);
         }
@@ -94,7 +92,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public triggerOnDown(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_DOWN);
+        let e = this.getOn(GEventKeys.ON_DOWN);
         for (let callback of e) {
             callback(point);
         }
@@ -105,7 +103,7 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public triggerOnMove(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_MOVE);
+        let e = this.getOn(GEventKeys.ON_MOVE);
         for (let callback of e) {
             callback(point);
         }
@@ -116,12 +114,12 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     public pushOnMove(...callbacks: Function[]): InteractiveElement {
-        this.pushOn(Values.ON_MOVE, ...callbacks);
+        this.pushOn(GEventKeys.ON_MOVE, ...callbacks);
         return this;
     }
 
     public removeOnMove(callback: Function): void {
-        this.removeOn(Values.ON_MOVE, callback);
+        this.removeOn(GEventKeys.ON_MOVE, callback);
     }
 
     public onParentMove(point: PointerPoint): void {
@@ -140,12 +138,12 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     pushOnParentMove(...callbacks: Function[]): InteractiveElement {
-        this.pushOn(Values.ON_PARENT_MOVE, ...callbacks);
+        this.pushOn(GEventKeys.ON_PARENT_MOVE, ...callbacks);
         return this;
     }
 
     triggerOnParentMove(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_PARENT_MOVE);
+        let e = this.getOn(GEventKeys.ON_PARENT_MOVE);
         for (let callback of e) {
             callback(point);
         }
@@ -163,19 +161,19 @@ export class PointerHandleableElement extends InteractiveElement {
     }
 
     triggerOnEnter(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_ENTER);
+        let e = this.getOn(GEventKeys.ON_ENTER);
         for (let callback of e) {
             callback(point);
         }
     }
 
     private pushOnParentDown(...callbacks: Function[]): InteractiveElement {
-        this.pushOn(Values.ON_PARENT_DOWN, ...callbacks);
+        this.pushOn(GEventKeys.ON_PARENT_DOWN, ...callbacks);
         return this;
     }
 
     triggerOnLeave(point: PointerPoint): void {
-        let e = this.getOn(Values.ON_LEAVE);
+        let e = this.getOn(GEventKeys.ON_LEAVE);
         for (let callback of e) {
             callback(point);
         }

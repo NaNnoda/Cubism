@@ -1,7 +1,7 @@
 import {Point2D} from "./Datatypes/Point";
 import {CubismCanvasState} from "./State";
 import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
-import {Values} from "./Constants/Constants";
+import {GEventKeys, Values} from "./Constants/Constants";
 
 /**
  * Adaptor class for the canvas
@@ -51,7 +51,7 @@ export class CanvasDrawer {
      * @private
      */
     private registerFrameUpdate() {
-        this.globalEvent.registerGlobalEvent(Values.FRAME_UPDATE, this.frameUpdate.bind(this));
+        this.globalEvent.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
 
     /**
@@ -210,6 +210,6 @@ export class CanvasDrawer {
      * Seems more responsive than setRedraw()
      */
     triggerRedraw() {
-        this.globalEvent.triggerGlobalEvent(Values.REDRAW);
+        this.globalEvent.triggerGlobalEvent(GEventKeys.REDRAW);
     }
 }

@@ -1,29 +1,51 @@
 import {Colors} from "./Colors";
 
-class Theme {
+export class CubismElementThemeRoot {
     color: ColorTheme;
     font: FontTheme;
-    constructor(color: ColorTheme, font: FontTheme) {
+    constructor(color: ColorTheme = new ColorTheme(), font: FontTheme = new FontTheme()) {
         this.color = color;
         this.font = font;
     }
 }
 
-class ColorTheme {
+export class ColorTheme {
     primary: string = Colors.blue500;
+    setPrimary(color: string) {
+        this.primary = color;
+        return this;
+    }
     secondary: string = Colors.blue700;
+    setSecondary(color: string) {
+        this.secondary = color;
+        return this;
+    }
     background: string = Colors.white;
+    setBackground(color: string) {
+        this.background = color;
+        return this;
+    }
+    border: string = this.primary;
+    setBorder(color: string) {
+        this.border = color;
+        return this;
+    }
+
     text: string = Colors.black;
+    setText(color: string) {
+        this.text = color;
+        return this;
+    }
 }
-class OnClickColorTheme extends ColorTheme {
-    background: string = Colors.grey700;
+export class OnClickColorTheme extends ColorTheme {
+    background: string = Colors.grey200;
 }
-class OnHoverColorTheme extends ColorTheme {
-    background: string = Colors.grey300;
+export class OnHoverColorTheme extends ColorTheme {
+    background: string = Colors.grey100;
 }
 
 
-class FontTheme {
+export class FontTheme {
     fontSizes: number = 14;
     fontFamily: string = "Arial";
 }

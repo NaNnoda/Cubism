@@ -1,7 +1,7 @@
 import {CanvasDrawer} from "./CanvasDrawer";
 import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
 import {CubismEventManager} from "./Events/CubismEventManager";
-import {Values} from "./Constants/Constants";
+import {GEventKeys, Values} from "./Constants/Constants";
 import {Point2D} from "./Datatypes/Point";
 import {PointerHandleableElement} from "./UI/Elements/PointerHandleableElement";
 import {PointerPoint} from "./Datatypes/PointerPoint";
@@ -32,37 +32,37 @@ export class Cubism {
     registerPointerEvents() {
         // on move
         this.canvas.onpointermove = (e) => {
-            this.globalEvent.triggerGlobalEvent(Values.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(Values.ON_MOVE, (point: PointerPoint) => {
+        this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, (point: PointerPoint) => {
             this.root.triggerOnMove(point);
         });
         // on down
         this.canvas.onpointerdown = (e) => {
-            this.globalEvent.triggerGlobalEvent(Values.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(Values.ON_DOWN, (point: PointerPoint) => {
+        this.globalEvent.registerGlobalEvent(GEventKeys.ON_DOWN, (point: PointerPoint) => {
             this.root.triggerOnDown(point);
         });
         // on up
         this.canvas.onpointerup = (e) => {
-            this.globalEvent.triggerGlobalEvent(Values.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(Values.ON_UP, (point: PointerPoint) => {
+        this.globalEvent.registerGlobalEvent(GEventKeys.ON_UP, (point: PointerPoint) => {
             this.root.triggerOnUp(point);
         });
     }
 
 
     registerRedraw() {
-        this.globalEvent.registerGlobalEvent(Values.REDRAW, this.redraw.bind(this));
+        this.globalEvent.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
     }
 
     registerOnMove() {
-        this.globalEvent.registerGlobalEvent(Values.ON_MOVE, this.registerOnMove.bind(this));
+        this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
     }
 
     /**
