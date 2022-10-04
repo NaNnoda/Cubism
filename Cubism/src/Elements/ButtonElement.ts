@@ -6,10 +6,15 @@ import {FontTheme} from "../Theme/Theme";
 export class ButtonElement extends ThemedElement {
     text: string;
 
-    constructor(text: string) {
+    constructor(text: string = "Button") {
         super();
         this.text = text;
         this.setFontTheme(new FontTheme().setFontSize(30));
+    }
+
+    setText(text: string): ButtonElement {
+        this.text = text;
+        return this;
     }
 
 

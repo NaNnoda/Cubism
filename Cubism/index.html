@@ -15,6 +15,10 @@
             height: 100%;
         }
 
+        red {
+            color: red;
+        }
+
         body {
             height: 100%;
             overflow: auto;
@@ -35,11 +39,14 @@
 </head>
 
 <body>
-    <canvas id="mainCanvas" class="border" width="400" height="400"></canvas>
-    <textarea id="codeText">console.log("user function");</textarea>
-    <button id="update">run</button>
 
-    <script src="build.js"></script>
+<div>
+    <canvas id="mainCanvas" class="border" width="400" height="400"></canvas>
+</div>
+<textarea id="codeText" style="height: 300px;width: 500px">console.log("user function");</textarea>
+<button id="update">Run</button>
+
+<script src="build.js" type="module"></script>
 </body>
 
 </html>

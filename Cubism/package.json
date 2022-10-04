@@ -5,6 +5,9 @@
   },
   "scripts": {
     "build": "esbuild src/Index.ts --bundle --outfile=build.js",
-    "watch": "esbuild src/Index.ts --bundle --sourcemap --outfile=build.js --watch"
+    "watch": "esbuild src/Index.ts --bundle --sourcemap --outfile=build.js --watch --format=esm --global-name=cubism"
+  },
+  "devDependencies": {
+    "@types/node": "^18.8.2"
   }
 }
