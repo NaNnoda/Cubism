@@ -1,8 +1,8 @@
-import {CanvasDrawer} from "../../../CanvasDrawer";
-import {PointerPoint} from "../../../Datatypes/PointerPoint";
-import {LayoutValues} from "../../../Constants/Constants";
+import {CanvasDrawer} from "../../CanvasDrawer";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
+import {LayoutValues} from "../../Constants/Constants";
 import {PointerHandleableElement} from "../PointerHandleableElement";
-import {CubismGlobalEventSystem} from "../../../Events/CubismGlobalEventSystem";
+import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
 
 export class PointerHandleableLayout extends PointerHandleableElement {
     private _children: PointerHandleableElement[] = [];

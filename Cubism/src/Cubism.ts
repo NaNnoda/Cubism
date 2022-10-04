@@ -3,7 +3,7 @@ import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
 import {CubismEventManager} from "./Events/CubismEventManager";
 import {GEventKeys, Values} from "./Constants/Constants";
 import {Point2D} from "./Datatypes/Point";
-import {PointerHandleableElement} from "./UI/Elements/PointerHandleableElement";
+import {PointerHandleableElement} from "./Elements/PointerHandleableElement";
 import {PointerPoint} from "./Datatypes/PointerPoint";
 
 /**

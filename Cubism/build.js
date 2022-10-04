@@ -370,19 +370,24 @@
     set y(value) {
       this.arr[1] = value;
     }
-    sub(other) {
-      return new Point2D(this.x - other.x, this.y - other.y);
+    clone() {
+      return new Point2D(this.x, this.y);
     }
     offset(offset) {
       this.x += offset.x;
       this.y += offset.y;
+      return this;
     }
     nOffset(offset) {
       this.x -= offset.x;
       this.y -= offset.y;
+      return this;
     }
     add(other) {
-      return new Point2D(this.x + other.x, this.y + other.y);
+      return this.clone().offset(other);
+    }
+    sub(other) {
+      return this.clone().nOffset(other);
     }
     mul(other) {
       return new Point2D(this.x * other.x, this.y * other.y);
@@ -395,7 +400,7 @@
     }
   };
 
-  // src/UI/Elements/CubismElement.ts
+  // src/Elements/CubismElement.ts
   var CubismElement = class {
     constructor() {
       this.globalEvent = null;
@@ -502,7 +507,7 @@
     }
   };
 
-  // src/UI/Elements/InteractiveElement.ts
+  // src/Elements/InteractiveElement.ts
   var InteractiveElement = class extends CubismElement {
     constructor() {
       super(...arguments);
@@ -522,7 +527,7 @@
     }
   };
 
-  // src/UI/Elements/PointerHandleableElement.ts
+  // src/Elements/PointerHandleableElement.ts
   var PointerHandleableElement = class extends InteractiveElement {
     constructor() {
       super();
@@ -929,9 +934,17 @@
       this.fontSizes = 14;
       this.fontFamily = "Arial";
     }
+    setFontSize(size) {
+      this.fontSizes = size;
+      return this;
+    }
+    setFontFamily(font) {
+      this.fontFamily = font;
+      return this;
+    }
   };
 
-  // src/UI/Elements/ThemedElement.ts
+  // src/Elements/ThemedElement.ts
   var ThemedElement = class extends PointerHandleableElement {
     constructor() {
       super();
@@ -946,6 +959,12 @@
       );
       this._currTheme = this.defaultTheme;
       this.currTheme = this.defaultTheme;
+    }
+    setFontTheme(theme) {
+      this.defaultTheme.font = theme;
+      this.hoverTheme.font = theme;
+      this.pressedTheme.font = theme;
+      return this;
     }
     get currTheme() {
       return this._currTheme;
@@ -1008,7 +1027,7 @@
     }
   };
 
-  // src/UI/Elements/DraggableRect.ts
+  // src/Elements/DraggableRect.ts
   var DraggableRect = class extends ThemedElement {
     constructor() {
       super(...arguments);
@@ -1032,7 +1051,7 @@
     }
   };
 
-  // src/UI/Elements/Layouts/PointerHandleableLayout.ts
+  // src/Elements/Layouts/PointerHandleableLayout.ts
   var PointerHandleableLayout = class extends PointerHandleableElement {
     constructor(...children) {
       super();
@@ -1120,11 +1139,11 @@
     }
   };
 
-  // src/UI/Elements/Layouts/LinearLayout.ts
+  // src/Elements/Layouts/LinearLayout.ts
   var LinearLayout = class extends PointerHandleableLayout {
   };
 
-  // src/UI/Elements/Layouts/VerticalLayout.ts
+  // src/Elements/Layouts/VerticalLayout.ts
   var VerticalLayout = class extends LinearLayout {
     updateChildrenPosition() {
       super.updateChildrenPosition();
@@ -1137,40 +1156,12 @@
     }
   };
 
-  // src/UI/Elements/ButtonElement.ts
+  // src/Elements/ButtonElement.ts
   var ButtonElement = class extends ThemedElement {
     constructor(text) {
       super();
       this.text = text;
-    }
-    updateShape(x, y) {
-      super.updateShape(x, y);
-    }
-    onMove(point) {
-      var _a;
-      super.onMove(point);
-      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-    }
-    onEnter(point) {
-      var _a;
-      super.onEnter(point);
-      console.log("Enter" + this.elementName);
-      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-    }
-    onDown(point) {
-      var _a;
-      super.onDown(point);
-      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-    }
-    onUp(point) {
-      var _a;
-      super.onUp(point);
-      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-    }
-    onLeave(point) {
-      var _a;
-      super.onLeave(point);
-      (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+      this.setFontTheme(new FontTheme().setFontSize(30));
     }
     render() {
       super.render();
@@ -1182,9 +1173,35 @@
 
   // src/Index.ts
   console.log("loading Index.ts");
-  function main() {
-    Cubism.createFromId("mainCanvas").init(
-      new VerticalLayout(
+  (() => {
+    function main() {
+      let updateButton = document.getElementById("update");
+      updateButton.onclick = this.runUserFunction;
+      let w = window;
+      w.c = Cubism.createFromId("mainCanvas");
+    }
+  })();
+  var Test = class {
+    constructor() {
+      console.log("Test");
+      this.codeText = document.getElementById("codeText");
+      this.codeText.value = this.getFunctionBody(this.initCode);
+    }
+    runUserFunction() {
+      let codeText = document.getElementById("codeText");
+      let userFunction = new Function(codeText.value).bind(this);
+      Cubism.createFromId("mainCanvas").init(
+        userFunction.call(this)
+      );
+    }
+    getFunctionBody(func) {
+      let funcString = func.toString();
+      let start = funcString.indexOf("{") + 1;
+      let end = funcString.lastIndexOf("}");
+      return funcString.substring(start, end);
+    }
+    initCode() {
+      return new VerticalLayout(
         new DraggableRect().setWidth(100).setHeight(100).setDefaultTheme(
           new CubismElementThemeRoot(
             new ColorTheme().setBorder(Colors.red200).setBackground(Colors.blue700)
@@ -1192,9 +1209,9 @@
         ),
         new DraggableRect().setWidth(100).setHeight(100),
         new ButtonElement("Button").setHeight(50).setWidth(100)
-      )
-    );
-  }
-  main();
+      );
+    }
+  };
+  new Test().main();
 })();
 //# sourceMappingURL=build.js.map

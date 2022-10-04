@@ -1,6 +1,6 @@
 import {InteractiveElement} from "./InteractiveElement";
 import {PointerHandleableElement} from "./PointerHandleableElement";
-import {CanvasDrawer} from "../../CanvasDrawer";
+import {CanvasDrawer} from "../CanvasDrawer";
 
 export class TextElement extends PointerHandleableElement {
     constructor(public text: string) {

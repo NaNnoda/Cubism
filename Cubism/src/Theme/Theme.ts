@@ -47,5 +47,13 @@ export class OnHoverColorTheme extends ColorTheme {
 
 export class FontTheme {
     fontSizes: number = 14;
+    setFontSize(size: number) {
+        this.fontSizes = size;
+        return this;
+    }
     fontFamily: string = "Arial";
+    setFontFamily(font: string) {
+        this.fontFamily = font;
+        return this;
+    }
 }

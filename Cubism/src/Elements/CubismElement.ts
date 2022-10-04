@@ -1,7 +1,7 @@
-import {Point2D} from "../../Datatypes/Point";
-import {CanvasDrawer} from "../../CanvasDrawer";
-import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
-import {LayoutValues} from "../../Constants/Constants";
+import {Point2D} from "../Datatypes/Point";
+import {CanvasDrawer} from "../CanvasDrawer";
+import {CubismGlobalEventSystem} from "../Events/CubismGlobalEventSystem";
+import {LayoutValues} from "../Constants/Constants";
 
 /**
  * Base class for all elements that can be rendered on the canvas

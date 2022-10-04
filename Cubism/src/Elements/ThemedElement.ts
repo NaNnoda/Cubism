@@ -1,8 +1,8 @@
-import {CanvasDrawer} from "../../CanvasDrawer";
+import {CanvasDrawer} from "../CanvasDrawer";
 import {PointerHandleableElement} from "./PointerHandleableElement";
-import {PointerPoint} from "../../Datatypes/PointerPoint";
+import {PointerPoint} from "../Datatypes/PointerPoint";
 
-import {ColorTheme, CubismElementThemeRoot, FontTheme, OnClickColorTheme, OnHoverColorTheme} from "../../Theme/Theme";
+import {ColorTheme, CubismElementThemeRoot, FontTheme, OnClickColorTheme, OnHoverColorTheme} from "../Theme/Theme";
 
 export class ThemedElement extends PointerHandleableElement {
     _currTheme: CubismElementThemeRoot
@@ -10,6 +10,13 @@ export class ThemedElement extends PointerHandleableElement {
     defaultTheme: CubismElementThemeRoot
     hoverTheme: CubismElementThemeRoot
     pressedTheme: CubismElementThemeRoot
+
+    setFontTheme(theme: FontTheme): ThemedElement {
+        this.defaultTheme.font = theme;
+        this.hoverTheme.font = theme;
+        this.pressedTheme.font = theme;
+        return this;
+    }
 
     get currTheme(): CubismElementThemeRoot {
         return this._currTheme;

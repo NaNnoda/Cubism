@@ -1,6 +1,6 @@
 import {InteractiveElement} from "./InteractiveElement";
-import {PointerPoint} from "../../Datatypes/PointerPoint";
-import {GEventKeys, Values} from "../../Constants/Constants";
+import {PointerPoint} from "../Datatypes/PointerPoint";
+import {GEventKeys, Values} from "../Constants/Constants";
 
 export class PointerHandleableElement extends InteractiveElement {
     _pointerWasNotInRange: boolean = true;
