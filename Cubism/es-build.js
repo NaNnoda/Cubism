@@ -1263,7 +1263,6 @@ var LiveDemo = class {
   initFunctionToString() {
     let s = defaultInitCode.toString();
     s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
-    s = s.replace(/  /g, "");
     return s;
   }
   getUserFunction() {
@@ -1277,21 +1276,13 @@ var LiveDemo = class {
     this.userFunction(this.builder);
   }
 };
-function defaultInitCode(b) {
-  console.log(`Builder is ${b}`);
-  b.cubism.createFromId("mainCanvas").init(
-    b.v(
-      b.draggableRect.setWidth(100).setHeight(100),
-      b.draggableRect.setWidth(100).setHeight(100).setHoverTheme(
-        b.theme.setColorTheme(
-          b.colorTheme.setBackground(b.colors.red100)
-        )
-      ).setPressTheme(
-        b.theme.setColorTheme(
-          b.colorTheme.setBackground(b.colors.red300)
-        )
-      ),
-      b.button.setText("Button").setHeight(50).setWidth(100)
+function defaultInitCode() {
+  let app = Cubism.createFromId("mainCanvas");
+  app.init(
+    new VerticalLayout(
+      new DraggableRect().setWidth(100).setHeight(100),
+      new DraggableRect().setWidth(100).setHeight(100),
+      new ButtonElement().setText("Button").setHeight(50).setWidth(100)
     )
   );
 }

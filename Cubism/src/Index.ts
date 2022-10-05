@@ -1,4 +1,8 @@
 import {CubismBuilder} from "./CubismBuilder";
+import {Cubism} from "./Cubism";
+import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
+import {DraggableRect} from "./Elements/DraggableRect";
+import {ButtonElement} from "./Elements/ButtonElement";
 
 console.log("loading Index.ts");
 class LiveDemo {
@@ -32,7 +36,7 @@ class LiveDemo {
         // Remove the first and last line
         s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
         // Remove all the spaces
-        s = s.replace(/  /g, "");
+        // s = s.replace(/  /g, "");
 
         return s;
     }
@@ -52,30 +56,17 @@ class LiveDemo {
     }
 }
 
-function defaultInitCode(b: CubismBuilder) {
-    console.log(`Builder is ${b}`)
-    b.cubism.createFromId("mainCanvas")
-        .init(
-        b.v(
-            b.draggableRect
+function defaultInitCode() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+        new VerticalLayout(
+            new DraggableRect()
                 .setWidth(100)
                 .setHeight(100),
-            b.draggableRect
+            new DraggableRect()
                 .setWidth(100)
-                .setHeight(100)
-                .setHoverTheme(
-                    b.theme
-                        .setColorTheme(
-                            b.colorTheme.setBackground(b.colors.red100)
-                        )
-                )
-                .setPressTheme(
-                    b.theme
-                        .setColorTheme(
-                            b.colorTheme.setBackground(b.colors.red300)
-                        )
-                ),
-            b.button
+                .setHeight(100),
+            new ButtonElement()
                 .setText("Button")
                 .setHeight(50)
                 .setWidth(100)
