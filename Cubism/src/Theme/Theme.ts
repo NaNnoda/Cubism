@@ -7,6 +7,14 @@ export class CubismElementThemeRoot {
         this.color = color;
         this.font = font;
     }
+    setColorTheme(color: ColorTheme): CubismElementThemeRoot {
+        this.color = color;
+        return this;
+    }
+    setFontTheme(font: FontTheme): CubismElementThemeRoot {
+        this.font = font;
+        return this;
+    }
 }
 
 export class ColorTheme {

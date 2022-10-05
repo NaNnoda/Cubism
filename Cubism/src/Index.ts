@@ -1,15 +1,6 @@
-import {Cubism} from "./Cubism";
-import {DraggableRect} from "./Elements/DraggableRect";
-import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
-import {ButtonElement} from "./Elements/ButtonElement";
-import {Colors} from "./Theme/Colors";
-import {ColorTheme, CubismElementThemeRoot} from "./Theme/Theme";
 import {CubismBuilder} from "./CubismBuilder";
 
 console.log("loading Index.ts");
-
-console.log();
-
 
 class LiveDemo {
     builder: CubismBuilder
@@ -64,9 +55,7 @@ class LiveDemo {
 
 function defaultInitCode(b: CubismBuilder) {
     console.log(`Builder is ${b}`)
-    b
-        .c
-        .createFromId("mainCanvas")
+    b.cubism.createFromId("mainCanvas")
         .init(
         b.v(
             b.draggableRect
@@ -74,7 +63,19 @@ function defaultInitCode(b: CubismBuilder) {
                 .setHeight(100),
             b.draggableRect
                 .setWidth(100)
-                .setHeight(100),
+                .setHeight(100)
+                .setHoverTheme(
+                    b.theme
+                        .setColorTheme(
+                            b.colorTheme.setBackground(b.colors.red100)
+                        )
+                )
+                .setPressTheme(
+                    b.theme
+                        .setColorTheme(
+                            b.colorTheme.setBackground(b.colors.red300)
+                        )
+                ),
             b.button
                 .setText("Button")
                 .setHeight(50)

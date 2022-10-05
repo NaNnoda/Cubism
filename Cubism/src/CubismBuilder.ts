@@ -1,6 +1,6 @@
 import {Cubism} from "./Cubism";
 import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
-import {ColorTheme} from "./Theme/Theme";
+import {ColorTheme, CubismElementThemeRoot, FontTheme} from "./Theme/Theme";
 import {Colors} from "./Theme/Colors";
 import {ButtonElement} from "./Elements/ButtonElement";
 import {CubismElement} from "./Elements/CubismElement";
@@ -37,8 +37,15 @@ export class CubismBuilder{
     get colorTheme(){
         return new ColorTheme;
     }
+    get fontTheme(){
+        return new FontTheme();
+    }
+    get theme(){
+        return new CubismElementThemeRoot();
+    }
 
-    colors(){
+
+    get colors(){
         return Colors;
     }
     get button(){

@@ -990,6 +990,14 @@ var CubismElementThemeRoot = class {
     this.color = color;
     this.font = font;
   }
+  setColorTheme(color) {
+    this.color = color;
+    return this;
+  }
+  setFontTheme(font) {
+    this.font = font;
+    return this;
+  }
 };
 var ColorTheme = class {
   constructor() {
@@ -1212,7 +1220,13 @@ var CubismBuilder = class {
   get colorTheme() {
     return new ColorTheme();
   }
-  colors() {
+  get fontTheme() {
+    return new FontTheme();
+  }
+  get theme() {
+    return new CubismElementThemeRoot();
+  }
+  get colors() {
     return Colors;
   }
   get button() {
@@ -1228,7 +1242,6 @@ var CubismBuilder = class {
 
 // src/Index.ts
 console.log("loading Index.ts");
-console.log();
 var LiveDemo = class {
   constructor() {
     this.environmentName = "b";
@@ -1266,10 +1279,18 @@ var LiveDemo = class {
 };
 function defaultInitCode(b) {
   console.log(`Builder is ${b}`);
-  b.c.createFromId("mainCanvas").init(
+  b.cubism.createFromId("mainCanvas").init(
     b.v(
       b.draggableRect.setWidth(100).setHeight(100),
-      b.draggableRect.setWidth(100).setHeight(100),
+      b.draggableRect.setWidth(100).setHeight(100).setHoverTheme(
+        b.theme.setColorTheme(
+          b.colorTheme.setBackground(b.colors.red100)
+        )
+      ).setPressTheme(
+        b.theme.setColorTheme(
+          b.colorTheme.setBackground(b.colors.red300)
+        )
+      ),
       b.button.setText("Button").setHeight(50).setWidth(100)
     )
   );
