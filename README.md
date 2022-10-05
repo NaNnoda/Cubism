@@ -46,6 +46,8 @@ Output:
 
 <img width="317" alt="image" src="https://user-images.githubusercontent.com/114621472/194082209-d207383e-9816-4c13-a0c9-d11d319b087d.png">
 
+Try it out in [here](/Cubism/index.html)
+
 
 
 

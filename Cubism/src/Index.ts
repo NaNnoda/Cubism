@@ -5,6 +5,7 @@ import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
 
 console.log("loading Index.ts");
+
 class LiveDemo {
     builder: CubismBuilder
     environmentName = "b";
@@ -35,9 +36,10 @@ class LiveDemo {
         let s = defaultInitCode.toString();
         // Remove the first and last line
         s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
-        // Remove all the spaces
-        // s = s.replace(/  /g, "");
-
+        // Remove first 2 spaces
+        s = s.replace(/^ {2}/gm, "");
+        // Replace dot with new line and dot
+        // s = s.replace(/\./gm, ".\r");
         return s;
     }
 

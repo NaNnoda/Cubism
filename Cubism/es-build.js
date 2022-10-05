@@ -1263,6 +1263,7 @@ var LiveDemo = class {
   initFunctionToString() {
     let s = defaultInitCode.toString();
     s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
+    s = s.replace(/^ {2}/gm, "");
     return s;
   }
   getUserFunction() {
