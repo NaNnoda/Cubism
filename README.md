@@ -11,32 +11,41 @@ Code:
 /**
  * Demo of a simple layout
  */
-function main() {
-    let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
-    let c = Cubism.createFromCanvas(canvas);
-    c.init(
-        new VerticalLayout(
-            new DraggableRect()
+function defaultInitCode(b: CubismBuilder) {
+    console.log(`Builder is ${b}`)
+    b.cubism.createFromId("mainCanvas")
+        .init(
+        b.v(
+            b.draggableRect
+                .setWidth(100)
+                .setHeight(100),
+            b.draggableRect
                 .setWidth(100)
                 .setHeight(100)
-                .setBackgroundColor(Colors.blue500)
-                .setLineWidth(5),
-            new DraggableRect()
-                .setWidth(100)
-                .setHeight(100)
-                .setBackgroundColor(Colors.green200)
-                .setLineWidth(5),
-            new ButtonElement("Button")
+                .setHoverTheme(
+                    b.theme
+                        .setColorTheme(
+                            b.colorTheme.setBackground(b.colors.red100)
+                        )
+                )
+                .setPressTheme(
+                    b.theme
+                        .setColorTheme(
+                            b.colorTheme.setBackground(b.colors.red300)
+                        )
+                ),
+            b.button
+                .setText("Button")
                 .setHeight(50)
                 .setWidth(100)
-                .setLineWidth(5),
         )
-    );
+    )
 }
 ```
 Output:
 
-![image](https://user-images.githubusercontent.com/114621472/193383887-5963361f-698a-4741-ac91-29af25f7ad0b.png)
+<img width="317" alt="image" src="https://user-images.githubusercontent.com/114621472/194082209-d207383e-9816-4c13-a0c9-d11d319b087d.png">
+
 
 
 
