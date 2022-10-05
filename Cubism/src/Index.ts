@@ -1,7 +1,6 @@
 import {CubismBuilder} from "./CubismBuilder";
 
 console.log("loading Index.ts");
-
 class LiveDemo {
     builder: CubismBuilder
     environmentName = "b";
