@@ -128,4 +128,4 @@ dist
 
 # IDE
 .idea/
-.vscode/launch.json
+.vscode/
