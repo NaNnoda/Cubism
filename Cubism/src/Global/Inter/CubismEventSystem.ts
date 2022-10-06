@@ -1,12 +1,11 @@
+import IHasCubism from "../../Interface/IGlobalHandler";
+import CubismPart from "../../CubismPart";
 
 /**
  * System that handles the registration and trigger of global events
  */
-export class CubismGlobalEventSystem {
+export class CubismEventSystem extends CubismPart{
     private _globalEventListeners: { [key: string]: Function[] } = {};
-
-    constructor() {
-    }
 
     registerGlobalEvent(event: string, callback: Function): void {
         this.getEvent(event).push(callback);

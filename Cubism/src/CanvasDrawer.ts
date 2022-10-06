@@ -1,35 +1,40 @@
 import {Point2D} from "./Datatypes/Point";
 import {CubismCanvasState} from "./State";
-import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
-import {GEventKeys, Values} from "./Constants/Constants";
+import {GEventKeys} from "./Constants/Constants";
+import CubismPart from "./CubismPart";
+import {Cubism} from "./Cubism";
 
 /**
  * Adaptor class for the canvas
  * with the ability to draw on it
  * and handle events
  */
-export class CanvasDrawer {
+export class CanvasDrawer extends CubismPart {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
+    get eventSystem() {
+        return this.cubism.eventSystem;
+    }
 
     state: CubismCanvasState; // the state of the canvas
-
-    globalEvent: CubismGlobalEventSystem;
 
     /**
      * Constructor of the CanvasDrawer
      * @param canvas the canvas to draw on
-     * @param globalEvent the global event system
      */
-    constructor(canvas: HTMLCanvasElement, globalEvent: CubismGlobalEventSystem) {
+    constructor(canvas: HTMLCanvasElement) {
+        super();
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         this.state = new CubismCanvasState(canvas, this.ctx);
-        this.globalEvent = globalEvent;
+    }
+    afterSetCubism(cubism: Cubism) {
+        super.afterSetCubism(cubism);
+
+
         this.registerFrameUpdate();
     }
-
     get width() {
         return this.canvas.width;
     }
@@ -51,7 +56,8 @@ export class CanvasDrawer {
      * @private
      */
     private registerFrameUpdate() {
-        this.globalEvent.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
+        console.log("Registering frame update");
+        this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
 
     /**
@@ -59,6 +65,7 @@ export class CanvasDrawer {
      * @private
      */
     private frameUpdate() {
+        // console.log("Frame update");
         if (this.state.needsRedraw) {
             this.triggerRedraw();
             this.state.needsRedraw = false;
@@ -210,6 +217,6 @@ export class CanvasDrawer {
      * Seems more responsive than setRedraw()
      */
     triggerRedraw() {
-        this.globalEvent.triggerGlobalEvent(GEventKeys.REDRAW);
+        this.eventSystem.triggerGlobalEvent(GEventKeys.REDRAW);
     }
 }

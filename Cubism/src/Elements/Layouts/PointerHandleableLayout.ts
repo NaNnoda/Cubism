@@ -1,22 +1,14 @@
-import {CanvasDrawer} from "../../CanvasDrawer";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {LayoutValues} from "../../Constants/Constants";
 import {PointerHandleableElement} from "../PointerHandleableElement";
-import {CubismGlobalEventSystem} from "../../Events/CubismGlobalEventSystem";
+import {Cubism} from "../../Cubism";
 
 export class PointerHandleableLayout extends PointerHandleableElement {
     private _children: PointerHandleableElement[] = [];
 
     constructor(...children: PointerHandleableElement[]) {
         super();
-        this._children = children;
-    }
-
-    setGlobalEventSystem(globalEvent: CubismGlobalEventSystem) {
-        super.setGlobalEventSystem(globalEvent);
-        for (let child of this.children) {
-            child.setGlobalEventSystem(globalEvent);
-        }
+        this._children.push(...children);
     }
 
     updateShape(x: number, y: number) {
@@ -57,7 +49,11 @@ export class PointerHandleableLayout extends PointerHandleableElement {
     }
 
     pushChildren(...children: PointerHandleableElement[]): PointerHandleableLayout {
-        this.children.push(...children);
+        for (let child of children) {
+            child.cubism = this.cubism;
+            this.children.push(child);
+        }
+        this.updateChildrenShape();
         return this;
     }
 
@@ -67,19 +63,36 @@ export class PointerHandleableLayout extends PointerHandleableElement {
 
     render() {
         super.render();
-        this.c?.translate(this.position);
+        this.c.translate(this.position);
         for (let child of this.children) {
             child.render();
         }
-        this.c?.restoreTranslate();
+        this.c.restoreTranslate();
     }
 
-    setCanvasDrawer(c: CanvasDrawer) {
-        super.setCanvasDrawer(c);
+    set cubism(cubism: Cubism) {
+        super.cubism = cubism;
+
+        this._cubism = cubism;
+        if (this.cubismId){
+            // this.cubism.registerElementId(this.cubismId, this);
+        }
+        // console.log("set cubism", this.cubism);
         for (let child of this.children) {
-            child.setCanvasDrawer(c);
+            child.cubism = cubism;
         }
     }
+
+    /**
+     * It seems like I have to override both getter and setter
+     */
+    get cubism() {
+        if (!this._cubism) {
+            throw new Error("cubism is not set in " + this.constructor.name);
+        }
+        return this._cubism;
+    }
+
 
     triggerOnMove(point: PointerPoint): void {
         super.triggerOnMove(point);

@@ -35,6 +35,17 @@
         .border {
             border: 1px solid black;
         }
+
+        #container {
+            position: absolute;
+            /*left: 0;*/
+            /*top: 0;*/
+            /*width: 100%;*/
+            /*height: 100%;*/
+            /*margin: 0;*/
+            /*padding: 0;*/
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -43,8 +54,12 @@
 <div>
     <canvas id="mainCanvas" class="border" width="400" height="400"></canvas>
 </div>
-<label for="codeText"></label><textarea id="codeText" style="height: 300px;width: 500px">console.log("user function");</textarea>
+<label for="codeText"></label><textarea id="codeText"
+                                        style="height: 300px;width: 500px">console.log("user function");</textarea>
 <button id="update">Run</button>
+
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+<div id="container" class="h w"></div>
 
 <script src="es-build.js"></script>
 </body>

@@ -1,29 +1,74 @@
 import {CanvasDrawer} from "./CanvasDrawer";
-import {CubismGlobalEventSystem} from "./Events/CubismGlobalEventSystem";
-import {CubismEventManager} from "./Events/CubismEventManager";
-import {GEventKeys, Values} from "./Constants/Constants";
+import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
+import {GEventKeys} from "./Constants/Constants";
 import {Point2D} from "./Datatypes/Point";
 import {PointerHandleableElement} from "./Elements/PointerHandleableElement";
 import {PointerPoint} from "./Datatypes/PointerPoint";
+import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
+import IHasCubism from "./Interface/IGlobalHandler";
+import CubismGlobalHandler from "./CubismPart";
+import CubismPart from "./CubismPart";
+import CubismInitializer from "./CubismInitializer";
+import CubismElementManger from "./CubismElementManger";
 
 /**
  * Entry point of the application
+ * Initializes different parts of the application
  */
-export class Cubism {
-    root: PointerHandleableElement;
-    canvasDrawer: CanvasDrawer;
-    globalEvent: CubismGlobalEventSystem;
-    eventManger: CubismEventManager;
-    canvas: HTMLCanvasElement;
+export class Cubism extends CubismElementManger{
+    _root: PointerHandleableElement | null = null;
+    readonly canvas: HTMLCanvasElement;
+    readonly cubismId: string;
+    readonly canvasDrawer: CanvasDrawer;
+    readonly eventSystem: CubismEventSystem;
+
+    _initializer: CubismInitializer;
+    get initializer() {
+        return this._initializer;
+    }
+
+
+    get rootElement(): PointerHandleableElement {
+        if (this._root === null) {
+            throw new Error("Root is not set");
+        }
+        return this._root;
+    }
+
+    set rootElement(root) {
+
+        this.initParts(root);
+        this._root = root;
+    }
+
 
     constructor(canvas: HTMLCanvasElement) {
-        this.root = new PointerHandleableElement();
-        this.globalEvent = new CubismGlobalEventSystem();
-        this.canvasDrawer = new CanvasDrawer(canvas, this.globalEvent);
-        this.eventManger = new CubismEventManager(this.globalEvent);
+        super();
         this.canvas = canvas;
+        this.eventSystem = new CubismEventSystem();
+        this.canvasDrawer = new CanvasDrawer(canvas);
+        this._initializer = new CubismInitializer();
+
+        this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
         this.registerRedraw();
         this.registerPointerEvents();
+
+
+        if (canvas.id === null || canvas.id === undefined || canvas.id === "") {
+            throw new Error("Canvas must have an id");
+        }
+        this.cubismId = canvas.id;
+
+        CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
+    }
+
+    initParts(...handlers: CubismPart[]) {
+
+        handlers.forEach(handler => {
+                handler.cubism = this;
+            console.log("Init "+handler.constructor.name);
+            }
+        );
     }
 
     /**
@@ -32,37 +77,36 @@ export class Cubism {
     registerPointerEvents() {
         // on move
         this.canvas.onpointermove = (e) => {
-            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.eventSystem.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, (point: PointerPoint) => {
-            this.root.triggerOnMove(point);
+        this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, (point: PointerPoint) => {
+            this.rootElement.triggerOnMove(point);
         });
         // on down
         this.canvas.onpointerdown = (e) => {
-            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.eventSystem.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(GEventKeys.ON_DOWN, (point: PointerPoint) => {
-            this.root.triggerOnDown(point);
+        this.eventSystem.registerGlobalEvent(GEventKeys.ON_DOWN, (point: PointerPoint) => {
+            this.rootElement.triggerOnDown(point);
         });
         // on up
         this.canvas.onpointerup = (e) => {
-            this.globalEvent.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+            this.eventSystem.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
 
-        this.globalEvent.registerGlobalEvent(GEventKeys.ON_UP, (point: PointerPoint) => {
-            this.root.triggerOnUp(point);
+        this.eventSystem.registerGlobalEvent(GEventKeys.ON_UP, (point: PointerPoint) => {
+            this.rootElement.triggerOnUp(point);
         });
     }
 
-
     registerRedraw() {
-        this.globalEvent.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
+        this.eventSystem.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
     }
 
     registerOnMove() {
-        this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
+        this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
     }
 
     /**
@@ -82,26 +126,17 @@ export class Cubism {
     }
 
     init(root: PointerHandleableElement) {
-        this.setRootElement(root);
+        this.rootElement = root;
         this.initRootElement();
         this.canvasDrawer.setRedraw(true);
+        this.initializer.initializeFrameUpdate();
     }
 
     private initRootElement() {
-        this.root.init(
-            this.canvasDrawer,
-            new Point2D(this.canvas.width, this.canvas.height),
-            this.globalEvent
+        console.log("init root element");
+        this.rootElement.initElement(
+            new Point2D(this.canvas.width, this.canvas.height)
         );
-    }
-
-    /**
-     * Set the root element of the application
-     * @param root
-     * @private
-     */
-    private setRootElement(root: PointerHandleableElement) {
-        this.root = root;
     }
 
     /**
@@ -109,8 +144,8 @@ export class Cubism {
      */
     redraw() {
         this.canvasDrawer.clear();
-        if (this.root) {
-            this.root.render();
+        if (this.rootElement) {
+            this.rootElement.render();
         }
     }
 }

@@ -5,11 +5,12 @@ import {CubismElement} from "./CubismElement";
 export class InteractiveElement extends CubismElement {
     private events: { [key: string]: Function[] } = {};
 
-    pushOn(event: string, ...callbacks: Function[]): void {
+    pushOn(event: string, ...callbacks: Function[]) {
         if (this.events[event] === undefined) {
             this.events[event] = [];
         }
         this.events[event].push(...callbacks);
+        return this
     }
 
     getOn(event: string): Function[] {

@@ -18,6 +18,7 @@ export class DraggableRect extends ThemedElement {
             this.c?.triggerRedraw();
         }
     }
+
     onUp(point: PointerPoint) {
         super.onUp(point);
         // Log.logDebug("up on", this);

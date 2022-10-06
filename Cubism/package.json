@@ -1,13 +1,16 @@
 {
   "dependencies": {
     "@mdi/svg": "^7.0.96",
-    "esbuild": "^0.15.9"
+    "esbuild": "^0.15.9",
+    "monaco-editor": "^0.34.0",
+    "webpack": "^5.74.0"
   },
   "scripts": {
     "build": "esbuild src/Index.ts --bundle --outfile=build.js",
     "watch": "esbuild src/Index.ts --bundle --sourcemap --outfile=es-build.js --watch --format=esm --global-name=cubism"
   },
   "devDependencies": {
-    "@types/node": "^18.8.2"
+    "@types/node": "^18.8.2",
+    "webpack-cli": "^4.10.0"
   }
 }

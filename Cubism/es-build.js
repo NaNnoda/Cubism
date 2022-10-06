@@ -199,13 +199,41 @@ GEventKeys.POINTER_DOWN = "onMouseDown";
 GEventKeys.POINTER_UP = "onMouseUp";
 GEventKeys.POINTER_MOVE = "onMouseMove";
 
+// src/CubismPart.ts
+var CubismPart = class {
+  constructor() {
+    this._cubism = null;
+  }
+  get cubism() {
+    if (this._cubism === null) {
+      throw new Error(`Cubism is not set for ${this.className}`);
+    }
+    return this._cubism;
+  }
+  set cubism(cubism) {
+    this._cubism = cubism;
+    this.afterSetCubism(cubism);
+  }
+  afterSetCubism(cubism) {
+  }
+  get className() {
+    return this.constructor.name;
+  }
+};
+
 // src/CanvasDrawer.ts
-var CanvasDrawer = class {
-  constructor(canvas, globalEvent) {
+var CanvasDrawer = class extends CubismPart {
+  constructor(canvas) {
+    super();
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.state = new CubismCanvasState(canvas, this.ctx);
-    this.globalEvent = globalEvent;
+  }
+  get eventSystem() {
+    return this.cubism.eventSystem;
+  }
+  afterSetCubism(cubism) {
+    super.afterSetCubism(cubism);
     this.registerFrameUpdate();
   }
   get width() {
@@ -221,7 +249,8 @@ var CanvasDrawer = class {
     this.canvas.height = height;
   }
   registerFrameUpdate() {
-    this.globalEvent.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
+    console.log("Registering frame update");
+    this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
   }
   frameUpdate() {
     if (this.state.needsRedraw) {
@@ -302,13 +331,14 @@ var CanvasDrawer = class {
     this.state.needsRedraw = redraw;
   }
   triggerRedraw() {
-    this.globalEvent.triggerGlobalEvent(GEventKeys.REDRAW);
+    this.eventSystem.triggerGlobalEvent(GEventKeys.REDRAW);
   }
 };
 
-// src/Events/CubismGlobalEventSystem.ts
-var CubismGlobalEventSystem = class {
+// src/Global/Inter/CubismEventSystem.ts
+var CubismEventSystem = class extends CubismPart {
   constructor() {
+    super(...arguments);
     this._globalEventListeners = {};
   }
   registerGlobalEvent(event, callback) {
@@ -329,25 +359,6 @@ var CubismGlobalEventSystem = class {
     this.getEvent(event).forEach((callback) => {
       callback(...args);
     });
-  }
-};
-
-// src/Events/CubismEventManager.ts
-var CubismEventManager = class {
-  constructor(globalEvent) {
-    this.globalEvent = globalEvent;
-    this.startFixedUpdate();
-    this.startFrameUpdate();
-  }
-  startFixedUpdate() {
-    setInterval(this.doFixUpdate.bind(this), 1e3 / 60);
-  }
-  doFixUpdate() {
-    this.globalEvent.triggerGlobalEvent(GEventKeys.FIX_UPDATE);
-  }
-  startFrameUpdate() {
-    this.globalEvent.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
-    window.requestAnimationFrame(this.startFrameUpdate.bind(this));
   }
 };
 
@@ -398,20 +409,231 @@ var Point2D = class {
   }
 };
 
-// src/Elements/CubismElement.ts
-var CubismElement = class {
+// src/Datatypes/PointerPoint.ts
+var PointerPoint = class extends Point2D {
+  constructor(x, y, pressure) {
+    super(x, y);
+    this.pressure = pressure;
+  }
+  static createFromPointerEvent(e) {
+    return new PointerPoint(e.offsetX, e.offsetY, e.pressure);
+  }
+  toString() {
+    return `(x:${this.x}, y:${this.y}, p:${this.pressure})`;
+  }
+  sub(other) {
+    return new PointerPoint(this.x - other.x, this.y - other.y, this.pressure);
+  }
+};
+
+// src/Global/Outer/CubismOuterGlobal.ts
+var CubismOuterGlobal = class {
   constructor() {
-    this.globalEvent = null;
+    this._cubismInstances = {};
+  }
+  static get instance() {
+    if (!CubismOuterGlobal._instance) {
+      CubismOuterGlobal._instance = new CubismOuterGlobal();
+    }
+    return CubismOuterGlobal._instance;
+  }
+  static getCubismInstance(key) {
+    return CubismOuterGlobal.instance._cubismInstances[key];
+  }
+  static registerCubismInstance(key, app) {
+    if (CubismOuterGlobal.instance._cubismInstances[key] === void 0) {
+      CubismOuterGlobal.instance._cubismInstances[key] = app;
+    } else {
+      console.log("Replacing cubism instance with key " + key);
+      CubismOuterGlobal.instance._cubismInstances[key] = app;
+    }
+  }
+};
+
+// src/CubismInitializer.ts
+var CubismInitializer = class extends CubismPart {
+  get eventSystem() {
+    return this.cubism.eventSystem;
+  }
+  initializeFixedUpdate(timeInterval = 1e3 / 60) {
+    setInterval(this.doFixUpdate.bind(this), timeInterval);
+    return this;
+  }
+  doFixUpdate() {
+    this.eventSystem.triggerGlobalEvent(GEventKeys.FIX_UPDATE);
+  }
+  initializeFrameUpdate() {
+    this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+    window.requestAnimationFrame(this.doFrameUpdate.bind(this));
+    return this;
+  }
+  doFrameUpdate() {
+    this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+    window.requestAnimationFrame(this.doFrameUpdate.bind(this));
+  }
+};
+
+// src/CubismElementManger.ts
+var CubismElementManger = class {
+  constructor() {
+    this._elementsWithId = {};
+    this._elementsWithClass = {};
+  }
+  registerElementId(id, element) {
+    console.log("registering element with id " + id);
+    if (this._elementsWithId[id] === void 0) {
+      this._elementsWithId[id] = element;
+    } else {
+      throw new Error("Element with that id already exists");
+    }
+  }
+  getElementById(id) {
+    return this._elementsWithId[id];
+  }
+  removeElementWithId(id) {
+    delete this._elementsWithId[id];
+  }
+  registerElementClass(className, element) {
+    if (this._elementsWithClass[className] === void 0) {
+      this._elementsWithClass[className] = [];
+    }
+    this._elementsWithClass[className].push(element);
+  }
+  getElementsByClass(className) {
+    return this._elementsWithClass[className];
+  }
+  removeElementWithClass(className, element) {
+    this._elementsWithClass[className].splice(this._elementsWithClass[className].indexOf(element), 1);
+  }
+  removeClass(className) {
+    delete this._elementsWithClass[className];
+  }
+};
+
+// src/Cubism.ts
+var Cubism = class extends CubismElementManger {
+  constructor(canvas) {
+    super();
+    this._root = null;
+    this.canvas = canvas;
+    this.eventSystem = new CubismEventSystem();
+    this.canvasDrawer = new CanvasDrawer(canvas);
+    this._initializer = new CubismInitializer();
+    this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
+    this.registerRedraw();
+    this.registerPointerEvents();
+    if (canvas.id === null || canvas.id === void 0 || canvas.id === "") {
+      throw new Error("Canvas must have an id");
+    }
+    this.cubismId = canvas.id;
+    CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
+  }
+  get initializer() {
+    return this._initializer;
+  }
+  get rootElement() {
+    if (this._root === null) {
+      throw new Error("Root is not set");
+    }
+    return this._root;
+  }
+  set rootElement(root) {
+    this.initParts(root);
+    this._root = root;
+  }
+  initParts(...handlers) {
+    handlers.forEach(
+      (handler) => {
+        handler.cubism = this;
+        console.log("Init " + handler.constructor.name);
+      }
+    );
+  }
+  registerPointerEvents() {
+    this.canvas.onpointermove = (e) => {
+      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+    };
+    this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, (point) => {
+      this.rootElement.triggerOnMove(point);
+    });
+    this.canvas.onpointerdown = (e) => {
+      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+    };
+    this.eventSystem.registerGlobalEvent(GEventKeys.ON_DOWN, (point) => {
+      this.rootElement.triggerOnDown(point);
+    });
+    this.canvas.onpointerup = (e) => {
+      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+    };
+    this.eventSystem.registerGlobalEvent(GEventKeys.ON_UP, (point) => {
+      this.rootElement.triggerOnUp(point);
+    });
+  }
+  registerRedraw() {
+    this.eventSystem.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
+  }
+  registerOnMove() {
+    this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
+  }
+  static createFromCanvas(canvas) {
+    return new Cubism(canvas);
+  }
+  static createFromId(id) {
+    return Cubism.createFromCanvas(document.getElementById(id));
+  }
+  init(root) {
+    this.rootElement = root;
+    this.initRootElement();
+    this.canvasDrawer.setRedraw(true);
+    this.initializer.initializeFrameUpdate();
+  }
+  initRootElement() {
+    console.log("init root element");
+    this.rootElement.initElement(
+      new Point2D(this.canvas.width, this.canvas.height)
+    );
+  }
+  redraw() {
+    this.canvasDrawer.clear();
+    if (this.rootElement) {
+      this.rootElement.render();
+    }
+  }
+};
+
+// src/Elements/CubismElement.ts
+var CubismElement = class extends CubismPart {
+  constructor() {
+    super();
+    this.cubismId = null;
+    this.needsResize = true;
     this._position = new Point2D(0, 0);
     this._size = new Point2D(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT);
     this._absSize = new Point2D(0, 0);
-    this.c = null;
-    this.needsResize = true;
+  }
+  get c() {
+    if (!this.cubism) {
+      console.log(this.cubism);
+      throw new Error("wtf?");
+    }
+    return this.cubism.canvasDrawer;
+  }
+  setId(id) {
+    this.cubismId = id;
+    return this;
+  }
+  set cubism(cubism) {
+    super.cubism = cubism;
+    if (this.cubismId !== null) {
+      this.cubism.registerElementId(this.cubismId, this);
+    }
+  }
+  get cubism() {
+    return super.cubism;
   }
   set position(pos) {
-    var _a;
     this._position = pos;
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    this.c.setRedraw(true);
   }
   get position() {
     return this._position;
@@ -420,26 +642,19 @@ var CubismElement = class {
     return this._size;
   }
   set size(size) {
-    var _a;
     this._size = size;
     this.needsResize = true;
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    this.c.setRedraw(true);
   }
   get absSize() {
     return this._absSize;
   }
   set absSize(size) {
-    var _a;
     this._absSize = size;
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
+    this.c.setRedraw(true);
   }
-  init(c, parentSize, globalEvent) {
-    this.setCanvasDrawer(c);
+  initElement(parentSize) {
     this.updateShape(parentSize.x, parentSize.y);
-    this.setGlobalEventSystem(globalEvent);
-  }
-  setGlobalEventSystem(globalEvent) {
-    this.globalEvent = globalEvent;
   }
   updateShape(x, y) {
     this.absWidth = x;
@@ -472,9 +687,6 @@ var CubismElement = class {
   set absHeight(y) {
     this.absSize.y = y;
   }
-  setCanvasDrawer(c) {
-    this.c = c;
-  }
   setWidth(width) {
     this.width = width;
     return this;
@@ -494,7 +706,7 @@ var CubismElement = class {
   }
   render() {
     if (this.c === null) {
-      throw new Error("CubismElement.render(): CubismCanvasManager is null");
+      throw new Error("Drawer is null");
     }
   }
   toString() {
@@ -516,6 +728,7 @@ var InteractiveElement = class extends CubismElement {
       this.events[event] = [];
     }
     this.events[event].push(...callbacks);
+    return this;
   }
   getOn(event) {
     return this.events[event];
@@ -624,6 +837,10 @@ var PointerHandleableElement = class extends InteractiveElement {
     this.pushOn(GEventKeys.ON_MOVE, ...callbacks);
     return this;
   }
+  pushOnUp(...callbacks) {
+    this.pushOn(GEventKeys.ON_UP, ...callbacks);
+    return this;
+  }
   removeOnMove(callback) {
     this.removeOn(GEventKeys.ON_MOVE, callback);
   }
@@ -677,101 +894,12 @@ var PointerHandleableElement = class extends InteractiveElement {
   }
 };
 
-// src/Datatypes/PointerPoint.ts
-var PointerPoint = class extends Point2D {
-  constructor(x, y, pressure) {
-    super(x, y);
-    this.pressure = pressure;
-  }
-  static createFromPointerEvent(e) {
-    return new PointerPoint(e.offsetX, e.offsetY, e.pressure);
-  }
-  toString() {
-    return `(x:${this.x}, y:${this.y}, p:${this.pressure})`;
-  }
-  sub(other) {
-    return new PointerPoint(this.x - other.x, this.y - other.y, this.pressure);
-  }
-};
-
-// src/Cubism.ts
-var Cubism = class {
-  constructor(canvas) {
-    this.root = new PointerHandleableElement();
-    this.globalEvent = new CubismGlobalEventSystem();
-    this.canvasDrawer = new CanvasDrawer(canvas, this.globalEvent);
-    this.eventManger = new CubismEventManager(this.globalEvent);
-    this.canvas = canvas;
-    this.registerRedraw();
-    this.registerPointerEvents();
-  }
-  registerPointerEvents() {
-    this.canvas.onpointermove = (e) => {
-      this.globalEvent.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    };
-    this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, (point) => {
-      this.root.triggerOnMove(point);
-    });
-    this.canvas.onpointerdown = (e) => {
-      this.globalEvent.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    };
-    this.globalEvent.registerGlobalEvent(GEventKeys.ON_DOWN, (point) => {
-      this.root.triggerOnDown(point);
-    });
-    this.canvas.onpointerup = (e) => {
-      this.globalEvent.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
-    };
-    this.globalEvent.registerGlobalEvent(GEventKeys.ON_UP, (point) => {
-      this.root.triggerOnUp(point);
-    });
-  }
-  registerRedraw() {
-    this.globalEvent.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
-  }
-  registerOnMove() {
-    this.globalEvent.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
-  }
-  static createFromCanvas(canvas) {
-    return new Cubism(canvas);
-  }
-  static createFromId(id) {
-    return Cubism.createFromCanvas(document.getElementById(id));
-  }
-  init(root) {
-    this.setRootElement(root);
-    this.initRootElement();
-    this.canvasDrawer.setRedraw(true);
-  }
-  initRootElement() {
-    this.root.init(
-      this.canvasDrawer,
-      new Point2D(this.canvas.width, this.canvas.height),
-      this.globalEvent
-    );
-  }
-  setRootElement(root) {
-    this.root = root;
-  }
-  redraw() {
-    this.canvasDrawer.clear();
-    if (this.root) {
-      this.root.render();
-    }
-  }
-};
-
 // src/Elements/Layouts/PointerHandleableLayout.ts
 var PointerHandleableLayout = class extends PointerHandleableElement {
   constructor(...children) {
     super();
     this._children = [];
-    this._children = children;
-  }
-  setGlobalEventSystem(globalEvent) {
-    super.setGlobalEventSystem(globalEvent);
-    for (let child of this.children) {
-      child.setGlobalEventSystem(globalEvent);
-    }
+    this._children.push(...children);
   }
   updateShape(x, y) {
     super.updateShape(x, y);
@@ -804,26 +932,38 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
     this._children = children;
   }
   pushChildren(...children) {
-    this.children.push(...children);
+    for (let child of children) {
+      child.cubism = this.cubism;
+      this.children.push(child);
+    }
+    this.updateChildrenShape();
     return this;
   }
   removeChild(child) {
     this.children.splice(this.children.indexOf(child), 1);
   }
   render() {
-    var _a, _b;
     super.render();
-    (_a = this.c) == null ? void 0 : _a.translate(this.position);
+    this.c.translate(this.position);
     for (let child of this.children) {
       child.render();
     }
-    (_b = this.c) == null ? void 0 : _b.restoreTranslate();
+    this.c.restoreTranslate();
   }
-  setCanvasDrawer(c) {
-    super.setCanvasDrawer(c);
-    for (let child of this.children) {
-      child.setCanvasDrawer(c);
+  set cubism(cubism) {
+    super.cubism = cubism;
+    this._cubism = cubism;
+    if (this.cubismId) {
     }
+    for (let child of this.children) {
+      child.cubism = cubism;
+    }
+  }
+  get cubism() {
+    if (!this._cubism) {
+      throw new Error("cubism is not set in " + this.constructor.name);
+    }
+    return this._cubism;
   }
   triggerOnMove(point) {
     super.triggerOnMove(point);
@@ -1149,6 +1289,13 @@ var ButtonElement = class extends ThemedElement {
     this.text = text;
     return this;
   }
+  pushOnUp(...callbacks) {
+    for (let callback of callbacks) {
+      console.log("Pushing", callback);
+      this.pushOn(GEventKeys.ON_UP, callback.bind(this));
+    }
+    return this;
+  }
   render() {
     super.render();
     let c = this.c;
@@ -1244,11 +1391,12 @@ var CubismBuilder = class {
 console.log("loading Index.ts");
 var LiveDemo = class {
   constructor() {
-    this.environmentName = "b";
     this.codeText = document.getElementById("codeText");
     this.codeText.value = this.initFunctionToString();
     this.builder = new CubismBuilder();
     this.userFunction = this.getUserFunction();
+  }
+  userFunction() {
   }
   main() {
     let updateButton = document.getElementById("update");
@@ -1268,13 +1416,13 @@ var LiveDemo = class {
   }
   getUserFunction() {
     let code = this.codeText.value;
-    return new Function(this.environmentName, code);
+    return new Function(code);
   }
   updateUserFunction() {
     this.userFunction = this.getUserFunction();
   }
   runUserFunction() {
-    this.userFunction(this.builder);
+    this.userFunction();
   }
 };
 function defaultInitCode() {
@@ -1283,8 +1431,16 @@ function defaultInitCode() {
     new VerticalLayout(
       new DraggableRect().setWidth(100).setHeight(100),
       new DraggableRect().setWidth(100).setHeight(100),
-      new ButtonElement().setText("Button").setHeight(50).setWidth(100)
-    )
+      new ButtonElement().setText("Button").setHeight(50).setWidth(100).pushOnUp(() => {
+        console.log("Button clicked");
+        console.log("app is ", app);
+        let v = app.getElementById("VerticalLayout");
+        console.log("v is ", v);
+        v.pushChildren(
+          new DraggableRect().setWidth(100).setHeight(100)
+        );
+      })
+    ).setId("VerticalLayout")
   );
 }
 new LiveDemo().main();

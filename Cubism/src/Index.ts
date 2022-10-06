@@ -3,12 +3,14 @@ import {Cubism} from "./Cubism";
 import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
 import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
+import {GEventKeys} from "./Constants/Constants";
+
 
 console.log("loading Index.ts");
 
+
 class LiveDemo {
     builder: CubismBuilder
-    environmentName = "b";
     codeText: HTMLTextAreaElement;
 
     constructor() {
@@ -18,7 +20,9 @@ class LiveDemo {
         this.userFunction = this.getUserFunction();
     }
 
-    userFunction: (e: any) => void;
+    userFunction() {
+        // override this
+    }
 
     main() {
         let updateButton = document.getElementById("update") as HTMLButtonElement;
@@ -46,7 +50,7 @@ class LiveDemo {
     getUserFunction() {
         let code = this.codeText.value;
         // console.log(`code: ${code}`);
-        return new Function(this.environmentName, code) as (e: any) => void;
+        return new Function(code) as () => void;
     }
 
     updateUserFunction() {
@@ -54,7 +58,7 @@ class LiveDemo {
     }
 
     runUserFunction() {
-        this.userFunction(this.builder);
+        this.userFunction();
     }
 }
 
@@ -72,7 +76,19 @@ function defaultInitCode() {
                 .setText("Button")
                 .setHeight(50)
                 .setWidth(100)
-        )
+                .pushOnUp(() => {
+                    console.log("Button clicked");
+                    console.log("app is ", app);
+
+                    let v = app.getElementById("VerticalLayout") as VerticalLayout
+                    console.log("v is ", v);
+                    v.pushChildren(
+                        new DraggableRect()
+                            .setWidth(100)
+                            .setHeight(100)
+                    )
+                })
+        ).setId("VerticalLayout")
     )
 }
 

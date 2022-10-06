@@ -2,6 +2,7 @@ import {PointerPoint} from "../Datatypes/PointerPoint";
 import {CanvasDrawer} from "../CanvasDrawer";
 import {ThemedElement} from "./ThemedElement";
 import {FontTheme} from "../Theme/Theme";
+import {GEventKeys} from "../Constants/Constants";
 
 export class ButtonElement extends ThemedElement {
     text: string;
@@ -17,6 +18,14 @@ export class ButtonElement extends ThemedElement {
         return this;
     }
 
+    pushOnUp(...callbacks:Function[]): this {
+        for (let callback of callbacks) {
+            console.log("Pushing", callback);
+            this.pushOn(GEventKeys.ON_UP, callback.bind(this));
+        }
+        // return super.pushOnUp(...callbacks);
+        return  this
+    }
 
     render(): void {
         super.render();

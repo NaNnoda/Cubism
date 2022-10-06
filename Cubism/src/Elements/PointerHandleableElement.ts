@@ -113,8 +113,12 @@ export class PointerHandleableElement extends InteractiveElement {
 
     }
 
-    public pushOnMove(...callbacks: Function[]): InteractiveElement {
+    public pushOnMove(...callbacks: Function[]) {
         this.pushOn(GEventKeys.ON_MOVE, ...callbacks);
+        return this;
+    }
+    pushOnUp(...callbacks: Function[]) {
+        this.pushOn(GEventKeys.ON_UP, ...callbacks);
         return this;
     }
 
