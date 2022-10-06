@@ -6,7 +6,7 @@
 HTML Canvas based UI framework
 
 ## Example
-Code:
+### Basic Layout
 ```typescript
 /**
  * Demo of a simple layout
@@ -49,5 +49,29 @@ Output:
 Try it out in [here](/Cubism/index.html)
 
 
+```typescript
 
+let app = Cubism.createFromId("mainCanvas");
+app.init(
+  new VerticalLayout(
+    new DraggableRect().setWidth(100).setHeight(100),
+    new DraggableRect().setWidth(100).setHeight(100),
+    new ButtonElement().setText("Button").setHeight(50).setWidth(100).pushOnUp(() => {
+      let v = app.getElementById("VerticalLayout");
+      v.pushChildren(
+        new DraggableRect().setWidth(10).setHeight(10)
+      );
+    })
+  ).setId("VerticalLayout")
+);
+```
+Output:
+
+Before clicks:
+
+![image](https://user-images.githubusercontent.com/114621472/194417006-bb3d94a7-37f3-49d0-bbf4-e9082ec9ce22.png)
+
+After clicks:
+
+![image](https://user-images.githubusercontent.com/114621472/194416927-0d4d3e56-f629-4d4e-8d26-933d47ba362e.png)
 
