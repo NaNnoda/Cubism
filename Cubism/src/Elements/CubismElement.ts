@@ -1,6 +1,5 @@
 import {Point2D} from "../Datatypes/Point";
 import {CanvasDrawer} from "../CanvasDrawer";
-import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
 import {LayoutValues} from "../Constants/Constants";
 import CubismPart from "../CubismPart";
 import {Cubism} from "../Cubism";
@@ -17,34 +16,40 @@ export class CubismElement extends CubismPart implements IRenderable {
     get c(): CanvasDrawer {
         if (!this.cubism) {
             console.log(this.cubism)
-            throw new Error("wtf?");
+            throw new Error("Cubism is not set for " + this);
         }
         return this.cubism.canvasDrawer;
     }
 
-    cubismId: string | null = null;
+    elementId: string | null = null;
     needsResize: boolean = true;
 
-    constructor() {
+    constructor(elementId: string | null = null) {
         super();
         this._position = new Point2D(0, 0);
         this._size = new Point2D(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT);
         this._absSize = new Point2D(0, 0);
+        // Optional id
+        this.elementId = elementId;
     }
 
-    setId(id: string) {
-        this.cubismId = id;
+    // set needsResize(needsResize: boolean) {
+    //     this._needsResize = needsResize;
+    //     if (this._needsResize) {
+    //         this.c.setRedraw(true);
+    //     }
+    // }
+
+    setId(id: string): this {
+        this.elementId = id;
         return this;
     }
 
-    set cubism(cubism: Cubism) {
-        super.cubism = cubism;
-        if (this.cubismId !== null) {
-            this.cubism.registerElementId(this.cubismId, this);
+    setCubism(cubism: Cubism): void {
+        super.setCubism(cubism);
+        if (this.elementId !== null) {
+            this.cubism.registerElementId(this.elementId, this);
         }
-    }
-    get cubism(): Cubism {
-        return super.cubism;
     }
 
     set position(pos: Point2D) {
@@ -64,8 +69,8 @@ export class CubismElement extends CubismPart implements IRenderable {
     set size(size: Point2D) {
         this._size = size;
         this.needsResize = true;
-        this.c.setRedraw(true);
     }
+
 
     get absSize(): Point2D {
         return this._absSize;
@@ -124,39 +129,34 @@ export class CubismElement extends CubismPart implements IRenderable {
 
     setWidth(width: number) {
         this.width = width;
-        // this.absWidth = -1;
+        this.needsResize = true;
         return this;
     }
 
     setHeight(height: number) {
         this.height = height;
-        // this.absHeight = -1;
         return this;
     }
 
-    setPosFromPoint(pos: Point2D) {
+    setPosFromPoint(pos: Point2D): this {
         this.position = pos;
         return this;
     }
 
-    setPosFromXY(x: number, y: number) {
+    setPosFromXY(x: number, y: number): this {
         this.position.x = x;
         this.position.y = y;
         return this;
     }
 
     render(): void {
-        // console.log("Rendering " + this.elementName);
         if (this.c === null) {
             throw new Error("Drawer is null");
         }
     }
 
     toString(): string {
-        return `${this.elementName} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
+        return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
     }
 
-    get elementName(): string {
-        return this.constructor.name;
-    }
 }

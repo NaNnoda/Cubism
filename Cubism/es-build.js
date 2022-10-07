@@ -205,16 +205,19 @@ var CubismPart = class {
     this._cubism = null;
   }
   get cubism() {
+    return this.getCubism();
+  }
+  set cubism(cubism) {
+    this.setCubism(cubism);
+  }
+  setCubism(cubism) {
+    this._cubism = cubism;
+  }
+  getCubism() {
     if (this._cubism === null) {
       throw new Error(`Cubism is not set for ${this.className}`);
     }
     return this._cubism;
-  }
-  set cubism(cubism) {
-    this._cubism = cubism;
-    this.afterSetCubism(cubism);
-  }
-  afterSetCubism(cubism) {
   }
   get className() {
     return this.constructor.name;
@@ -232,8 +235,8 @@ var CanvasDrawer = class extends CubismPart {
   get eventSystem() {
     return this.cubism.eventSystem;
   }
-  afterSetCubism(cubism) {
-    super.afterSetCubism(cubism);
+  setCubism(cubism) {
+    super.setCubism(cubism);
     this.registerFrameUpdate();
   }
   get width() {
@@ -603,33 +606,31 @@ var Cubism = class extends CubismElementManger {
 
 // src/Elements/CubismElement.ts
 var CubismElement = class extends CubismPart {
-  constructor() {
+  constructor(elementId = null) {
     super();
-    this.cubismId = null;
+    this.elementId = null;
     this.needsResize = true;
     this._position = new Point2D(0, 0);
     this._size = new Point2D(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT);
     this._absSize = new Point2D(0, 0);
+    this.elementId = elementId;
   }
   get c() {
     if (!this.cubism) {
       console.log(this.cubism);
-      throw new Error("wtf?");
+      throw new Error("Cubism is not set for " + this);
     }
     return this.cubism.canvasDrawer;
   }
   setId(id) {
-    this.cubismId = id;
+    this.elementId = id;
     return this;
   }
-  set cubism(cubism) {
-    super.cubism = cubism;
-    if (this.cubismId !== null) {
-      this.cubism.registerElementId(this.cubismId, this);
+  setCubism(cubism) {
+    super.setCubism(cubism);
+    if (this.elementId !== null) {
+      this.cubism.registerElementId(this.elementId, this);
     }
-  }
-  get cubism() {
-    return super.cubism;
   }
   set position(pos) {
     this._position = pos;
@@ -644,7 +645,6 @@ var CubismElement = class extends CubismPart {
   set size(size) {
     this._size = size;
     this.needsResize = true;
-    this.c.setRedraw(true);
   }
   get absSize() {
     return this._absSize;
@@ -689,6 +689,7 @@ var CubismElement = class extends CubismPart {
   }
   setWidth(width) {
     this.width = width;
+    this.needsResize = true;
     return this;
   }
   setHeight(height) {
@@ -710,10 +711,7 @@ var CubismElement = class extends CubismPart {
     }
   }
   toString() {
-    return `${this.elementName} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
-  }
-  get elementName() {
-    return this.constructor.name;
+    return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
   }
 };
 
@@ -950,20 +948,11 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
     }
     this.c.restoreTranslate();
   }
-  set cubism(cubism) {
-    super.cubism = cubism;
-    this._cubism = cubism;
-    if (this.cubismId) {
-    }
+  setCubism(cubism) {
+    super.setCubism(cubism);
     for (let child of this.children) {
       child.cubism = cubism;
     }
-  }
-  get cubism() {
-    if (!this._cubism) {
-      throw new Error("cubism is not set in " + this.constructor.name);
-    }
-    return this._cubism;
   }
   triggerOnMove(point) {
     super.triggerOnMove(point);
@@ -1392,7 +1381,7 @@ console.log("loading Index.ts");
 var LiveDemo = class {
   constructor() {
     this.codeText = document.getElementById("codeText");
-    this.codeText.value = this.initFunctionToString();
+    this.codeText.value = this.getFormattedFunctionString();
     this.builder = new CubismBuilder();
     this.userFunction = this.getUserFunction();
   }
@@ -1408,7 +1397,7 @@ var LiveDemo = class {
     this.updateUserFunction();
     this.runUserFunction();
   }
-  initFunctionToString() {
+  getFormattedFunctionString() {
     let s = defaultInitCode.toString();
     s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
     s = s.replace(/^ {2}/gm, "");
@@ -1429,15 +1418,12 @@ function defaultInitCode() {
   let app = Cubism.createFromId("mainCanvas");
   app.init(
     new VerticalLayout(
-      new DraggableRect().setWidth(100).setHeight(100),
-      new DraggableRect().setWidth(100).setHeight(100),
+      new DraggableRect().setWidth(100).setHeight(50),
+      new DraggableRect().setWidth(100).setHeight(50),
       new ButtonElement().setText("Button").setHeight(50).setWidth(100).pushOnUp(() => {
-        console.log("Button clicked");
-        console.log("app is ", app);
         let v = app.getElementById("VerticalLayout");
-        console.log("v is ", v);
         v.pushChildren(
-          new DraggableRect().setWidth(100).setHeight(100)
+          new DraggableRect().setWidth(50).setHeight(50)
         );
       })
     ).setId("VerticalLayout")

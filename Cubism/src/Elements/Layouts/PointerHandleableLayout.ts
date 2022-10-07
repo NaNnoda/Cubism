@@ -70,29 +70,12 @@ export class PointerHandleableLayout extends PointerHandleableElement {
         this.c.restoreTranslate();
     }
 
-    set cubism(cubism: Cubism) {
-        super.cubism = cubism;
-
-        this._cubism = cubism;
-        if (this.cubismId){
-            // this.cubism.registerElementId(this.cubismId, this);
-        }
-        // console.log("set cubism", this.cubism);
+    setCubism(cubism: Cubism) {
+        super.setCubism(cubism);
         for (let child of this.children) {
             child.cubism = cubism;
         }
     }
-
-    /**
-     * It seems like I have to override both getter and setter
-     */
-    get cubism() {
-        if (!this._cubism) {
-            throw new Error("cubism is not set in " + this.constructor.name);
-        }
-        return this._cubism;
-    }
-
 
     triggerOnMove(point: PointerPoint): void {
         super.triggerOnMove(point);

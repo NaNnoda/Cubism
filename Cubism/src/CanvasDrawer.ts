@@ -29,9 +29,8 @@ export class CanvasDrawer extends CubismPart {
         this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         this.state = new CubismCanvasState(canvas, this.ctx);
     }
-    afterSetCubism(cubism: Cubism) {
-        super.afterSetCubism(cubism);
-
+    setCubism(cubism: Cubism) {
+        super.setCubism(cubism);
 
         this.registerFrameUpdate();
     }

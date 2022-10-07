@@ -63,7 +63,6 @@ export class Cubism extends CubismElementManger{
     }
 
     initParts(...handlers: CubismPart[]) {
-
         handlers.forEach(handler => {
                 handler.cubism = this;
             console.log("Init "+handler.constructor.name);

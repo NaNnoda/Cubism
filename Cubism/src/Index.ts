@@ -3,7 +3,6 @@ import {Cubism} from "./Cubism";
 import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
 import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
-import {GEventKeys} from "./Constants/Constants";
 
 
 console.log("loading Index.ts");
@@ -15,11 +14,14 @@ class LiveDemo {
 
     constructor() {
         this.codeText = document.getElementById("codeText") as HTMLTextAreaElement;
-        this.codeText.value = this.initFunctionToString();
+        this.codeText.value = this.getFormattedFunctionString();
         this.builder = new CubismBuilder();
         this.userFunction = this.getUserFunction();
     }
 
+    /**
+     * Placeholder for the user function
+     */
     userFunction() {
         // override this
     }
@@ -36,14 +38,12 @@ class LiveDemo {
         this.runUserFunction();
     }
 
-    initFunctionToString() {
+    getFormattedFunctionString() {
         let s = defaultInitCode.toString();
         // Remove the first and last line
         s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
         // Remove first 2 spaces
         s = s.replace(/^ {2}/gm, "");
-        // Replace dot with new line and dot
-        // s = s.replace(/\./gm, ".\r");
         return s;
     }
 
@@ -62,30 +62,29 @@ class LiveDemo {
     }
 }
 
+/**
+ * Default user function
+ */
 function defaultInitCode() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
         new VerticalLayout(
             new DraggableRect()
                 .setWidth(100)
-                .setHeight(100),
+                .setHeight(50),
             new DraggableRect()
                 .setWidth(100)
-                .setHeight(100),
+                .setHeight(50),
             new ButtonElement()
                 .setText("Button")
                 .setHeight(50)
                 .setWidth(100)
                 .pushOnUp(() => {
-                    console.log("Button clicked");
-                    console.log("app is ", app);
-
                     let v = app.getElementById("VerticalLayout") as VerticalLayout
-                    console.log("v is ", v);
                     v.pushChildren(
                         new DraggableRect()
-                            .setWidth(100)
-                            .setHeight(100)
+                            .setWidth(50)
+                            .setHeight(50)
                     )
                 })
         ).setId("VerticalLayout")
