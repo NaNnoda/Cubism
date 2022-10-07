@@ -46,8 +46,6 @@ Output:
 
 <img width="317" alt="image" src="https://user-images.githubusercontent.com/114621472/194082209-d207383e-9816-4c13-a0c9-d11d319b087d.png">
 
-Try it out in [here](/Cubism/index.html)
-
 
 ```typescript
 
@@ -67,11 +65,11 @@ app.init(
 ```
 Output:
 
-Before clicks:
+Before/after clicks:
 
 ![image](https://user-images.githubusercontent.com/114621472/194417006-bb3d94a7-37f3-49d0-bbf4-e9082ec9ce22.png)
-
-After clicks:
-
 ![image](https://user-images.githubusercontent.com/114621472/194416927-0d4d3e56-f629-4d4e-8d26-933d47ba362e.png)
+
+
+Try it out in [here](/Cubism/index.html)
 
