@@ -3,6 +3,7 @@ import {Cubism} from "./Cubism";
 import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
 import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
+import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
 
 
 console.log("loading Index.ts");
@@ -80,13 +81,14 @@ function defaultInitCode() {
                 .setHeight(50)
                 .setWidth(100)
                 .pushOnUp(() => {
-                    let v = app.getElementById("VerticalLayout") as VerticalLayout
-                    v.pushChildren(
+                    let h = app.getElementById("h") as HorizontalLayout
+                    h.pushChildren(
                         new DraggableRect()
                             .setWidth(50)
                             .setHeight(50)
                     )
-                })
+                }),
+            new HorizontalLayout().setId("h")
         ).setId("VerticalLayout")
     )
 }

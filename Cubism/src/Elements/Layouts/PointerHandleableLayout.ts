@@ -2,6 +2,7 @@ import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {LayoutValues} from "../../Constants/Constants";
 import {PointerHandleableElement} from "../PointerHandleableElement";
 import {Cubism} from "../../Cubism";
+import {Point2D} from "../../Datatypes/Point";
 
 export class PointerHandleableLayout extends PointerHandleableElement {
     private _children: PointerHandleableElement[] = [];
@@ -11,8 +12,8 @@ export class PointerHandleableLayout extends PointerHandleableElement {
         this._children.push(...children);
     }
 
-    updateShape(x: number, y: number) {
-        super.updateShape(x, y);
+    resize(targetSize: Point2D) {
+        super.resize(targetSize);
         this.updateChildrenShape()
     }
 
@@ -32,7 +33,7 @@ export class PointerHandleableLayout extends PointerHandleableElement {
                 y = this.absHeight;
                 console.log("this.absHeight", this.absHeight);
             }
-            child.updateShape(x, y);
+            child.resize(new Point2D(x, y));
         }
     }
 

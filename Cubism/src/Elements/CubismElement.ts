@@ -9,17 +9,10 @@ import {Cubism} from "../Cubism";
  * With size, position, and global events
  */
 export class CubismElement extends CubismPart implements IRenderable {
-    _position: Point2D;
-    _size: Point2D;
-    _absSize: Point2D; // Absolute size is the size of the element
+    private _position: Point2D;
+    private _size: Point2D;
+    private _absSize: Point2D; // Absolute size is the size of the element
 
-    get c(): CanvasDrawer {
-        if (!this.cubism) {
-            console.log(this.cubism)
-            throw new Error("Cubism is not set for " + this);
-        }
-        return this.cubism.canvasDrawer;
-    }
 
     elementId: string | null = null;
     needsResize: boolean = true;
@@ -32,13 +25,6 @@ export class CubismElement extends CubismPart implements IRenderable {
         // Optional id
         this.elementId = elementId;
     }
-
-    // set needsResize(needsResize: boolean) {
-    //     this._needsResize = needsResize;
-    //     if (this._needsResize) {
-    //         this.c.setRedraw(true);
-    //     }
-    // }
 
     setId(id: string): this {
         this.elementId = id;
@@ -82,15 +68,8 @@ export class CubismElement extends CubismPart implements IRenderable {
     }
 
     initElement(parentSize: Point2D): void {
-        this.updateShape(parentSize.x, parentSize.y);
+        this.resize(parentSize);
     }
-
-    updateShape(x: number, y: number): void {
-        this.absWidth = x;
-        this.absHeight = y;
-        this.needsResize = false;
-    }
-
 
     get height(): number {
         return this.size.y;
@@ -117,7 +96,6 @@ export class CubismElement extends CubismPart implements IRenderable {
     set absWidth(x: number) {
         this.absSize.x = x;
     }
-
 
     get absHeight(): number {
         return this.absSize.y;
@@ -149,10 +127,28 @@ export class CubismElement extends CubismPart implements IRenderable {
         return this;
     }
 
-    render(): void {
-        if (this.c === null) {
-            throw new Error("Drawer is null");
+    resize(targetSize: Point2D) {
+        this.resizeFromXY(targetSize.x, targetSize.y);
+    }
+
+    resizeFromXY(x: number, y: number): void {
+        this.absWidth = x;
+        this.absHeight = y;
+        this.needsResize = false;
+    }
+
+    get c(): CanvasDrawer {
+        if (!this.cubism) {
+            console.log(this.cubism)
+            throw new Error("Cubism is not set for " + this);
         }
+        return this.cubism.canvasDrawer;
+    }
+
+    render(): void {
+        // if (this.c === null) {ss
+        //     throw new Error("Drawer is null");
+        // }
     }
 
     toString(): string {

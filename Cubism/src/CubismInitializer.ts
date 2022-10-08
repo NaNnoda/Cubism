@@ -8,6 +8,7 @@ export default class CubismInitializer extends CubismPart {
     get eventSystem(): CubismEventSystem {
         return this.cubism.eventSystem;
     }
+
     initializeFixedUpdate(timeInterval: number = 1000 / 60) {
         setInterval(this.doFixUpdate.bind(this), timeInterval);
 
@@ -21,8 +22,33 @@ export default class CubismInitializer extends CubismPart {
     public initializeFrameUpdate() {
         this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
-
         return this;
+    }
+
+    public initializeFPSCounter() {
+        setInterval(this.printFPS.bind(this), 1000);
+
+        this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+        return this;
+    }
+
+    fps: number = 0;
+
+    resetFPSCounter() {
+        this.fps = 0;
+    }
+
+    incrementFPS() {
+        this.fps++;
+    }
+
+    printFPS() {
+        console.log("FPS: " + this.getFPS());
+        this.resetFPSCounter();
+    }
+
+    getFPS() {
+        return this.fps;
     }
 
     doFrameUpdate() {

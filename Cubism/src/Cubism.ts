@@ -129,6 +129,8 @@ export class Cubism extends CubismElementManger{
         this.initRootElement();
         this.canvasDrawer.setRedraw(true);
         this.initializer.initializeFrameUpdate();
+
+        // this.initializer.initializeFPSCounter();
     }
 
     private initRootElement() {

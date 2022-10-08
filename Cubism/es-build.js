@@ -258,6 +258,7 @@ var CanvasDrawer = class extends CubismPart {
   frameUpdate() {
     if (this.state.needsRedraw) {
       this.triggerRedraw();
+      console.log("Redrawing");
       this.state.needsRedraw = false;
     }
   }
@@ -455,6 +456,10 @@ var CubismOuterGlobal = class {
 
 // src/CubismInitializer.ts
 var CubismInitializer = class extends CubismPart {
+  constructor() {
+    super(...arguments);
+    this.fps = 0;
+  }
   get eventSystem() {
     return this.cubism.eventSystem;
   }
@@ -469,6 +474,24 @@ var CubismInitializer = class extends CubismPart {
     this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
     return this;
+  }
+  initializeFPSCounter() {
+    setInterval(this.printFPS.bind(this), 1e3);
+    this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+    return this;
+  }
+  resetFPSCounter() {
+    this.fps = 0;
+  }
+  incrementFPS() {
+    this.fps++;
+  }
+  printFPS() {
+    console.log("FPS: " + this.getFPS());
+    this.resetFPSCounter();
+  }
+  getFPS() {
+    return this.fps;
   }
   doFrameUpdate() {
     this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
@@ -615,13 +638,6 @@ var CubismElement = class extends CubismPart {
     this._absSize = new Point2D(0, 0);
     this.elementId = elementId;
   }
-  get c() {
-    if (!this.cubism) {
-      console.log(this.cubism);
-      throw new Error("Cubism is not set for " + this);
-    }
-    return this.cubism.canvasDrawer;
-  }
   setId(id) {
     this.elementId = id;
     return this;
@@ -654,12 +670,7 @@ var CubismElement = class extends CubismPart {
     this.c.setRedraw(true);
   }
   initElement(parentSize) {
-    this.updateShape(parentSize.x, parentSize.y);
-  }
-  updateShape(x, y) {
-    this.absWidth = x;
-    this.absHeight = y;
-    this.needsResize = false;
+    this.resize(parentSize);
   }
   get height() {
     return this.size.y;
@@ -705,10 +716,22 @@ var CubismElement = class extends CubismPart {
     this.position.y = y;
     return this;
   }
-  render() {
-    if (this.c === null) {
-      throw new Error("Drawer is null");
+  resize(targetSize) {
+    this.resizeFromXY(targetSize.x, targetSize.y);
+  }
+  resizeFromXY(x, y) {
+    this.absWidth = x;
+    this.absHeight = y;
+    this.needsResize = false;
+  }
+  get c() {
+    if (!this.cubism) {
+      console.log(this.cubism);
+      throw new Error("Cubism is not set for " + this);
     }
+    return this.cubism.canvasDrawer;
+  }
+  render() {
   }
   toString() {
     return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
@@ -899,8 +922,8 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
     this._children = [];
     this._children.push(...children);
   }
-  updateShape(x, y) {
-    super.updateShape(x, y);
+  resize(targetSize) {
+    super.resize(targetSize);
     this.updateChildrenShape();
   }
   updateChildrenShape() {
@@ -918,7 +941,7 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
         y = this.absHeight;
         console.log("this.absHeight", this.absHeight);
       }
-      child.updateShape(x, y);
+      child.resize(new Point2D(x, y));
     }
   }
   updateChildrenPosition() {
@@ -1421,11 +1444,12 @@ function defaultInitCode() {
       new DraggableRect().setWidth(100).setHeight(50),
       new DraggableRect().setWidth(100).setHeight(50),
       new ButtonElement().setText("Button").setHeight(50).setWidth(100).pushOnUp(() => {
-        let v = app.getElementById("VerticalLayout");
-        v.pushChildren(
+        let h = app.getElementById("h");
+        h.pushChildren(
           new DraggableRect().setWidth(50).setHeight(50)
         );
-      })
+      }),
+      new HorizontalLayout().setId("h")
     ).setId("VerticalLayout")
   );
 }

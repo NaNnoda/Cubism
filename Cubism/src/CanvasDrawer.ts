@@ -64,9 +64,11 @@ export class CanvasDrawer extends CubismPart {
      * @private
      */
     private frameUpdate() {
+
         // console.log("Frame update");
         if (this.state.needsRedraw) {
             this.triggerRedraw();
+            console.log("Redrawing");
             this.state.needsRedraw = false;
         }
     }
