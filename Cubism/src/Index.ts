@@ -8,6 +8,7 @@ import CubismParentElement from "./Elements/CubismParentElement";
 import {initConsole} from "./Debug/Console";
 import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
 import {EventKeys} from "./Constants/Constants";
+import PointerHandlerParentElement from "./Elements/PointerHanderParentElement";
 
 
 console.log("loading Index.ts");
@@ -74,7 +75,7 @@ class LiveDemo {
 function defaultInitCode() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
-        new CubismParentElement(
+        new PointerHandlerParentElement(
             null,
             new DraggableRect().setWidth(100).setHeight(100),
         )

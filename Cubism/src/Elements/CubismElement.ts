@@ -105,14 +105,14 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         this.c.setRedraw(true);
     }
 
-    /**
-     * Initialize this element
-     * @param parentSize
-     */
-    initElement(parentSize: Point2D): void {
-        console.log(`Init element ${this}`);
-        this.resize(parentSize);
-    }
+    // /**
+    //  * Initialize this element
+    //  * @param parentSize
+    //  */
+    // initElement(parentSize: Point2D): void {
+    //     console.log(`Init element ${this}`);
+    //     // this.resize(parentSize);
+    // }
 
     get height(): number {
         return this.size.y;

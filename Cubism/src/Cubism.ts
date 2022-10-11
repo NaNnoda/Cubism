@@ -48,7 +48,7 @@ export class Cubism extends CubismElementManger {
 
         this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
         this.registerRedraw();
-        this.registerPointerEvents();
+        this.registerGlobalPointerEvents();
 
 
         if (canvas.id === null || canvas.id === undefined || canvas.id === "") {
@@ -60,37 +60,32 @@ export class Cubism extends CubismElementManger {
     }
 
 
-
     /**
      * Register pointer events
      */
-    registerPointerEvents() {
+    registerGlobalPointerEvents() {
         // on move
         this.canvas.onpointermove = (e) => {
-            this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT,
-                new PointerPoint(e.offsetX, e.offsetY, e.pressure)
-            );
+            // console.log("onpointermove");
+            this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
-
-        this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, (point: PointerPoint) => {
-            this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
-        });
         // on down
         this.canvas.onpointerdown = (e) => {
             this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
-
-        this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point: PointerPoint) => {
-            this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
-        });
         // on up
         this.canvas.onpointerup = (e) => {
             this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
         }
+    }
+
+    registerRootElementPointerEvents() {
 
         this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point: PointerPoint) => {
+            console.log(`Pointer event [${point}]`);
             this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
         });
+
     }
 
     registerRedraw() {
@@ -122,12 +117,14 @@ export class Cubism extends CubismElementManger {
         this.initRootElement();
         this.initializer.initializeFrameUpdate()
             .initializeFPSCounter();
+
+        this.registerRootElementPointerEvents();
         this.canvasDrawer.setRedraw(true);
     }
 
     private initRootElement() {
         console.log("init root element");
-        this.rootElement.initElement(
+        this.rootElement.resize(
             new Point2D(this.canvas.width, this.canvas.height)
         );
     }
@@ -144,8 +141,8 @@ export class Cubism extends CubismElementManger {
 
     initParts(...parts: CubismPart[]) {
         parts.forEach(part => {
-            part.cubism = this;
-                console.log(`Initializing cubism part [${part}]` );
+                part.cubism = this;
+                console.log(`Initializing cubism part [${part}]`);
             }
         );
     }
