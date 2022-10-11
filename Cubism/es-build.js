@@ -62,6 +62,9 @@ var TransformMatrix2D = class {
   static translation(x, y) {
     return new TransformMatrix2D(1, 0, 0, 1, x, y);
   }
+  static translationFromPoint(point) {
+    return TransformMatrix2D.translation(point.x, point.y);
+  }
   static rotation(angle) {
     let cos = Math.cos(angle);
     let sin = Math.sin(angle);
@@ -69,6 +72,9 @@ var TransformMatrix2D = class {
   }
   static scale(x, y) {
     return new TransformMatrix2D(x, 0, 0, y, 0, 0);
+  }
+  static scaleFromPoint(point) {
+    return TransformMatrix2D.scale(point.x, point.y);
   }
   clone() {
     return new TransformMatrix2D(this.m11, this.m12, this.m21, this.m22, this.dx, this.dy);
@@ -1479,6 +1485,15 @@ var CubismParentElement = class extends CubismElement {
   }
 };
 
+// src/Debug/Console.ts
+function initConsole() {
+  let w = window;
+  w.test = () => {
+    console.log("test");
+  };
+  w.cubismGlobal = CubismOuterGlobal.instance;
+}
+
 // src/Index.ts
 console.log("loading Index.ts");
 var LiveDemo = class {
@@ -1491,6 +1506,7 @@ var LiveDemo = class {
   userFunction() {
   }
   main() {
+    initConsole();
     let updateButton = document.getElementById("update");
     updateButton.onclick = this.updateCubism.bind(this);
     this.updateCubism();

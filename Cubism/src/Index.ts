@@ -5,6 +5,7 @@ import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
 import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
 import CubismParentElement from "./Elements/CubismParentElement";
+import {initConsole} from "./Debug/Console";
 
 
 console.log("loading Index.ts");
@@ -29,6 +30,7 @@ class LiveDemo {
     }
 
     main() {
+        initConsole();
         let updateButton = document.getElementById("update") as HTMLButtonElement;
         updateButton.onclick = this.updateCubism.bind(this);
         this.updateCubism();

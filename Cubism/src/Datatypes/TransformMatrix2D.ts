@@ -1,6 +1,8 @@
 /**
  * A class representing a 2D transformation matrix.
  */
+import {Point2D} from "./Point";
+
 export class TransformMatrix2D {
     arr: number[][] = [];
 
@@ -20,7 +22,6 @@ export class TransformMatrix2D {
             [0, 0, 1]
         ];
     }
-
     get m11(): number {
         return this.arr[0][0];
     }
@@ -95,6 +96,10 @@ export class TransformMatrix2D {
         return new TransformMatrix2D(1, 0, 0, 1, x, y);
     }
 
+    static translationFromPoint(point: Point2D): TransformMatrix2D {
+        return TransformMatrix2D.translation(point.x, point.y);
+    }
+
     static rotation(angle: number): TransformMatrix2D {
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
@@ -103,6 +108,9 @@ export class TransformMatrix2D {
 
     static scale(x: number, y: number): TransformMatrix2D {
         return new TransformMatrix2D(x, 0, 0, y, 0, 0);
+    }
+    static scaleFromPoint(point: Point2D): TransformMatrix2D {
+        return TransformMatrix2D.scale(point.x, point.y);
     }
 
     clone(): TransformMatrix2D {

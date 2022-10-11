@@ -1,14 +1,10 @@
 import { Point2D } from "../Datatypes/Point";
+import {CubismOuterGlobal} from "../Global/Outer/CubismOuterGlobal";
 
 export function initConsole() {
     let w = window as any;
     w.test = () => {
         console.log('test');
     }
-    // w.addWindow = () => {
-    //     rootWindow.add(
-    //         new WindowScene(200, 200)
-    //             .setOffset(new Point2D(20, 20))
-    //     );
-    // }
+    w.cubismGlobal = CubismOuterGlobal.instance;
 }
