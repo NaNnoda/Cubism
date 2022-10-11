@@ -661,8 +661,13 @@ var CubismElement = class extends CubismEventSystem {
     return this._size;
   }
   set size(size) {
-    this._size = size;
+    this.setSizeFromXY(size.x, size.y);
+  }
+  setSizeFromXY(x, y) {
+    this.size.x = x;
+    this.size.y = y;
     this.needsResize = true;
+    return this;
   }
   get absSize() {
     return this._absSize;
@@ -679,15 +684,13 @@ var CubismElement = class extends CubismEventSystem {
     return this.size.y;
   }
   set height(y) {
-    this.size.y = y;
-    this.needsResize = true;
+    this.setSizeFromXY(this.width, y);
   }
   get width() {
     return this.size.x;
   }
   set width(x) {
-    this.size.x = x;
-    this.needsResize = true;
+    this.setSizeFromXY(x, this.height);
   }
   get absWidth() {
     return this.absSize.x;
@@ -735,10 +738,10 @@ var CubismElement = class extends CubismEventSystem {
     return this.cubism.canvasDrawer;
   }
   draw() {
-    console.log("Draw element", this);
+    console.log(`Drawing ${this}`);
   }
   toString() {
-    return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
+    return `[${this.elementId ? this.elementId : "NO ID"}]: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
   }
 };
 

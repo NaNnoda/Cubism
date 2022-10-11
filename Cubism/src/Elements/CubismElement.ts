@@ -46,35 +46,66 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         }
     }
 
+    /**
+     * Set position of this element relative to parent
+     * @param pos
+     */
     set position(pos: Point2D) {
         this._position = pos;
         this.c.setRedraw(true);
     }
 
-
+    /**
+     * Get position of this element relative to parent
+     */
     get position(): Point2D {
         return this._position;
     }
 
+    /**
+     * Get a size description of this element
+     * Not necessarily the size of the element
+     */
     get size(): Point2D {
         return this._size;
     }
 
+    /**
+     * Set size of this element
+     *
+     * @param size size description
+     */
     set size(size: Point2D) {
-        this._size = size;
-        this.needsResize = true;
+        this.setSizeFromXY(size.x, size.y);
     }
 
+    setSizeFromXY(x: number, y: number): this {
+        this.size.x = x;
+        this.size.y = y;
+        this.needsResize = true;
+        return this;
+    }
 
+    /**
+     * Get the actual size of this element
+     */
     get absSize(): Point2D {
         return this._absSize;
     }
 
+    /**
+     * Set the actual size of this element
+     * @param size
+     */
     set absSize(size: Point2D) {
         this._absSize = size;
         this.c.setRedraw(true);
     }
 
+    /**
+     * Initialize this element
+     * @param parentSize
+     */
     initElement(parentSize: Point2D): void {
         console.log("Init element", this);
         this.resize(parentSize);
@@ -85,8 +116,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     }
 
     set height(y: number) {
-        this.size.y = y;
-        this.needsResize = true;
+        this.setSizeFromXY(this.width, y);
     }
 
     get width(): number {
@@ -94,8 +124,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     }
 
     set width(x: number) {
-        this.size.x = x;
-        this.needsResize = true;
+        this.setSizeFromXY(x, this.height);
     }
 
     get absWidth(): number {
@@ -138,18 +167,28 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
 
     /**
      * Resize this element to targetSize size
+     * and mark it as resized
      * @param targetSize
      */
     resize(targetSize: Point2D) {
         this.resizeFromXY(targetSize.x, targetSize.y);
     }
 
+    /**
+     * Resize this element to targetSize size
+     * and mark it as resized
+     * @param x width
+     * @param y height
+     */
     resizeFromXY(x: number, y: number): void {
         this.absWidth = x;
         this.absHeight = y;
         this.needsResize = false;
     }
 
+    /**
+     * Get canvas drawer
+     */
     get c(): CanvasDrawer {
         if (!this.cubism) {
             console.log(this.cubism)
@@ -162,14 +201,14 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Render this element
      */
     draw(): void {
-        console.log("Draw element", this);
+        console.log(`Drawing ${this}`);
     }
 
     /**
      * Get a string representation of this element
      */
     toString(): string {
-        return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
+        return `[${this.elementId ? this.elementId : "NO ID"}]: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
     }
 
 }

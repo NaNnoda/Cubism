@@ -9,7 +9,7 @@ import {LayoutValues} from "../Constants/Constants";
 export default class CubismParentElement extends CubismElement {
     children: CubismElement[];
 
-    constructor( elementId: string | null = null, ...children: CubismElement[] ) {
+    constructor(elementId: string | null = null, ...children: CubismElement[]) {
         super(elementId);
         this.children = [];
         this.addChildren(...children);
@@ -25,14 +25,24 @@ export default class CubismParentElement extends CubismElement {
         this.updateChildrenShape()
     }
 
+    /**
+     * Updates the children's shape
+     */
     updateChildrenShape() {
         this.updateChildrenSize();
         this.updateChildrenPosition();
     }
+
+    /**
+     * Updates the children's position
+     */
     updateChildrenPosition() {
 
     }
 
+    /**
+     * Updates the children's size according to the layout
+     */
     updateChildrenSize() {
         for (let child of this.children) {
             let x = child.width;
@@ -48,7 +58,11 @@ export default class CubismParentElement extends CubismElement {
         }
     }
 
-    addChildren(...children: CubismElement[]):this {
+    /**
+     * Adds children to the element
+     * @param children
+     */
+    addChildren(...children: CubismElement[]): this {
         for (let child of children) {
             this.children.push(child);
             if (this._cubism) {
@@ -57,6 +71,11 @@ export default class CubismParentElement extends CubismElement {
         }
         return this;
     }
+
+    /**
+     * Removes a child from the element
+     * @param child
+     */
     removeChild(child: CubismElement): void {
         let index = this.children.indexOf(child);
         if (index > -1) {
@@ -64,17 +83,27 @@ export default class CubismParentElement extends CubismElement {
         }
     }
 
+    /**
+     * Removes given children from the element
+     * @param children
+     */
     removeChildren(children: CubismElement[]): void {
         for (let child of children) {
             this.removeChild(child);
         }
     }
 
+    /**
+     * Draws current element and its children
+     */
     draw() {
         super.draw();
         this.drawChildren();
     }
 
+    /**
+     * Draws the children
+     */
     drawChildren() {
         this.c.translate(this.position);
         for (let child of this.children) {
@@ -83,17 +112,24 @@ export default class CubismParentElement extends CubismElement {
         this.c.restoreTranslate();
     }
 
+    /**
+     * Sets the cubism instance for the element and its children
+     * @param cubism
+     */
     setCubism(cubism: Cubism) {
         super.setCubism(cubism);
         this.setChildrenCubism(cubism);
     }
 
+    /**
+     * Sets the cubism instance for the children
+     * @param cubism
+     */
     setChildrenCubism(cubism: Cubism) {
         for (let child of this.children) {
             child.setCubism(cubism);
         }
     }
-
 
 
 }
