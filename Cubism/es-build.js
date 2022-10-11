@@ -1403,6 +1403,79 @@ var CubismBuilder = class {
   }
 };
 
+// src/Elements/CubismParentElement.ts
+var CubismParentElement = class extends CubismElement {
+  constructor(elementId = null, ...children) {
+    super(elementId);
+    this.children = [];
+    this.addChildren(...children);
+  }
+  resize(targetSize) {
+    super.resize(targetSize);
+    this.updateChildrenShape();
+  }
+  updateChildrenShape() {
+    this.updateChildrenSize();
+    this.updateChildrenPosition();
+  }
+  updateChildrenPosition() {
+  }
+  updateChildrenSize() {
+    for (let child of this.children) {
+      let x = child.width;
+      let y = child.height;
+      if (x === LayoutValues.MATCH_PARENT) {
+        x = this.absWidth;
+      }
+      if (y === LayoutValues.MATCH_PARENT) {
+        y = this.absHeight;
+        console.log("this.absHeight", this.absHeight);
+      }
+      child.resize(new Point2D(x, y));
+    }
+  }
+  addChildren(...children) {
+    for (let child of children) {
+      this.children.push(child);
+      if (this._cubism) {
+        child.setCubism(this.cubism);
+      }
+    }
+    return this;
+  }
+  removeChild(child) {
+    let index = this.children.indexOf(child);
+    if (index > -1) {
+      this.children.splice(index, 1);
+    }
+  }
+  removeChildren(children) {
+    for (let child of children) {
+      this.removeChild(child);
+    }
+  }
+  draw() {
+    super.draw();
+    this.drawChildren();
+  }
+  drawChildren() {
+    this.c.translate(this.position);
+    for (let child of this.children) {
+      child.draw();
+    }
+    this.c.restoreTranslate();
+  }
+  setCubism(cubism) {
+    super.setCubism(cubism);
+    this.setChildrenCubism(cubism);
+  }
+  setChildrenCubism(cubism) {
+    for (let child of this.children) {
+      child.setCubism(cubism);
+    }
+  }
+};
+
 // src/Index.ts
 console.log("loading Index.ts");
 var LiveDemo = class {
@@ -1444,7 +1517,10 @@ var LiveDemo = class {
 function defaultInitCode() {
   let app = Cubism.createFromId("mainCanvas");
   app.init(
-    new DraggableRect().setWidth(100).setHeight(100)
+    new CubismParentElement(
+      null,
+      new DraggableRect().setWidth(100).setHeight(100)
+    )
   );
 }
 new LiveDemo().main();

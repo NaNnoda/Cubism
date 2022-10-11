@@ -15,7 +15,11 @@ export default class CubismParentElement extends CubismElement {
         this.addChildren(...children);
     }
 
-
+    /**
+     * Called by initElement.
+     * Therefore, no need to overload initElement
+     * @param targetSize
+     */
     resize(targetSize: Point2D) {
         super.resize(targetSize);
         this.updateChildrenShape()
@@ -68,10 +72,10 @@ export default class CubismParentElement extends CubismElement {
 
     draw() {
         super.draw();
-        this.renderChildren();
+        this.drawChildren();
     }
 
-    renderChildren() {
+    drawChildren() {
         this.c.translate(this.position);
         for (let child of this.children) {
             child.draw();
@@ -90,15 +94,6 @@ export default class CubismParentElement extends CubismElement {
         }
     }
 
-    initElement(parentSize: Point2D) {
-        super.initElement(parentSize);
-        this.initChildren(parentSize);
-    }
 
-    initChildren(parentSize: Point2D) {
-        for (let child of this.children) {
-            child.initElement(parentSize);
-        }
-    }
 
 }

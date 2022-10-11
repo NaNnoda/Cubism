@@ -136,6 +136,10 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         return this;
     }
 
+    /**
+     * Resize this element to targetSize size
+     * @param targetSize
+     */
     resize(targetSize: Point2D) {
         this.resizeFromXY(targetSize.x, targetSize.y);
     }

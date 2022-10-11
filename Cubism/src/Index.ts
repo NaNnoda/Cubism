@@ -70,9 +70,10 @@ class LiveDemo {
 function defaultInitCode() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
-        new DraggableRect()
-            .setWidth(100)
-            .setHeight(100)
+        new CubismParentElement(
+            null,
+            new DraggableRect().setWidth(100).setHeight(100),
+        )
     )
 }
 
