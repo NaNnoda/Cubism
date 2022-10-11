@@ -27,8 +27,8 @@ export class ButtonElement extends ThemedElement {
         return  this
     }
 
-    render(): void {
-        super.render();
+    draw(): void {
+        super.draw();
         let c = this.c as CanvasDrawer;
         c.setFillStyle(this.currTheme.color.text);
         c.fillText(this.text, 10, 30);

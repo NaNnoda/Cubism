@@ -1,7 +1,6 @@
 import {Point2D} from "../Datatypes/Point";
 import {CanvasDrawer} from "../CanvasDrawer";
 import {LayoutValues} from "../Constants/Constants";
-import CubismPart from "../CubismPart";
 import {Cubism} from "../Cubism";
 import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
 
@@ -9,7 +8,7 @@ import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
  * Base class for all elements that can be rendered on the canvas
  * With size, position, and global events
  */
-export class CubismElement extends CubismEventSystem implements IRenderable {
+export class CubismElement extends CubismEventSystem implements IDrawable {
     private _position: Point2D;
     private _size: Point2D;
     private _absSize: Point2D; // Absolute size is the size of the element
@@ -27,11 +26,19 @@ export class CubismElement extends CubismEventSystem implements IRenderable {
         this.elementId = elementId;
     }
 
+    /**
+     * Set id for this element so that it can be accessed by the id
+     * @param id
+     */
     setId(id: string): this {
         this.elementId = id;
         return this;
     }
 
+    /**
+     * Set cubism instance for this element
+     * @param cubism
+     */
     setCubism(cubism: Cubism): void {
         super.setCubism(cubism);
         if (this.elementId !== null) {
@@ -69,6 +76,7 @@ export class CubismElement extends CubismEventSystem implements IRenderable {
     }
 
     initElement(parentSize: Point2D): void {
+        console.log("Init element", this);
         this.resize(parentSize);
     }
 
@@ -146,12 +154,16 @@ export class CubismElement extends CubismEventSystem implements IRenderable {
         return this.cubism.canvasDrawer;
     }
 
-    render(): void {
-        // if (this.c === null) {ss
-        //     throw new Error("Drawer is null");
-        // }
+    /**
+     * Render this element
+     */
+    draw(): void {
+        console.log("Draw element", this);
     }
 
+    /**
+     * Get a string representation of this element
+     */
     toString(): string {
         return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
     }

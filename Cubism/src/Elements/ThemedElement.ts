@@ -84,8 +84,8 @@ export class ThemedElement extends PointerHandleableElement {
     }
 
 
-    render(): void {
-        super.render();
+    draw(): void {
+        super.draw();
         let c = this.c as CanvasDrawer;
         c.translate(this.position);
 
@@ -101,6 +101,9 @@ export class ThemedElement extends PointerHandleableElement {
 
         c.setFillStyle(this.currTheme.color.background);
         c.setStrokeStyle(this.currTheme.color.border);
+
+        // console.log("this.currTheme", this.currTheme);
+        // console.log("absSize", this.absSize);
 
         c.drawRectWithPoints(this.absSize);
         c.restoreTranslate();

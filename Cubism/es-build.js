@@ -612,8 +612,8 @@ var Cubism = class extends CubismElementManger {
   init(root) {
     this.rootElement = root;
     this.initRootElement();
-    this.canvasDrawer.setRedraw(true);
     this.initializer.initializeFrameUpdate();
+    this.canvasDrawer.setRedraw(true);
   }
   initRootElement() {
     console.log("init root element");
@@ -624,7 +624,7 @@ var Cubism = class extends CubismElementManger {
   redraw() {
     this.canvasDrawer.clear();
     if (this.rootElement) {
-      this.rootElement.render();
+      this.rootElement.draw();
     }
   }
 };
@@ -672,6 +672,7 @@ var CubismElement = class extends CubismEventSystem {
     this.c.setRedraw(true);
   }
   initElement(parentSize) {
+    console.log("Init element", this);
     this.resize(parentSize);
   }
   get height() {
@@ -733,7 +734,8 @@ var CubismElement = class extends CubismEventSystem {
     }
     return this.cubism.canvasDrawer;
   }
-  render() {
+  draw() {
+    console.log("Draw element", this);
   }
   toString() {
     return `${this.elementId ? this.elementId : "NO ID"}: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
@@ -965,11 +967,11 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
   removeChild(child) {
     this.children.splice(this.children.indexOf(child), 1);
   }
-  render() {
-    super.render();
+  draw() {
+    super.draw();
     this.c.translate(this.position);
     for (let child of this.children) {
-      child.render();
+      child.draw();
     }
     this.c.restoreTranslate();
   }
@@ -1274,8 +1276,8 @@ var ThemedElement = class extends PointerHandleableElement {
     this.pressedTheme = theme;
     return this;
   }
-  render() {
-    super.render();
+  draw() {
+    super.draw();
     let c = this.c;
     c.translate(this.position);
     this.currTheme = this.defaultTheme;
@@ -1310,8 +1312,8 @@ var ButtonElement = class extends ThemedElement {
     }
     return this;
   }
-  render() {
-    super.render();
+  draw() {
+    super.draw();
     let c = this.c;
     c.setFillStyle(this.currTheme.color.text);
     c.fillText(this.text, 10, 30);
@@ -1401,42 +1403,6 @@ var CubismBuilder = class {
   }
 };
 
-// src/Elements/CubismParentElement.ts
-var CubismParentElement = class extends CubismElement {
-  constructor(elementId = null, ...children) {
-    super(elementId);
-    this.children = [];
-    this.addChildren(...children);
-  }
-  addChildren(...children) {
-    for (let child of children) {
-      this.children.push(child);
-      if (this._cubism) {
-        child.setCubism(this.cubism);
-      }
-    }
-    return this;
-  }
-  render() {
-    super.render();
-    this.renderChildren();
-  }
-  renderChildren() {
-    for (let child of this.children) {
-      child.render();
-    }
-  }
-  setCubism(cubism) {
-    super.setCubism(cubism);
-    this.setChildrenCubism(cubism);
-  }
-  setChildrenCubism(cubism) {
-    for (let child of this.children) {
-      child.setCubism(cubism);
-    }
-  }
-};
-
 // src/Index.ts
 console.log("loading Index.ts");
 var LiveDemo = class {
@@ -1478,10 +1444,7 @@ var LiveDemo = class {
 function defaultInitCode() {
   let app = Cubism.createFromId("mainCanvas");
   app.init(
-    new CubismParentElement(
-      null,
-      new DraggableRect().setWidth(100).setHeight(50)
-    )
+    new DraggableRect().setWidth(100).setHeight(100)
   );
 }
 new LiveDemo().main();

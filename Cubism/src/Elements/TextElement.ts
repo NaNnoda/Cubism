@@ -6,8 +6,8 @@ export class TextElement extends PointerHandleableElement {
     constructor(public text: string) {
         super();
     }
-    render() {
-        super.render();
+    draw() {
+        super.draw();
         let c = this.c as CanvasDrawer;
         let ctx = c.ctx;
         ctx.font = "30px Arial";

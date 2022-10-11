@@ -62,11 +62,11 @@ export class PointerHandleableLayout extends PointerHandleableElement {
         this.children.splice(this.children.indexOf(child), 1);
     }
 
-    render() {
-        super.render();
+    draw() {
+        super.draw();
         this.c.translate(this.position);
         for (let child of this.children) {
-            child.render();
+            child.draw();
         }
         this.c.restoreTranslate();
     }
