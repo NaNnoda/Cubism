@@ -1,6 +1,6 @@
 import {Point2D} from "./Datatypes/Point";
 import {CubismCanvasState} from "./State";
-import {GEventKeys} from "./Constants/Constants";
+import {EventKeys} from "./Constants/Constants";
 import CubismPart from "./CubismPart";
 import {Cubism} from "./Cubism";
 
@@ -56,7 +56,7 @@ export class CanvasDrawer extends CubismPart {
      */
     private registerFrameUpdate() {
         console.log("Registering frame update");
-        this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
+        this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
 
     /**
@@ -218,6 +218,6 @@ export class CanvasDrawer extends CubismPart {
      * Seems more responsive than setRedraw()
      */
     triggerRedraw() {
-        this.eventSystem.triggerGlobalEvent(GEventKeys.REDRAW);
+        this.eventSystem.triggerEvent(EventKeys.REDRAW);
     }
 }

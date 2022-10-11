@@ -1,4 +1,4 @@
-import {GEventKeys} from "./Constants/Constants";
+import {EventKeys} from "./Constants/Constants";
 import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
 import IGlobalHandler from "./Interface/IGlobalHandler";
 import IHasCubism from "./Interface/IGlobalHandler";
@@ -16,11 +16,11 @@ export default class CubismInitializer extends CubismPart {
     }
 
     doFixUpdate() {
-        this.eventSystem.triggerGlobalEvent(GEventKeys.FIX_UPDATE);
+        this.eventSystem.triggerEvent(EventKeys.FIX_UPDATE);
     }
 
     public initializeFrameUpdate() {
-        this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+        this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
         return this;
     }
@@ -28,7 +28,7 @@ export default class CubismInitializer extends CubismPart {
     public initializeFPSCounter() {
         setInterval(this.printFPS.bind(this), 1000);
 
-        this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+        this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
         return this;
     }
 
@@ -52,7 +52,7 @@ export default class CubismInitializer extends CubismPart {
     }
 
     doFrameUpdate() {
-        this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+        this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
     }
 }

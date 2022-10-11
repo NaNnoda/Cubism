@@ -3,12 +3,13 @@ import {CanvasDrawer} from "../CanvasDrawer";
 import {LayoutValues} from "../Constants/Constants";
 import CubismPart from "../CubismPart";
 import {Cubism} from "../Cubism";
+import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
 
 /**
  * Base class for all elements that can be rendered on the canvas
  * With size, position, and global events
  */
-export class CubismElement extends CubismPart implements IRenderable {
+export class CubismElement extends CubismEventSystem implements IRenderable {
     private _position: Point2D;
     private _size: Point2D;
     private _absSize: Point2D; // Absolute size is the size of the element

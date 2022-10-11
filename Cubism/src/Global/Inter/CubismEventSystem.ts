@@ -1,19 +1,12 @@
 import IHasCubism from "../../Interface/IGlobalHandler";
 import CubismPart from "../../CubismPart";
+import IEventManger from "../../Interface/IEventManger";
 
 /**
  * System that handles the registration and trigger of global events
  */
-export class CubismEventSystem extends CubismPart{
+export class CubismEventSystem extends CubismPart implements IEventManger {
     private _globalEventListeners: { [key: string]: Function[] } = {};
-
-    registerGlobalEvent(event: string, callback: Function): void {
-        this.getEvent(event).push(callback);
-    }
-
-    unregisterGlobalEvent(event: string, callback: Function): void {
-        this._globalEventListeners[event].splice(this._globalEventListeners[event].indexOf(callback), 1);
-    }
 
     getEvent(event: string): Function[] {
         if (this._globalEventListeners[event] === undefined) {
@@ -25,9 +18,17 @@ export class CubismEventSystem extends CubismPart{
         return this._globalEventListeners[event];
     }
 
-    triggerGlobalEvent(event: string, ...args: any[]): void {
-        this.getEvent(event).forEach((callback) => {
+    registerEvent(eventKey: string, callback: Function): void {
+        this.getEvent(eventKey).push(callback);
+    }
+
+    triggerEvent(eventKey: string, ...args: any[]): void {
+        this.getEvent(eventKey).forEach((callback) => {
             callback(...args);
         });
+    }
+
+    unregisterEvent(eventKey: string, callback: Function): void {
+        this._globalEventListeners[eventKey].splice(this._globalEventListeners[eventKey].indexOf(callback), 1);
     }
 }

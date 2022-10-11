@@ -4,12 +4,13 @@
 import {CubismElement} from "./CubismElement";
 import {Cubism} from "../Cubism";
 
-class CubismParentElement extends CubismElement {
+export default class CubismParentElement extends CubismElement {
     children: CubismElement[];
 
-    constructor(children: CubismElement[] = [], elementId: string | null = null) {
+    constructor( elementId: string | null = null, ...children: CubismElement[] ) {
         super(elementId);
-        this.children = children;
+        this.children = [];
+        this.addChildren(...children);
     }
 
     addChildren(...children: CubismElement[]):this {

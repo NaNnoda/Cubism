@@ -35,10 +35,14 @@ export class PointerType{
     public static readonly TOUCH = 1;
     public static readonly PEN = 2;
 }
-export class GEventKeys{
+export class EventKeys {
     public static readonly ON_MOVE = "onMove";
     public static readonly ON_DOWN = "onDown";
     public static readonly ON_UP = "onUp";
+
+    public static readonly GLOBAL_ON_POINTER_CHANGE = "redraw";
+
+    public static readonly ON_POINTER_EVENT = "onPointerEvent";
 
     public static readonly ON_CLICK = "onClick";
     public static readonly ON_DOUBLE_CLICK = "onDoubleClick";

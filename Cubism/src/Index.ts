@@ -4,6 +4,7 @@ import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
 import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
 import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
+import CubismParentElement from "./Elements/CubismParentElement";
 
 
 console.log("loading Index.ts");
@@ -69,27 +70,12 @@ class LiveDemo {
 function defaultInitCode() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
-        new VerticalLayout(
+        new CubismParentElement(
+            null,
             new DraggableRect()
                 .setWidth(100)
-                .setHeight(50),
-            new DraggableRect()
-                .setWidth(100)
-                .setHeight(50),
-            new ButtonElement()
-                .setText("Button")
                 .setHeight(50)
-                .setWidth(100)
-                .pushOnUp(() => {
-                    let h = app.getElementById("h") as HorizontalLayout
-                    h.pushChildren(
-                        new DraggableRect()
-                            .setWidth(50)
-                            .setHeight(50)
-                    )
-                }),
-            new HorizontalLayout().setId("h")
-        ).setId("VerticalLayout")
+        )
     )
 }
 

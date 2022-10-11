@@ -172,32 +172,34 @@ var PointerType = class {
 PointerType.MOUSE = 0;
 PointerType.TOUCH = 1;
 PointerType.PEN = 2;
-var GEventKeys = class {
+var EventKeys = class {
 };
-GEventKeys.ON_MOVE = "onMove";
-GEventKeys.ON_DOWN = "onDown";
-GEventKeys.ON_UP = "onUp";
-GEventKeys.ON_CLICK = "onClick";
-GEventKeys.ON_DOUBLE_CLICK = "onDoubleClick";
-GEventKeys.ON_DRAG = "onDrag";
-GEventKeys.ON_DRAG_START = "onDragStart";
-GEventKeys.ON_DRAG_END = "onDragEnd";
-GEventKeys.ON_DRAG_ENTER = "onDragEnter";
-GEventKeys.ON_DRAG_LEAVE = "onDragLeave";
-GEventKeys.ON_DRAG_OVER = "onDragOver";
-GEventKeys.ON_DROP = "onDrop";
-GEventKeys.ON_PARENT_MOVE = "onParentMove";
-GEventKeys.ON_PARENT_DOWN = "onParentDown";
-GEventKeys.ON_PARENT_UP = "onParentUp";
-GEventKeys.ON_PARENT_CLICK = "onParentClick";
-GEventKeys.ON_ENTER = "onEnter";
-GEventKeys.ON_LEAVE = "onLeave";
-GEventKeys.FRAME_UPDATE = "onFrameUpdate";
-GEventKeys.FIX_UPDATE = "onFixUpdate";
-GEventKeys.REDRAW = "onRedraw";
-GEventKeys.POINTER_DOWN = "onMouseDown";
-GEventKeys.POINTER_UP = "onMouseUp";
-GEventKeys.POINTER_MOVE = "onMouseMove";
+EventKeys.ON_MOVE = "onMove";
+EventKeys.ON_DOWN = "onDown";
+EventKeys.ON_UP = "onUp";
+EventKeys.GLOBAL_ON_POINTER_CHANGE = "redraw";
+EventKeys.ON_POINTER_EVENT = "onPointerEvent";
+EventKeys.ON_CLICK = "onClick";
+EventKeys.ON_DOUBLE_CLICK = "onDoubleClick";
+EventKeys.ON_DRAG = "onDrag";
+EventKeys.ON_DRAG_START = "onDragStart";
+EventKeys.ON_DRAG_END = "onDragEnd";
+EventKeys.ON_DRAG_ENTER = "onDragEnter";
+EventKeys.ON_DRAG_LEAVE = "onDragLeave";
+EventKeys.ON_DRAG_OVER = "onDragOver";
+EventKeys.ON_DROP = "onDrop";
+EventKeys.ON_PARENT_MOVE = "onParentMove";
+EventKeys.ON_PARENT_DOWN = "onParentDown";
+EventKeys.ON_PARENT_UP = "onParentUp";
+EventKeys.ON_PARENT_CLICK = "onParentClick";
+EventKeys.ON_ENTER = "onEnter";
+EventKeys.ON_LEAVE = "onLeave";
+EventKeys.FRAME_UPDATE = "onFrameUpdate";
+EventKeys.FIX_UPDATE = "onFixUpdate";
+EventKeys.REDRAW = "onRedraw";
+EventKeys.POINTER_DOWN = "onMouseDown";
+EventKeys.POINTER_UP = "onMouseUp";
+EventKeys.POINTER_MOVE = "onMouseMove";
 
 // src/CubismPart.ts
 var CubismPart = class {
@@ -253,7 +255,7 @@ var CanvasDrawer = class extends CubismPart {
   }
   registerFrameUpdate() {
     console.log("Registering frame update");
-    this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
+    this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
   }
   frameUpdate() {
     if (this.state.needsRedraw) {
@@ -335,7 +337,7 @@ var CanvasDrawer = class extends CubismPart {
     this.state.needsRedraw = redraw;
   }
   triggerRedraw() {
-    this.eventSystem.triggerGlobalEvent(GEventKeys.REDRAW);
+    this.eventSystem.triggerEvent(EventKeys.REDRAW);
   }
 };
 
@@ -345,12 +347,6 @@ var CubismEventSystem = class extends CubismPart {
     super(...arguments);
     this._globalEventListeners = {};
   }
-  registerGlobalEvent(event, callback) {
-    this.getEvent(event).push(callback);
-  }
-  unregisterGlobalEvent(event, callback) {
-    this._globalEventListeners[event].splice(this._globalEventListeners[event].indexOf(callback), 1);
-  }
   getEvent(event) {
     if (this._globalEventListeners[event] === void 0) {
       this._globalEventListeners[event] = [];
@@ -359,10 +355,16 @@ var CubismEventSystem = class extends CubismPart {
     }
     return this._globalEventListeners[event];
   }
-  triggerGlobalEvent(event, ...args) {
-    this.getEvent(event).forEach((callback) => {
+  registerEvent(eventKey, callback) {
+    this.getEvent(eventKey).push(callback);
+  }
+  triggerEvent(eventKey, ...args) {
+    this.getEvent(eventKey).forEach((callback) => {
       callback(...args);
     });
+  }
+  unregisterEvent(eventKey, callback) {
+    this._globalEventListeners[eventKey].splice(this._globalEventListeners[eventKey].indexOf(callback), 1);
   }
 };
 
@@ -468,16 +470,16 @@ var CubismInitializer = class extends CubismPart {
     return this;
   }
   doFixUpdate() {
-    this.eventSystem.triggerGlobalEvent(GEventKeys.FIX_UPDATE);
+    this.eventSystem.triggerEvent(EventKeys.FIX_UPDATE);
   }
   initializeFrameUpdate() {
-    this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+    this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
     return this;
   }
   initializeFPSCounter() {
     setInterval(this.printFPS.bind(this), 1e3);
-    this.eventSystem.registerGlobalEvent(GEventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+    this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
     return this;
   }
   resetFPSCounter() {
@@ -494,7 +496,7 @@ var CubismInitializer = class extends CubismPart {
     return this.fps;
   }
   doFrameUpdate() {
-    this.eventSystem.triggerGlobalEvent(GEventKeys.FRAME_UPDATE);
+    this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
   }
 };
@@ -577,29 +579,29 @@ var Cubism = class extends CubismElementManger {
   }
   registerPointerEvents() {
     this.canvas.onpointermove = (e) => {
-      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_MOVE, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      this.eventSystem.triggerEvent(
+        EventKeys.ON_POINTER_EVENT,
+        new PointerPoint(e.offsetX, e.offsetY, e.pressure)
+      );
     };
-    this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, (point) => {
-      this.rootElement.triggerOnMove(point);
+    this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, (point) => {
+      this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
     });
     this.canvas.onpointerdown = (e) => {
-      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_DOWN, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
     };
-    this.eventSystem.registerGlobalEvent(GEventKeys.ON_DOWN, (point) => {
-      this.rootElement.triggerOnDown(point);
+    this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point) => {
+      this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
     });
     this.canvas.onpointerup = (e) => {
-      this.eventSystem.triggerGlobalEvent(GEventKeys.ON_UP, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
+      this.eventSystem.triggerEvent(EventKeys.ON_POINTER_EVENT, new PointerPoint(e.offsetX, e.offsetY, e.pressure));
     };
-    this.eventSystem.registerGlobalEvent(GEventKeys.ON_UP, (point) => {
-      this.rootElement.triggerOnUp(point);
+    this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point) => {
+      this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
     });
   }
   registerRedraw() {
-    this.eventSystem.registerGlobalEvent(GEventKeys.REDRAW, this.redraw.bind(this));
-  }
-  registerOnMove() {
-    this.eventSystem.registerGlobalEvent(GEventKeys.ON_MOVE, this.registerOnMove.bind(this));
+    this.eventSystem.registerEvent(EventKeys.REDRAW, this.redraw.bind(this));
   }
   static createFromCanvas(canvas) {
     return new Cubism(canvas);
@@ -628,7 +630,7 @@ var Cubism = class extends CubismElementManger {
 };
 
 // src/Elements/CubismElement.ts
-var CubismElement = class extends CubismPart {
+var CubismElement = class extends CubismEventSystem {
   constructor(elementId = null) {
     super();
     this.elementId = null;
@@ -772,25 +774,25 @@ var PointerHandleableElement = class extends InteractiveElement {
     this.pushOnParentDown((point) => {
       this.onParentDown(point);
     });
-    this.pushOn(GEventKeys.ON_MOVE, (point) => {
+    this.pushOn(EventKeys.ON_MOVE, (point) => {
       this.onMove(point);
     });
-    this.pushOn(GEventKeys.ON_PARENT_DOWN, (point) => {
+    this.pushOn(EventKeys.ON_PARENT_DOWN, (point) => {
       this.onParentDown(point);
     });
-    this.pushOn(GEventKeys.ON_DOWN, (point) => {
+    this.pushOn(EventKeys.ON_DOWN, (point) => {
       this.onDown(point);
     });
-    this.pushOn(GEventKeys.ON_PARENT_UP, (point) => {
+    this.pushOn(EventKeys.ON_PARENT_UP, (point) => {
       this.onParentUp(point);
     });
-    this.pushOn(GEventKeys.ON_UP, (point) => {
+    this.pushOn(EventKeys.ON_UP, (point) => {
       this.onUp(point);
     });
-    this.pushOn(GEventKeys.ON_ENTER, (point) => {
+    this.pushOn(EventKeys.ON_ENTER, (point) => {
       this.onEnter(point);
     });
-    this.pushOn(GEventKeys.ON_LEAVE, (point) => {
+    this.pushOn(EventKeys.ON_LEAVE, (point) => {
       this.onLeave(point);
     });
   }
@@ -807,7 +809,7 @@ var PointerHandleableElement = class extends InteractiveElement {
     this._hovered = value;
   }
   triggerOnParentDown(point) {
-    let e = this.getOn(GEventKeys.ON_PARENT_DOWN);
+    let e = this.getOn(EventKeys.ON_PARENT_DOWN);
     for (let callback of e) {
       callback(point);
     }
@@ -818,7 +820,7 @@ var PointerHandleableElement = class extends InteractiveElement {
     }
   }
   triggerOnParentUp(point) {
-    let e = this.getOn(GEventKeys.ON_PARENT_UP);
+    let e = this.getOn(EventKeys.ON_PARENT_UP);
     for (let callback of e) {
       callback(point);
     }
@@ -829,7 +831,7 @@ var PointerHandleableElement = class extends InteractiveElement {
     }
   }
   triggerOnUp(point) {
-    let e = this.getOn(GEventKeys.ON_UP);
+    let e = this.getOn(EventKeys.ON_UP);
     for (let callback of e) {
       callback(point);
     }
@@ -838,7 +840,7 @@ var PointerHandleableElement = class extends InteractiveElement {
     this.pressed = false;
   }
   triggerOnDown(point) {
-    let e = this.getOn(GEventKeys.ON_DOWN);
+    let e = this.getOn(EventKeys.ON_DOWN);
     for (let callback of e) {
       callback(point);
     }
@@ -847,7 +849,7 @@ var PointerHandleableElement = class extends InteractiveElement {
     this.pressed = true;
   }
   triggerOnMove(point) {
-    let e = this.getOn(GEventKeys.ON_MOVE);
+    let e = this.getOn(EventKeys.ON_MOVE);
     for (let callback of e) {
       callback(point);
     }
@@ -855,15 +857,15 @@ var PointerHandleableElement = class extends InteractiveElement {
   onMove(point) {
   }
   pushOnMove(...callbacks) {
-    this.pushOn(GEventKeys.ON_MOVE, ...callbacks);
+    this.pushOn(EventKeys.ON_MOVE, ...callbacks);
     return this;
   }
   pushOnUp(...callbacks) {
-    this.pushOn(GEventKeys.ON_UP, ...callbacks);
+    this.pushOn(EventKeys.ON_UP, ...callbacks);
     return this;
   }
   removeOnMove(callback) {
-    this.removeOn(GEventKeys.ON_MOVE, callback);
+    this.removeOn(EventKeys.ON_MOVE, callback);
   }
   onParentMove(point) {
     if (this.inRange(point)) {
@@ -879,11 +881,11 @@ var PointerHandleableElement = class extends InteractiveElement {
     }
   }
   pushOnParentMove(...callbacks) {
-    this.pushOn(GEventKeys.ON_PARENT_MOVE, ...callbacks);
+    this.pushOn(EventKeys.ON_PARENT_MOVE, ...callbacks);
     return this;
   }
   triggerOnParentMove(point) {
-    let e = this.getOn(GEventKeys.ON_PARENT_MOVE);
+    let e = this.getOn(EventKeys.ON_PARENT_MOVE);
     for (let callback of e) {
       callback(point);
     }
@@ -895,17 +897,17 @@ var PointerHandleableElement = class extends InteractiveElement {
     this.hovered = true;
   }
   triggerOnEnter(point) {
-    let e = this.getOn(GEventKeys.ON_ENTER);
+    let e = this.getOn(EventKeys.ON_ENTER);
     for (let callback of e) {
       callback(point);
     }
   }
   pushOnParentDown(...callbacks) {
-    this.pushOn(GEventKeys.ON_PARENT_DOWN, ...callbacks);
+    this.pushOn(EventKeys.ON_PARENT_DOWN, ...callbacks);
     return this;
   }
   triggerOnLeave(point) {
-    let e = this.getOn(GEventKeys.ON_LEAVE);
+    let e = this.getOn(EventKeys.ON_LEAVE);
     for (let callback of e) {
       callback(point);
     }
@@ -1304,7 +1306,7 @@ var ButtonElement = class extends ThemedElement {
   pushOnUp(...callbacks) {
     for (let callback of callbacks) {
       console.log("Pushing", callback);
-      this.pushOn(GEventKeys.ON_UP, callback.bind(this));
+      this.pushOn(EventKeys.ON_UP, callback.bind(this));
     }
     return this;
   }
@@ -1399,6 +1401,42 @@ var CubismBuilder = class {
   }
 };
 
+// src/Elements/CubismParentElement.ts
+var CubismParentElement = class extends CubismElement {
+  constructor(elementId = null, ...children) {
+    super(elementId);
+    this.children = [];
+    this.addChildren(...children);
+  }
+  addChildren(...children) {
+    for (let child of children) {
+      this.children.push(child);
+      if (this._cubism) {
+        child.setCubism(this.cubism);
+      }
+    }
+    return this;
+  }
+  render() {
+    super.render();
+    this.renderChildren();
+  }
+  renderChildren() {
+    for (let child of this.children) {
+      child.render();
+    }
+  }
+  setCubism(cubism) {
+    super.setCubism(cubism);
+    this.setChildrenCubism(cubism);
+  }
+  setChildrenCubism(cubism) {
+    for (let child of this.children) {
+      child.setCubism(cubism);
+    }
+  }
+};
+
 // src/Index.ts
 console.log("loading Index.ts");
 var LiveDemo = class {
@@ -1440,17 +1478,10 @@ var LiveDemo = class {
 function defaultInitCode() {
   let app = Cubism.createFromId("mainCanvas");
   app.init(
-    new VerticalLayout(
-      new DraggableRect().setWidth(100).setHeight(50),
-      new DraggableRect().setWidth(100).setHeight(50),
-      new ButtonElement().setText("Button").setHeight(50).setWidth(100).pushOnUp(() => {
-        let h = app.getElementById("h");
-        h.pushChildren(
-          new DraggableRect().setWidth(50).setHeight(50)
-        );
-      }),
-      new HorizontalLayout().setId("h")
-    ).setId("VerticalLayout")
+    new CubismParentElement(
+      null,
+      new DraggableRect().setWidth(100).setHeight(50)
+    )
   );
 }
 new LiveDemo().main();
