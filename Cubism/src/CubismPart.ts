@@ -35,4 +35,8 @@ export default class CubismPart implements IHasCubism {
     get className(): string {
         return this.constructor.name;
     }
+
+    toString(): string {
+        return `${this.className}(${(this._cubism ===null) ? this._cubism : "NO CUBISM"})`;
+    }
 }

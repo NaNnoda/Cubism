@@ -184,6 +184,7 @@ EventKeys.ON_MOVE = "onMove";
 EventKeys.ON_DOWN = "onDown";
 EventKeys.ON_UP = "onUp";
 EventKeys.GLOBAL_ON_POINTER_CHANGE = "redraw";
+EventKeys.FPS_UPDATE = "FPS_EVENT";
 EventKeys.ON_POINTER_EVENT = "onPointerEvent";
 EventKeys.ON_CLICK = "onClick";
 EventKeys.ON_DOUBLE_CLICK = "onDoubleClick";
@@ -229,6 +230,9 @@ var CubismPart = class {
   }
   get className() {
     return this.constructor.name;
+  }
+  toString() {
+    return `${this.className}(${this._cubism === null ? this._cubism : "NO CUBISM"})`;
   }
 };
 
@@ -372,6 +376,9 @@ var CubismEventSystem = class extends CubismPart {
   unregisterEvent(eventKey, callback) {
     this._globalEventListeners[eventKey].splice(this._globalEventListeners[eventKey].indexOf(callback), 1);
   }
+  removeAllEvents() {
+    this._globalEventListeners = {};
+  }
 };
 
 // src/Datatypes/Point.ts
@@ -484,19 +491,22 @@ var CubismInitializer = class extends CubismPart {
     return this;
   }
   initializeFPSCounter() {
-    setInterval(this.printFPS.bind(this), 1e3);
-    this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+    this.eventSystem.registerEvent(EventKeys.FPS_UPDATE, this.doFPSUpdate.bind(this));
+    setInterval(this.triggerFPSUpdate.bind(this), 1e3);
+    this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
     return this;
+  }
+  triggerFPSUpdate() {
+    this.eventSystem.triggerEvent(EventKeys.FPS_UPDATE, this.fps);
+    this.resetFPSCounter();
+  }
+  doFPSUpdate(fps) {
   }
   resetFPSCounter() {
     this.fps = 0;
   }
   incrementFPS() {
     this.fps++;
-  }
-  printFPS() {
-    console.log("FPS: " + this.getFPS());
-    this.resetFPSCounter();
   }
   getFPS() {
     return this.fps;
@@ -575,14 +585,6 @@ var Cubism = class extends CubismElementManger {
     this.initParts(root);
     this._root = root;
   }
-  initParts(...handlers) {
-    handlers.forEach(
-      (handler) => {
-        handler.cubism = this;
-        console.log("Init " + handler.constructor.name);
-      }
-    );
-  }
   registerPointerEvents() {
     this.canvas.onpointermove = (e) => {
       this.eventSystem.triggerEvent(
@@ -618,7 +620,7 @@ var Cubism = class extends CubismElementManger {
   init(root) {
     this.rootElement = root;
     this.initRootElement();
-    this.initializer.initializeFrameUpdate();
+    this.initializer.initializeFrameUpdate().initializeFPSCounter();
     this.canvasDrawer.setRedraw(true);
   }
   initRootElement() {
@@ -632,6 +634,17 @@ var Cubism = class extends CubismElementManger {
     if (this.rootElement) {
       this.rootElement.draw();
     }
+  }
+  initParts(...parts) {
+    parts.forEach(
+      (part) => {
+        part.cubism = this;
+        console.log(`Initializing cubism part [${part}]`);
+      }
+    );
+  }
+  toString() {
+    return `Cubism [${this.cubismId}]`;
   }
 };
 
@@ -648,12 +661,15 @@ var CubismElement = class extends CubismEventSystem {
   }
   setId(id) {
     this.elementId = id;
+    if (this.cubism) {
+      this.cubism.registerElementId(id, this);
+    }
     return this;
   }
   setCubism(cubism) {
     super.setCubism(cubism);
     if (this.elementId !== null) {
-      this.cubism.registerElementId(this.elementId, this);
+      this.setId(this.elementId);
     }
   }
   set position(pos) {
@@ -683,7 +699,7 @@ var CubismElement = class extends CubismEventSystem {
     this.c.setRedraw(true);
   }
   initElement(parentSize) {
-    console.log("Init element", this);
+    console.log(`Init element ${this}`);
     this.resize(parentSize);
   }
   get height() {
@@ -739,7 +755,7 @@ var CubismElement = class extends CubismEventSystem {
   get c() {
     if (!this.cubism) {
       console.log(this.cubism);
-      throw new Error("Cubism is not set for " + this);
+      throw new Error(`Cubism instance not set for ${this}`);
     }
     return this.cubism.canvasDrawer;
   }
@@ -1541,6 +1557,10 @@ function defaultInitCode() {
       new DraggableRect().setWidth(100).setHeight(100)
     )
   );
+  app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
+    let fpsCounter = document.getElementById("fpsCounter");
+    fpsCounter.innerText = `FPS: ${fps}`;
+  });
 }
 new LiveDemo().main();
 //# sourceMappingURL=es-build.js.map

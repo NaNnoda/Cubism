@@ -59,13 +59,7 @@ export class Cubism extends CubismElementManger {
         CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
     }
 
-    initParts(...handlers: CubismPart[]) {
-        handlers.forEach(handler => {
-                handler.cubism = this;
-                console.log("Init " + handler.constructor.name);
-            }
-        );
-    }
+
 
     /**
      * Register pointer events
@@ -126,7 +120,8 @@ export class Cubism extends CubismElementManger {
     init(root: CubismElement) {
         this.rootElement = root;
         this.initRootElement();
-        this.initializer.initializeFrameUpdate();
+        this.initializer.initializeFrameUpdate()
+            .initializeFPSCounter();
         this.canvasDrawer.setRedraw(true);
     }
 
@@ -145,6 +140,18 @@ export class Cubism extends CubismElementManger {
         if (this.rootElement) {
             this.rootElement.draw();
         }
+    }
+
+    initParts(...parts: CubismPart[]) {
+        parts.forEach(part => {
+            part.cubism = this;
+                console.log(`Initializing cubism part [${part}]` );
+            }
+        );
+    }
+
+    toString() {
+        return `Cubism [${this.cubismId}]`;
     }
 }
 

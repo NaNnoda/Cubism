@@ -31,4 +31,8 @@ export class CubismEventSystem extends CubismPart implements IEventManger {
     unregisterEvent(eventKey: string, callback: Function): void {
         this._globalEventListeners[eventKey].splice(this._globalEventListeners[eventKey].indexOf(callback), 1);
     }
+
+    removeAllEvents() {
+        this._globalEventListeners = {};
+    }
 }

@@ -42,6 +42,8 @@ export class EventKeys {
 
     public static readonly GLOBAL_ON_POINTER_CHANGE = "redraw";
 
+    public static readonly FPS_UPDATE = "FPS_EVENT";
+
     public static readonly ON_POINTER_EVENT = "onPointerEvent";
 
     public static readonly ON_CLICK = "onClick";

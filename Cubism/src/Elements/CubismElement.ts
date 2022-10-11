@@ -32,6 +32,9 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      */
     setId(id: string): this {
         this.elementId = id;
+        if (this.cubism) {
+            this.cubism.registerElementId(id, this);
+        }
         return this;
     }
 
@@ -42,7 +45,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     setCubism(cubism: Cubism): void {
         super.setCubism(cubism);
         if (this.elementId !== null) {
-            this.cubism.registerElementId(this.elementId, this);
+            this.setId(this.elementId);
         }
     }
 
@@ -107,7 +110,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * @param parentSize
      */
     initElement(parentSize: Point2D): void {
-        console.log("Init element", this);
+        console.log(`Init element ${this}`);
         this.resize(parentSize);
     }
 
@@ -192,7 +195,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     get c(): CanvasDrawer {
         if (!this.cubism) {
             console.log(this.cubism)
-            throw new Error("Cubism is not set for " + this);
+            throw new Error(`Cubism instance not set for ${this}`);
         }
         return this.cubism.canvasDrawer;
     }

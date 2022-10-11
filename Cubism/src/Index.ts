@@ -6,6 +6,8 @@ import {ButtonElement} from "./Elements/ButtonElement";
 import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
 import CubismParentElement from "./Elements/CubismParentElement";
 import {initConsole} from "./Debug/Console";
+import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
+import {EventKeys} from "./Constants/Constants";
 
 
 console.log("loading Index.ts");
@@ -77,6 +79,11 @@ function defaultInitCode() {
             new DraggableRect().setWidth(100).setHeight(100),
         )
     )
+
+    app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
+        let fpsCounter = document.getElementById("fpsCounter") as HTMLParagraphElement;
+        fpsCounter.innerText = `FPS: ${fps}`;
+    });
 }
 
 new LiveDemo().main();

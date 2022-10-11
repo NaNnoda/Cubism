@@ -3,6 +3,7 @@ import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
 import IGlobalHandler from "./Interface/IGlobalHandler";
 import IHasCubism from "./Interface/IGlobalHandler";
 import CubismPart from "./CubismPart";
+import {triggerAsyncId} from "async_hooks";
 
 export default class CubismInitializer extends CubismPart {
     get eventSystem(): CubismEventSystem {
@@ -26,10 +27,22 @@ export default class CubismInitializer extends CubismPart {
     }
 
     public initializeFPSCounter() {
-        setInterval(this.printFPS.bind(this), 1000);
 
-        this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
+
+        this.eventSystem.registerEvent(EventKeys.FPS_UPDATE, this.doFPSUpdate.bind(this));
+        setInterval(this.triggerFPSUpdate.bind(this), 1000);
+
+        this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
         return this;
+    }
+
+    triggerFPSUpdate() {
+        this.eventSystem.triggerEvent(EventKeys.FPS_UPDATE, this.fps);
+        this.resetFPSCounter();
+    }
+
+    doFPSUpdate(fps: number) {
+        // console.log("FPS: " + fps);
     }
 
     fps: number = 0;
@@ -40,11 +53,6 @@ export default class CubismInitializer extends CubismPart {
 
     incrementFPS() {
         this.fps++;
-    }
-
-    printFPS() {
-        console.log("FPS: " + this.getFPS());
-        this.resetFPSCounter();
     }
 
     getFPS() {
