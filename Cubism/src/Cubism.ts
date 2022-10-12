@@ -146,6 +146,10 @@ export class Cubism extends CubismElementManger {
         );
     }
 
+    destroy() {
+        this.eventSystem.removeAllEvents();
+    }
+
     toString() {
         return `Cubism [${this.cubismId}]`;
     }

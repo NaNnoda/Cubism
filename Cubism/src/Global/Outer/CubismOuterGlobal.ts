@@ -29,6 +29,7 @@ export class CubismOuterGlobal {
             CubismOuterGlobal.instance._cubismInstances[key] = app;
         } else {
             console.log("Replacing cubism instance with key " + key);
+            this.getCubismInstance(key).destroy();
             CubismOuterGlobal.instance._cubismInstances[key] = app;
             // throw new Error("Cubism app with key [" + key + "] already exists");
         }

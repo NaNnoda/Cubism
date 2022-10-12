@@ -374,7 +374,13 @@ var CubismEventSystem = class extends CubismPart {
   unregisterEvent(eventKey, callback) {
     this._globalEventListeners[eventKey].splice(this._globalEventListeners[eventKey].indexOf(callback), 1);
   }
+  removeEvent(event) {
+    this._globalEventListeners[event] = [];
+  }
   removeAllEvents() {
+    for (const event in this._globalEventListeners) {
+      this.removeEvent(event);
+    }
     this._globalEventListeners = {};
   }
 };
@@ -465,6 +471,7 @@ var CubismOuterGlobal = class {
       CubismOuterGlobal.instance._cubismInstances[key] = app;
     } else {
       console.log("Replacing cubism instance with key " + key);
+      this.getCubismInstance(key).destroy();
       CubismOuterGlobal.instance._cubismInstances[key] = app;
     }
   }
@@ -644,6 +651,9 @@ var Cubism = class extends CubismElementManger {
         console.log(`Initializing cubism part [${part}]`);
       }
     );
+  }
+  destroy() {
+    this.eventSystem.removeAllEvents();
   }
   toString() {
     return `Cubism [${this.cubismId}]`;
