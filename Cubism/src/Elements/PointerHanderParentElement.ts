@@ -119,7 +119,6 @@ export default class PointerHandlerParentElement extends CubismParentElement {
                 return true;
             }
         }
-        //
         return false;
     }
 }

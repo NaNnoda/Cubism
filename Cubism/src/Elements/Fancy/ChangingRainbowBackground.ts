@@ -9,12 +9,17 @@ export class ChangingRainbowBackground extends CubismElement{
 
     saturation:number = 70;
     lightness: number = 90;
+    changingSpeed: number = 0.2;
 
     setSaturation(s: number) {
         if (s > 100) {
             s = 100;
         }
         this.saturation = s;
+        return this;
+    }
+    setChangingSpeed(speed: number) {
+        this.changingSpeed = speed;
         return this;
     }
     setLightness(l: number) {
@@ -24,27 +29,10 @@ export class ChangingRainbowBackground extends CubismElement{
         this.lightness = l;
         return this;
     }
-
-    constructor() {
-        super();
-
-    }
-    // setCubism(cubism: Cubism) {
-    //     super.setCubism(cubism);
-    //     this.cubism.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
-    // }
-
-    // frameUpdate() {
-    //     this.c.setRedraw(true);
-    //     this.frameCount++;
-    // }
-
     draw() {
         this.frameCount++;
         this.c.translate(this.position);
-        // console.log("Drawing Background");
-        // console.log("Background", this);
-        let currHue = this.frameCount % 360;
+        let currHue = this.frameCount * this.changingSpeed % 360;
         let currColor = `hsl(${currHue}, ${this.saturation}%, ${this.lightness}%)`;
         // console.log("currColor", currColor);
         this.c.setFillStyle(currColor);

@@ -621,7 +621,7 @@ var Cubism = class extends CubismElementManger {
   init(root) {
     this.rootElement = root;
     this.initRootElement();
-    this.initializer.initializeFrameUpdate().initializeFPSCounter().initializeAlwaysRedraw();
+    this.initializer.initializeFrameUpdate();
     this.registerRootElementPointerEvents();
     this.canvasDrawer.setRedraw(true);
   }
@@ -1047,25 +1047,41 @@ Colors.transparentPink = "rgba(255,0,128,0.5)";
 
 // src/Elements/Fancy/RecursiveRect.ts
 var RecursiveRect = class extends PointerHandlerParentElement {
-  constructor(recursionCount = 10, width = 200, height = 200) {
-    super();
+  constructor() {
+    super(...arguments);
     this.lastPoint = null;
-    this.width = width;
-    this.height = height;
+    this.relativePosition = new Point2D(200, 200);
+    this.recursionCount = 0;
+    this.wiggleStrength = 0.1;
+  }
+  setRecursionCount(recursionCount) {
     this.recursionCount = recursionCount;
+    return this;
+  }
+  wiggle() {
+    let range = this.wiggleStrength;
+    this.position = this.position.add(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+  }
+  setWiggleStrength(strength) {
+    this.wiggleStrength = strength;
+    return this;
+  }
+  setRelativePosition(point) {
+    this.relativePosition = point;
+    return this;
   }
   draw() {
     this.c.translate(
       this.position
     );
+    this.wiggle();
     this.c.setFillStyle(Colors.green100);
     this.c.setStrokeWidth(2);
     this.c.setStrokeStyle(Colors.green700);
-    let relaPos = this.position.subXY(100, 100);
+    let relaPos = this.position.sub(this.relativePosition);
     let relaSpeed = 0.2;
     let relaSize = 10;
     this.c.drawRect(0, 0, this.width, this.height);
-    let pos = new Point2D(0, 0);
     for (let i = 1; i < this.recursionCount + 1; i++) {
       let relaSpeedI = relaSpeed * i;
       let relaSizeI = relaSize * i;
@@ -1085,23 +1101,26 @@ var RecursiveRect = class extends PointerHandlerParentElement {
       this.lastPoint = null;
     }
   }
-  triggerChildrenPointerEvent(point) {
-  }
 };
 
 // src/Elements/Fancy/ChangingRainbowBackground.ts
 var ChangingRainbowBackground = class extends CubismElement {
   constructor() {
-    super();
+    super(...arguments);
     this.frameCount = 0;
     this.saturation = 70;
     this.lightness = 90;
+    this.changingSpeed = 0.2;
   }
   setSaturation(s) {
     if (s > 100) {
       s = 100;
     }
     this.saturation = s;
+    return this;
+  }
+  setChangingSpeed(speed) {
+    this.changingSpeed = speed;
     return this;
   }
   setLightness(l) {
@@ -1114,7 +1133,7 @@ var ChangingRainbowBackground = class extends CubismElement {
   draw() {
     this.frameCount++;
     this.c.translate(this.position);
-    let currHue = this.frameCount % 360;
+    let currHue = this.frameCount * this.changingSpeed % 360;
     let currColor = `hsl(${currHue}, ${this.saturation}%, ${this.lightness}%)`;
     this.c.setFillStyle(currColor);
     this.c.setStrokeWidth(0);
@@ -1167,14 +1186,16 @@ function defaultInitCode() {
   app.init(
     new PointerHandlerParentElement(
       null,
-      new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80),
-      new RecursiveRect(10, 200, 200).setPosFromXY(100, 100)
+      new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
+      new RecursiveRect().setWiggleStrength(1).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
     )
   );
   app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
     let fpsCounter = document.getElementById("fpsCounter");
     fpsCounter.innerText = `FPS: ${fps}`;
   });
+  app.initializer.initializeAlwaysRedraw();
+  app.initializer.initializeFPSCounter();
 }
 new LiveDemo().main();
 //# sourceMappingURL=es-build.js.map

@@ -168,6 +168,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         return this;
     }
 
+
     /**
      * Resize this element to targetSize size
      * and mark it as resized

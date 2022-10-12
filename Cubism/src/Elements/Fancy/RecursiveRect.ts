@@ -2,83 +2,66 @@ import PointerHandlerParentElement from "../PointerHanderParentElement";
 import {Colors} from "../../Theme/Colors";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
+import {CubismElement} from "../CubismElement";
 
 export default class RecursiveRect extends PointerHandlerParentElement {
     lastPoint: PointerPoint | null = null;
+    relativePosition: Point2D = new Point2D(200, 200);
 
-    recursionCount :number
+    recursionCount: number = 0;
+    wiggleStrength: number = 0.1;
 
-    constructor(recursionCount: number = 10, width: number = 200, height: number = 200) {
-        super();
-
-        this.width = width;
-        this.height = height;
+    setRecursionCount(recursionCount: number) {
         this.recursionCount = recursionCount;
-        // if (recursionCount > 1) {
-        //     console.log(`Creating RecursiveRect with recursionCount ${recursionCount}`);
-        //     this.addChildren(
-        //         new RecursiveRect(recursionCount - 1, width , height)
-        //     );
-        // }
+        return this;
     }
 
-    // updateChildrenPosition() {
-    //     for (let child of this.children) {
-    //         child.position = this.position.subXY(-5, -5);
-    //     }
-    //     // super.updateChildrenPosition();
-    // }
+    wiggle() {
+        let range = this.wiggleStrength;
+        this.position = this.position.add(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+    }
+
+    setWiggleStrength(strength: number) {
+        this.wiggleStrength = strength;
+        return this;
+    }
+
+    setRelativePosition(point: Point2D) {
+        this.relativePosition = point;
+        return this;
+    }
 
     draw() {
-        // console.log(`Drawing RecursiveRect with recursionCount ${this.recursionCount}`);
         this.c.translate(
             this.position
-            );
-        // this.c.setFillStyle(Colors.green100);
-        // this.c.drawRect(0 , 0, this.width, this.height);
-        // this.drawChildren();
-
+        );
+        this.wiggle();
         this.c.setFillStyle(Colors.green100);
         this.c.setStrokeWidth(2);
         this.c.setStrokeStyle(Colors.green700);
-        let relaPos = this.position.subXY(100, 100);
+        let relaPos = this.position.sub(this.relativePosition);
         let relaSpeed = 0.2;
         let relaSize = 10;
-
-        this.c.drawRect(0 , 0, this.width , this.height );
-
-        let pos = new Point2D(0, 0);
-
-        for (let i = 1; i <this.recursionCount+1; i++) {
-            let relaSpeedI =relaSpeed*i;
-            let relaSizeI =relaSize*i;
+        this.c.drawRect(0, 0, this.width, this.height);
+        for (let i = 1; i < this.recursionCount + 1; i++) {
+            let relaSpeedI = relaSpeed * i;
+            let relaSizeI = relaSize * i;
             this.c.translate(relaPos.scale(relaSpeedI));
-            // console.log(`Drawing RecursiveRect with recursionCount ${this.recursionCount} relaI ${relaSpeedI}`);
-            this.c.drawRect(relaSizeI , relaSizeI, this.width - relaSizeI, this.height -relaSizeI);
+            this.c.drawRect(relaSizeI, relaSizeI, this.width - relaSizeI, this.height - relaSizeI);
             this.c.restoreTranslate();
-            // this.c.translate(new Point2D(5, 5));
         }
         this.c.restoreTranslate();
     }
+
     onMove(point: PointerPoint) {
-        // console.log(`onMove ${this}`);
+        // console.log("onMove");
         if (point.pressure > 0) {
             if (!this.lastPoint) {
                 this.lastPoint = point.sub(this.position);
             }
             this.position = point.sub(this.lastPoint);
-            // this.position = point;
         } else {
             this.lastPoint = null;
         }
-    }
-
-    //
-    // triggerThisPointerEvent(point: PointerPoint) {
-    //     super.triggerThisPointerEvent(point);
-    // }
-    //
-    triggerChildrenPointerEvent(point: PointerPoint) {
-        // super.triggerChildrenPointerEvent(point);
     }
 }
