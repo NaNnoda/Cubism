@@ -1314,14 +1314,35 @@ var DemoFunction = class {
   functionToFormattedString(funcName, func) {
     let s = func.toString();
     s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
-    s = s.replace(/\t/g, "");
+    s = s.replace(/;/g, ";\n");
     s = s.replace(/^\s*\n/gm, "");
     s = s.replace(/\n\s*$/gm, "");
-    s = s.replace(/;/g, ";\n");
-    s = "function " + funcName + "() {\n" + s + "\n}";
-    s += "\n";
-    s += funcName + "();";
-    return s;
+    let leadingSpacesCount = 0;
+    if (s.length > 0) {
+      while (s[leadingSpacesCount] === " ") {
+        leadingSpacesCount++;
+      }
+    }
+    let p = `^ {${leadingSpacesCount}}`;
+    s = s.replace(new RegExp(p, "gm"), "");
+    let lines = s.split("\n");
+    let newString = "";
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      if (i == 0) {
+        newString += line;
+      } else {
+        let currLeadingSpacesCount = 0;
+        while (line[currLeadingSpacesCount] === " ") {
+          currLeadingSpacesCount++;
+        }
+        let spaces = new Array(currLeadingSpacesCount + 5).join(" ");
+        let lineToAppend = line.replace(/\)\./gm, `)
+${spaces}.`);
+        newString += "\n" + lineToAppend;
+      }
+    }
+    return newString;
   }
   setFunction(func) {
     this.func = func;

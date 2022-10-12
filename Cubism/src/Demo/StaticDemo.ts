@@ -34,7 +34,7 @@ export class StaticDemo {
     updateCurrDemoFunction() {
         console.log("updateCurrDemoFunction");
         let currName = this.selector.value;
-        this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value) ;
+        this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
 
         this.setCurrentDemoCode(this.selector.value);
     }
@@ -120,25 +120,54 @@ class DemoFunction {
 
     functionToFormattedString(funcName: string, func: Function) {
         let s = func.toString();
+
+
         // Remove the first and last line
         s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
-        // Remove the first tab
-        s = s.replace(/\t/g, "");
-        // Remove the first empty line
-        s = s.replace(/^\s*\n/gm, "");
-        // Remove the last empty line
-        s = s.replace(/\n\s*$/gm, "");
         // Add a new line after each object
         s = s.replace(/;/g, ";\n");
 
-        // // Remove first 2 spaces
-        // s = s.replace(/^ {4}/gm, "");
-        // Format the as JS function
-        s = "function " + funcName + "() {\n" + s + "\n}";
+        // Remove empty line at the beginning
+        s = s.replace(/^\s*\n/gm, "");
+        // Remove empty line at the end
+        s = s.replace(/\n\s*$/gm, "");
 
-        s += "\n";
-        s += funcName + "();";
-        return s;
+        let leadingSpacesCount = 0;
+        if (s.length > 0) {
+            while (s[leadingSpacesCount] === " ") {
+                leadingSpacesCount++;
+            }
+        }
+        // console.log(`leadingSpacesCount: ${leadingSpacesCount}`);
+
+        // // Remove leading spaces
+        let p = `^ {${leadingSpacesCount}}`;
+        s = s.replace(new RegExp(p, "gm"), "");
+
+        let lines = s.split("\n");
+
+        let newString = "";
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            if (i == 0) {
+                newString += line;
+            }
+            else {
+                let currLeadingSpacesCount = 0;
+                while (line[currLeadingSpacesCount] === " ") {
+                    currLeadingSpacesCount++;
+                }
+                let spaces = new Array(currLeadingSpacesCount + 5).join( " " );
+                // console.log(`spaces: [${spaces}]`);
+                // newString += "\n" + line;
+                // Replace all spaces with 5 spaces
+
+                let lineToAppend = line.replace(/\)\./gm, `)\n${spaces}.`);
+                newString += "\n" + lineToAppend;
+            }
+        }
+
+        return newString;
     }
 
     setFunction(func: Function) {
