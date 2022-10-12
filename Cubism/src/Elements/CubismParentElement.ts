@@ -130,6 +130,4 @@ export default class CubismParentElement extends CubismElement {
             child.setCubism(cubism);
         }
     }
-
-
 }

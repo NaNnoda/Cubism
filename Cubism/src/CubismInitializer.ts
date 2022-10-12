@@ -63,4 +63,12 @@ export default class CubismInitializer extends CubismPart {
         this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
     }
+    public initializeAlwaysRedraw() {
+
+        this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
+        return this;
+    }
+    triggerRedraw() {
+        this.eventSystem.triggerEvent(EventKeys.REDRAW);
+    }
 }

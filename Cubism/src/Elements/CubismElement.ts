@@ -9,9 +9,9 @@ import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
  * With size, position, and global events
  */
 export class CubismElement extends CubismEventSystem implements IDrawable {
-    private _position: Point2D;
-    private _size: Point2D;
-    private _absSize: Point2D; // Absolute size is the size of the element
+    _position: Point2D;
+    _size: Point2D;
+    _absSize: Point2D; // Absolute size is the size of the element
 
 
     elementId: string | null = null;
@@ -204,7 +204,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Render this element
      */
     draw(): void {
-        console.log(`Drawing ${this}`);
+        // console.log(`Drawing ${this}`);
     }
 
     /**

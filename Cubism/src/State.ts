@@ -26,6 +26,7 @@ export class CubismCanvasState {
     }
 
     restoreTranslate() {
+        // console.log(`Restoring translate ${this.translates.length}`);
         let lastTranslate = this.popTranslate();
         this.setCtxTransform(lastTranslate);
     }

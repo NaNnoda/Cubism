@@ -56,6 +56,9 @@ export class Point2D {
     sub(other: Point2D): Point2D {
         return this.clone().nOffset(other);
     }
+    subXY(x: number, y: number): Point2D {
+        return this.sub(new Point2D(x, y));
+    }
 
     mul(other: Point2D): Point2D {
         return new Point2D(this.x * other.x, this.y * other.y);

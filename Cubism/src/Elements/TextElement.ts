@@ -1,8 +1,8 @@
-import {InteractiveElement} from "./InteractiveElement";
-import {PointerHandleableElement} from "./PointerHandleableElement";
-import {CanvasDrawer} from "../CanvasDrawer";
 
-export class TextElement extends PointerHandleableElement {
+import {CanvasDrawer} from "../CanvasDrawer";
+import {CubismElement} from "./CubismElement";
+
+export class TextElement extends CubismElement {
     constructor(public text: string) {
         super();
     }

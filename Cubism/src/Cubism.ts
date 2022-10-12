@@ -82,7 +82,7 @@ export class Cubism extends CubismElementManger {
     registerRootElementPointerEvents() {
 
         this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point: PointerPoint) => {
-            console.log(`Pointer event [${point}]`);
+            // console.log(`Pointer event [${point}]`);
             this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
         });
 
@@ -116,7 +116,8 @@ export class Cubism extends CubismElementManger {
         this.rootElement = root;
         this.initRootElement();
         this.initializer.initializeFrameUpdate()
-            .initializeFPSCounter();
+            .initializeFPSCounter()
+            .initializeAlwaysRedraw();
 
         this.registerRootElementPointerEvents();
         this.canvasDrawer.setRedraw(true);

@@ -1,10 +1,10 @@
 import {CanvasDrawer} from "../CanvasDrawer";
-import {PointerHandleableElement} from "./PointerHandleableElement";
 import {PointerPoint} from "../Datatypes/PointerPoint";
 
 import {ColorTheme, CubismElementThemeRoot, FontTheme, OnClickColorTheme, OnHoverColorTheme} from "../Theme/Theme";
+import PointerHandlerParentElement from "./PointerHanderParentElement";
 
-export class ThemedElement extends PointerHandleableElement {
+export class ThemedElement extends PointerHandlerParentElement {
     _currTheme: CubismElementThemeRoot
 
     defaultTheme: CubismElementThemeRoot

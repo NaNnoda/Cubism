@@ -18,14 +18,6 @@ export class ButtonElement extends ThemedElement {
         return this;
     }
 
-    pushOnUp(...callbacks:Function[]): this {
-        for (let callback of callbacks) {
-            console.log("Pushing", callback);
-            this.pushOn(EventKeys.ON_UP, callback.bind(this));
-        }
-        // return super.pushOnUp(...callbacks);
-        return  this
-    }
 
     draw(): void {
         super.draw();

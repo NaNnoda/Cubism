@@ -264,13 +264,11 @@ var CanvasDrawer = class extends CubismPart {
     this.canvas.height = height;
   }
   registerFrameUpdate() {
-    console.log("Registering frame update");
     this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
   }
   frameUpdate() {
     if (this.state.needsRedraw) {
       this.triggerRedraw();
-      console.log("Redrawing");
       this.state.needsRedraw = false;
     }
   }
@@ -417,6 +415,9 @@ var Point2D = class {
   sub(other) {
     return this.clone().nOffset(other);
   }
+  subXY(x, y) {
+    return this.sub(new Point2D(x, y));
+  }
   mul(other) {
     return new Point2D(this.x * other.x, this.y * other.y);
   }
@@ -515,6 +516,13 @@ var CubismInitializer = class extends CubismPart {
     this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
   }
+  initializeAlwaysRedraw() {
+    this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
+    return this;
+  }
+  triggerRedraw() {
+    this.eventSystem.triggerEvent(EventKeys.REDRAW);
+  }
 };
 
 // src/CubismElementManger.ts
@@ -598,7 +606,6 @@ var Cubism = class extends CubismElementManger {
   }
   registerRootElementPointerEvents() {
     this.eventSystem.registerEvent(EventKeys.ON_POINTER_EVENT, (point) => {
-      console.log(`Pointer event [${point}]`);
       this.rootElement.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
     });
   }
@@ -614,7 +621,7 @@ var Cubism = class extends CubismElementManger {
   init(root) {
     this.rootElement = root;
     this.initRootElement();
-    this.initializer.initializeFrameUpdate().initializeFPSCounter();
+    this.initializer.initializeFrameUpdate().initializeFPSCounter().initializeAlwaysRedraw();
     this.registerRootElementPointerEvents();
     this.canvasDrawer.setRedraw(true);
   }
@@ -642,6 +649,15 @@ var Cubism = class extends CubismElementManger {
     return `Cubism [${this.cubismId}]`;
   }
 };
+
+// src/Debug/Console.ts
+function initConsole() {
+  let w = window;
+  w.test = () => {
+    console.log("test");
+  };
+  w.cubismGlobal = CubismOuterGlobal.instance;
+}
 
 // src/Elements/CubismElement.ts
 var CubismElement = class extends CubismEventSystem {
@@ -751,196 +767,18 @@ var CubismElement = class extends CubismEventSystem {
     return this.cubism.canvasDrawer;
   }
   draw() {
-    console.log(`Drawing ${this}`);
   }
   toString() {
     return `[${this.elementId ? this.elementId : "NO ID"}]: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
   }
 };
 
-// src/Elements/InteractiveElement.ts
-var InteractiveElement = class extends CubismElement {
-  constructor() {
-    super(...arguments);
-    this.events = {};
-  }
-  pushOn(event, ...callbacks) {
-    if (this.events[event] === void 0) {
-      this.events[event] = [];
-    }
-    this.events[event].push(...callbacks);
-    return this;
-  }
-  getOn(event) {
-    return this.events[event];
-  }
-  removeOn(event, callback) {
-    this.events[event].splice(this.events[event].indexOf(callback), 1);
-  }
-};
-
-// src/Elements/PointerHandleableElement.ts
-var PointerHandleableElement = class extends InteractiveElement {
-  constructor() {
-    super();
-    this._pointerWasNotInRange = true;
-    this._hovered = false;
-    this._pressed = false;
-    this.pushOnParentMove((point) => {
-      this.onParentMove(point);
-    });
-    this.pushOnParentDown((point) => {
-      this.onParentDown(point);
-    });
-    this.pushOn(EventKeys.ON_MOVE, (point) => {
-      this.onMove(point);
-    });
-    this.pushOn(EventKeys.ON_PARENT_DOWN, (point) => {
-      this.onParentDown(point);
-    });
-    this.pushOn(EventKeys.ON_DOWN, (point) => {
-      this.onDown(point);
-    });
-    this.pushOn(EventKeys.ON_PARENT_UP, (point) => {
-      this.onParentUp(point);
-    });
-    this.pushOn(EventKeys.ON_UP, (point) => {
-      this.onUp(point);
-    });
-    this.pushOn(EventKeys.ON_ENTER, (point) => {
-      this.onEnter(point);
-    });
-    this.pushOn(EventKeys.ON_LEAVE, (point) => {
-      this.onLeave(point);
-    });
-  }
-  get pressed() {
-    return this._pressed;
-  }
-  set pressed(value) {
-    this._pressed = value;
-  }
-  get hovered() {
-    return this._hovered;
-  }
-  set hovered(value) {
-    this._hovered = value;
-  }
-  triggerOnParentDown(point) {
-    let e = this.getOn(EventKeys.ON_PARENT_DOWN);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onParentDown(point) {
-    if (this.inRange(point)) {
-      this.triggerOnDown(point);
-    }
-  }
-  triggerOnParentUp(point) {
-    let e = this.getOn(EventKeys.ON_PARENT_UP);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onParentUp(point) {
-    if (this.inRange(point)) {
-      this.triggerOnUp(point);
-    }
-  }
-  triggerOnUp(point) {
-    let e = this.getOn(EventKeys.ON_UP);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onUp(point) {
-    this.pressed = false;
-  }
-  triggerOnDown(point) {
-    let e = this.getOn(EventKeys.ON_DOWN);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onDown(point) {
-    this.pressed = true;
-  }
-  triggerOnMove(point) {
-    let e = this.getOn(EventKeys.ON_MOVE);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onMove(point) {
-  }
-  pushOnMove(...callbacks) {
-    this.pushOn(EventKeys.ON_MOVE, ...callbacks);
-    return this;
-  }
-  pushOnUp(...callbacks) {
-    this.pushOn(EventKeys.ON_UP, ...callbacks);
-    return this;
-  }
-  removeOnMove(callback) {
-    this.removeOn(EventKeys.ON_MOVE, callback);
-  }
-  onParentMove(point) {
-    if (this.inRange(point)) {
-      this.triggerOnMove(point);
-    }
-    if (this.inRange(point) && this._pointerWasNotInRange) {
-      this._pointerWasNotInRange = false;
-      this.triggerOnEnter(point);
-    }
-    if (!this.inRange(point) && !this._pointerWasNotInRange) {
-      this._pointerWasNotInRange = true;
-      this.triggerOnLeave(point);
-    }
-  }
-  pushOnParentMove(...callbacks) {
-    this.pushOn(EventKeys.ON_PARENT_MOVE, ...callbacks);
-    return this;
-  }
-  triggerOnParentMove(point) {
-    let e = this.getOn(EventKeys.ON_PARENT_MOVE);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  inRange(point) {
-    return point.x >= this.position.x && point.x <= this.position.x + this.absWidth && point.y >= this.position.y && point.y <= this.position.y + this.absHeight;
-  }
-  onEnter(point) {
-    this.hovered = true;
-  }
-  triggerOnEnter(point) {
-    let e = this.getOn(EventKeys.ON_ENTER);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  pushOnParentDown(...callbacks) {
-    this.pushOn(EventKeys.ON_PARENT_DOWN, ...callbacks);
-    return this;
-  }
-  triggerOnLeave(point) {
-    let e = this.getOn(EventKeys.ON_LEAVE);
-    for (let callback of e) {
-      callback(point);
-    }
-  }
-  onLeave(point) {
-    this.hovered = false;
-  }
-};
-
-// src/Elements/Layouts/PointerHandleableLayout.ts
-var PointerHandleableLayout = class extends PointerHandleableElement {
-  constructor(...children) {
-    super();
-    this._children = [];
-    this._children.push(...children);
+// src/Elements/CubismParentElement.ts
+var CubismParentElement = class extends CubismElement {
+  constructor(elementId = null, ...children) {
+    super(elementId);
+    this.children = [];
+    this.addChildren(...children);
   }
   resize(targetSize) {
     super.resize(targetSize);
@@ -949,6 +787,8 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
   updateChildrenShape() {
     this.updateChildrenSize();
     this.updateChildrenPosition();
+  }
+  updateChildrenPosition() {
   }
   updateChildrenSize() {
     for (let child of this.children) {
@@ -964,27 +804,31 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
       child.resize(new Point2D(x, y));
     }
   }
-  updateChildrenPosition() {
-  }
-  get children() {
-    return this._children;
-  }
-  set children(children) {
-    this._children = children;
-  }
-  pushChildren(...children) {
+  addChildren(...children) {
     for (let child of children) {
-      child.cubism = this.cubism;
       this.children.push(child);
+      if (this._cubism) {
+        child.setCubism(this.cubism);
+      }
     }
-    this.updateChildrenShape();
     return this;
   }
   removeChild(child) {
-    this.children.splice(this.children.indexOf(child), 1);
+    let index = this.children.indexOf(child);
+    if (index > -1) {
+      this.children.splice(index, 1);
+    }
+  }
+  removeChildren(children) {
+    for (let child of children) {
+      this.removeChild(child);
+    }
   }
   draw() {
     super.draw();
+    this.drawChildren();
+  }
+  drawChildren() {
     this.c.translate(this.position);
     for (let child of this.children) {
       child.draw();
@@ -993,47 +837,92 @@ var PointerHandleableLayout = class extends PointerHandleableElement {
   }
   setCubism(cubism) {
     super.setCubism(cubism);
-    for (let child of this.children) {
-      child.cubism = cubism;
-    }
+    this.setChildrenCubism(cubism);
   }
-  triggerOnMove(point) {
-    super.triggerOnMove(point);
-    let pointInChild = point.sub(this.position);
+  setChildrenCubism(cubism) {
     for (let child of this.children) {
-      child.triggerOnParentMove(pointInChild);
-    }
-  }
-  triggerOnDown(point) {
-    super.triggerOnDown(point);
-    let pointInChild = new PointerPoint(point.x - this.position.x, point.y - this.position.y, point.pressure);
-    for (let child of this.children) {
-      child.triggerOnParentDown(pointInChild);
-    }
-  }
-  triggerOnUp(point) {
-    super.triggerOnUp(point);
-    let pointInChild = point.sub(this.position);
-    for (let child of this.children) {
-      child.triggerOnParentUp(pointInChild);
+      child.setCubism(cubism);
     }
   }
 };
 
-// src/Elements/Layouts/LinearLayout.ts
-var LinearLayout = class extends PointerHandleableLayout {
-};
-
-// src/Elements/Layouts/VerticalLayout.ts
-var VerticalLayout = class extends LinearLayout {
-  updateChildrenPosition() {
-    super.updateChildrenPosition();
-    let x = 0;
-    let y = 0;
-    for (let child of this.children) {
-      child.position = new Point2D(x, y);
-      y += child.height;
+// src/Elements/PointerHanderParentElement.ts
+var PointerHandlerParentElement = class extends CubismParentElement {
+  constructor(id = null, ...children) {
+    super(id, ...children);
+    this._dragPoint = null;
+    this._pointerWasInRange = false;
+    this._hovered = false;
+    this._pressed = false;
+    this.registerEvent(EventKeys.ON_POINTER_EVENT, this.onPointerEvent.bind(this));
+  }
+  get pressed() {
+    return this._pressed;
+  }
+  set pressed(value) {
+    this._pressed = value;
+  }
+  get hovered() {
+    return this._hovered;
+  }
+  set hovered(value) {
+    this._hovered = value;
+  }
+  onDown(point) {
+  }
+  onUp(point) {
+  }
+  onLeave(point) {
+  }
+  onEnter(point) {
+  }
+  onMove(point) {
+  }
+  onParentMove(point) {
+  }
+  onPointerEvent(point) {
+    this.triggerThisPointerEvent(point);
+    this.triggerChildrenPointerEvent(point.sub(this.position));
+  }
+  triggerThisPointerEvent(point) {
+    if (this.pointerInRange(point)) {
+      if (!this._pointerWasInRange) {
+        this.onEnter(point);
+      }
+      this._pointerWasInRange = true;
+      this.onMove(point);
+      if (point.pressure !== 0 && !this._pressed) {
+        this.onDown(point);
+        this._dragPoint = point;
+        this._pressed = true;
+      }
+      if (point.pressure === 0 && this._pressed) {
+        this.onUp(point);
+        this._dragPoint = null;
+        this._pressed = false;
+      }
+    } else {
+      if (this._pointerWasInRange) {
+        this.onLeave(point);
+        this._pointerWasInRange = false;
+      }
     }
+    this.onParentMove(point);
+  }
+  triggerChildrenPointerEvent(point) {
+    if (this.pointerInRange(point)) {
+      for (let child of this.children) {
+        child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
+      }
+    }
+  }
+  pointerInRange(point) {
+    if (point.x >= this.position.x && point.x <= this.absWidth + this.position.x) {
+      if (point.y >= this.position.y && point.y <= this.absHeight + this.position.y) {
+        return true;
+      }
+    }
+    return false;
   }
 };
 
@@ -1156,424 +1045,82 @@ Colors.transparentOrange = "rgba(255,128,0,0.5)";
 Colors.transparentPurple = "rgba(128,0,255,0.5)";
 Colors.transparentPink = "rgba(255,0,128,0.5)";
 
-// src/Theme/Theme.ts
-var CubismElementThemeRoot = class {
-  constructor(color = new ColorTheme(), font = new FontTheme()) {
-    this.color = color;
-    this.font = font;
-  }
-  setColorTheme(color) {
-    this.color = color;
-    return this;
-  }
-  setFontTheme(font) {
-    this.font = font;
-    return this;
-  }
-};
-var ColorTheme = class {
-  constructor() {
-    this.primary = Colors.blue500;
-    this.secondary = Colors.blue700;
-    this.background = Colors.white;
-    this.border = this.primary;
-    this.text = Colors.black;
-  }
-  setPrimary(color) {
-    this.primary = color;
-    return this;
-  }
-  setSecondary(color) {
-    this.secondary = color;
-    return this;
-  }
-  setBackground(color) {
-    this.background = color;
-    return this;
-  }
-  setBorder(color) {
-    this.border = color;
-    return this;
-  }
-  setText(color) {
-    this.text = color;
-    return this;
-  }
-};
-var OnClickColorTheme = class extends ColorTheme {
-  constructor() {
-    super(...arguments);
-    this.background = Colors.grey200;
-  }
-};
-var OnHoverColorTheme = class extends ColorTheme {
-  constructor() {
-    super(...arguments);
-    this.background = Colors.grey100;
-  }
-};
-var FontTheme = class {
-  constructor() {
-    this.fontSizes = 14;
-    this.fontFamily = "Arial";
-  }
-  setFontSize(size) {
-    this.fontSizes = size;
-    return this;
-  }
-  setFontFamily(font) {
-    this.fontFamily = font;
-    return this;
-  }
-};
-
-// src/Elements/ThemedElement.ts
-var ThemedElement = class extends PointerHandleableElement {
-  constructor() {
+// src/Elements/Fancy/RecursiveRect.ts
+var RecursiveRect = class extends PointerHandlerParentElement {
+  constructor(recursionCount = 10, width = 200, height = 200) {
     super();
-    this.defaultTheme = new CubismElementThemeRoot(
-      new ColorTheme()
-    );
-    this.hoverTheme = new CubismElementThemeRoot(
-      new OnHoverColorTheme()
-    );
-    this.pressedTheme = new CubismElementThemeRoot(
-      new OnClickColorTheme()
-    );
-    this._currTheme = this.defaultTheme;
-    this.currTheme = this.defaultTheme;
-  }
-  setFontTheme(theme) {
-    this.defaultTheme.font = theme;
-    this.hoverTheme.font = theme;
-    this.pressedTheme.font = theme;
-    return this;
-  }
-  get currTheme() {
-    return this._currTheme;
-  }
-  set currTheme(theme) {
-    this._currTheme = theme;
-  }
-  onMove(point) {
-    var _a;
-    super.onMove(point);
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-  }
-  onDown(point) {
-    var _a;
-    super.onDown(point);
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-  }
-  onUp(point) {
-    var _a;
-    super.onUp(point);
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-  }
-  onEnter(point) {
-    var _a;
-    super.onEnter(point);
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-  }
-  onLeave(point) {
-    var _a;
-    super.onLeave(point);
-    (_a = this.c) == null ? void 0 : _a.setRedraw(true);
-  }
-  setDefaultTheme(theme) {
-    this.defaultTheme = theme;
-    return this;
-  }
-  setHoverTheme(theme) {
-    this.hoverTheme = theme;
-    return this;
-  }
-  setPressTheme(theme) {
-    this.pressedTheme = theme;
-    return this;
+    this.lastPoint = null;
+    this.width = width;
+    this.height = height;
+    this.recursionCount = recursionCount;
   }
   draw() {
-    super.draw();
-    let c = this.c;
-    c.translate(this.position);
-    this.currTheme = this.defaultTheme;
-    if (this.hovered) {
-      this.currTheme = this.hoverTheme;
-    }
-    if (this.pressed) {
-      this.currTheme = this.pressedTheme;
-    }
-    c.setFillStyle(this.currTheme.color.background);
-    c.setStrokeStyle(this.currTheme.color.border);
-    c.drawRectWithPoints(this.absSize);
-    c.restoreTranslate();
-  }
-};
-
-// src/Elements/ButtonElement.ts
-var ButtonElement = class extends ThemedElement {
-  constructor(text = "Button") {
-    super();
-    this.text = text;
-    this.setFontTheme(new FontTheme().setFontSize(30));
-  }
-  setText(text) {
-    this.text = text;
-    return this;
-  }
-  pushOnUp(...callbacks) {
-    for (let callback of callbacks) {
-      console.log("Pushing", callback);
-      this.pushOn(EventKeys.ON_UP, callback.bind(this));
-    }
-    return this;
-  }
-  draw() {
-    super.draw();
-    let c = this.c;
-    c.setFillStyle(this.currTheme.color.text);
-    c.fillText(this.text, 10, 30);
-  }
-};
-
-// src/Elements/DraggableRect.ts
-var DraggableRect = class extends ThemedElement {
-  constructor() {
-    super(...arguments);
-    this.pointerRelativePosition = null;
-  }
-  onDown(point) {
-    super.onDown(point);
-    this.pointerRelativePosition = new Point2D(point.x - this.position.x, point.y - this.position.y);
-  }
-  onParentMove(point) {
-    var _a;
-    super.onParentMove(point);
-    if (this.pointerRelativePosition !== null) {
-      this.position = point.sub(this.pointerRelativePosition);
-      (_a = this.c) == null ? void 0 : _a.triggerRedraw();
-    }
-  }
-  onUp(point) {
-    super.onUp(point);
-    this.pointerRelativePosition = null;
-  }
-};
-
-// src/Elements/Layouts/HorizontalLayout.ts
-var HorizontalLayout = class extends LinearLayout {
-  updateChildrenPosition() {
-    super.updateChildrenPosition();
-    let x = 0;
-    let y = 0;
-    for (let child of this.children) {
-      child.position = new Point2D(x, y);
-      x += child.width;
-    }
-  }
-};
-
-// src/CubismBuilder.ts
-var CubismBuilder = class {
-  toString() {
-    return "CubismBuilder";
-  }
-  get cubism() {
-    return Cubism;
-  }
-  get c() {
-    return this.cubism;
-  }
-  verticalLayout(...children) {
-    return new VerticalLayout(...children);
-  }
-  horizontalLayout(...children) {
-    return new HorizontalLayout(...children);
-  }
-  h(...children) {
-    return this.horizontalLayout(...children);
-  }
-  v(...children) {
-    return this.verticalLayout(...children);
-  }
-  get colorTheme() {
-    return new ColorTheme();
-  }
-  get fontTheme() {
-    return new FontTheme();
-  }
-  get theme() {
-    return new CubismElementThemeRoot();
-  }
-  get colors() {
-    return Colors;
-  }
-  get button() {
-    return new ButtonElement();
-  }
-  buttonWithText(text) {
-    return new ButtonElement(text);
-  }
-  get draggableRect() {
-    return new DraggableRect();
-  }
-};
-
-// src/Debug/Console.ts
-function initConsole() {
-  let w = window;
-  w.test = () => {
-    console.log("test");
-  };
-  w.cubismGlobal = CubismOuterGlobal.instance;
-}
-
-// src/Elements/CubismParentElement.ts
-var CubismParentElement = class extends CubismElement {
-  constructor(elementId = null, ...children) {
-    super(elementId);
-    this.children = [];
-    this.addChildren(...children);
-  }
-  resize(targetSize) {
-    super.resize(targetSize);
-    this.updateChildrenShape();
-  }
-  updateChildrenShape() {
-    this.updateChildrenSize();
-    this.updateChildrenPosition();
-  }
-  updateChildrenPosition() {
-  }
-  updateChildrenSize() {
-    for (let child of this.children) {
-      let x = child.width;
-      let y = child.height;
-      if (x === LayoutValues.MATCH_PARENT) {
-        x = this.absWidth;
-      }
-      if (y === LayoutValues.MATCH_PARENT) {
-        y = this.absHeight;
-        console.log("this.absHeight", this.absHeight);
-      }
-      child.resize(new Point2D(x, y));
-    }
-  }
-  addChildren(...children) {
-    for (let child of children) {
-      this.children.push(child);
-      if (this._cubism) {
-        child.setCubism(this.cubism);
-      }
-    }
-    return this;
-  }
-  removeChild(child) {
-    let index = this.children.indexOf(child);
-    if (index > -1) {
-      this.children.splice(index, 1);
-    }
-  }
-  removeChildren(children) {
-    for (let child of children) {
-      this.removeChild(child);
-    }
-  }
-  draw() {
-    super.draw();
-    this.drawChildren();
-  }
-  drawChildren() {
-    this.c.translate(this.position);
-    for (let child of this.children) {
-      child.draw();
+    this.c.translate(
+      this.position
+    );
+    this.c.setFillStyle(Colors.green100);
+    this.c.setStrokeWidth(2);
+    this.c.setStrokeStyle(Colors.green700);
+    let relaPos = this.position.subXY(100, 100);
+    let relaSpeed = 0.2;
+    let relaSize = 10;
+    this.c.drawRect(0, 0, this.width, this.height);
+    let pos = new Point2D(0, 0);
+    for (let i = 1; i < this.recursionCount + 1; i++) {
+      let relaSpeedI = relaSpeed * i;
+      let relaSizeI = relaSize * i;
+      this.c.translate(relaPos.scale(relaSpeedI));
+      this.c.drawRect(relaSizeI, relaSizeI, this.width - relaSizeI, this.height - relaSizeI);
+      this.c.restoreTranslate();
     }
     this.c.restoreTranslate();
   }
-  setCubism(cubism) {
-    super.setCubism(cubism);
-    this.setChildrenCubism(cubism);
-  }
-  setChildrenCubism(cubism) {
-    for (let child of this.children) {
-      child.setCubism(cubism);
-    }
-  }
-};
-
-// src/Elements/PointerHanderParentElement.ts
-var PointerHandlerParentElement = class extends CubismParentElement {
-  constructor(id, ...children) {
-    super(id, ...children);
-    this._pointerWasInRange = false;
-    this._hovered = false;
-    this._pressed = false;
-    this.registerEvent(EventKeys.ON_POINTER_EVENT, this.onPointerEvent.bind(this));
-  }
-  get pressed() {
-    return this._pressed;
-  }
-  set pressed(value) {
-    this._pressed = value;
-  }
-  get hovered() {
-    return this._hovered;
-  }
-  set hovered(value) {
-    this._hovered = value;
-  }
-  onDown(point) {
-  }
-  onUp(point) {
-  }
-  onLeave(point) {
-  }
-  onEnter(point) {
-  }
   onMove(point) {
-  }
-  onPointerEvent(point) {
-    this.triggerThisPointerEvent(point);
-    this.triggerChildrenPointerEvent(point.sub(this.position));
-  }
-  triggerThisPointerEvent(point) {
-    console.log("triggerThisPointerEvent");
-    if (this.pointerInRange(point)) {
-      console.log("inRange");
-      if (!this._pointerWasInRange) {
-        this.onEnter(point);
+    if (point.pressure > 0) {
+      if (!this.lastPoint) {
+        this.lastPoint = point.sub(this.position);
       }
-      this._pointerWasInRange = true;
-      this.onMove(point);
-      if (point.pressure !== 0 && !this._pressed) {
-        this.onDown(point);
-        this._pressed = true;
-      }
-      if (point.pressure === 0 && this._pressed) {
-        this.onUp(point);
-        this._pressed = false;
-      }
+      this.position = point.sub(this.lastPoint);
     } else {
-      if (this._pointerWasInRange) {
-        this.onLeave(point);
-        this._pointerWasInRange = false;
-      }
+      this.lastPoint = null;
     }
   }
   triggerChildrenPointerEvent(point) {
-    for (let child of this.children) {
-      if (child instanceof PointerHandlerParentElement) {
-        child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
-      }
-    }
   }
-  pointerInRange(point) {
-    if (point.x >= this.position.x && point.x <= this.absWidth) {
-      if (point.y >= this.position.y && point.y <= this.absHeight) {
-        return true;
-      }
+};
+
+// src/Elements/Fancy/ChangingRainbowBackground.ts
+var ChangingRainbowBackground = class extends CubismElement {
+  constructor() {
+    super();
+    this.frameCount = 0;
+    this.saturation = 70;
+    this.lightness = 90;
+  }
+  setSaturation(s) {
+    if (s > 100) {
+      s = 100;
     }
-    return false;
+    this.saturation = s;
+    return this;
+  }
+  setLightness(l) {
+    if (l > 100) {
+      l = 100;
+    }
+    this.lightness = l;
+    return this;
+  }
+  draw() {
+    this.frameCount++;
+    this.c.translate(this.position);
+    let currHue = this.frameCount % 360;
+    let currColor = `hsl(${currHue}, ${this.saturation}%, ${this.lightness}%)`;
+    this.c.setFillStyle(currColor);
+    this.c.setStrokeWidth(0);
+    this.c.setStrokeStyle(currColor);
+    this.c.drawRect(0, 0, this.absWidth, this.absHeight);
+    this.c.restoreTranslate();
   }
 };
 
@@ -1583,7 +1130,6 @@ var LiveDemo = class {
   constructor() {
     this.codeText = document.getElementById("codeText");
     this.codeText.value = this.getFormattedFunctionString();
-    this.builder = new CubismBuilder();
     this.userFunction = this.getUserFunction();
   }
   userFunction() {
@@ -1621,7 +1167,8 @@ function defaultInitCode() {
   app.init(
     new PointerHandlerParentElement(
       null,
-      new DraggableRect().setWidth(100).setHeight(100)
+      new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80),
+      new RecursiveRect(10, 200, 200).setPosFromXY(100, 100)
     )
   );
   app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {

@@ -55,7 +55,7 @@ export class CanvasDrawer extends CubismPart {
      * @private
      */
     private registerFrameUpdate() {
-        console.log("Registering frame update");
+        // console.log("Registering frame update");
         this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.frameUpdate.bind(this));
     }
 
@@ -64,11 +64,10 @@ export class CanvasDrawer extends CubismPart {
      * @private
      */
     private frameUpdate() {
-
         // console.log("Frame update");
         if (this.state.needsRedraw) {
             this.triggerRedraw();
-            console.log("Redrawing");
+            // console.log("Redrawing");
             this.state.needsRedraw = false;
         }
     }
@@ -116,6 +115,7 @@ export class CanvasDrawer extends CubismPart {
      * Restore translation and rotation to previous state
      */
     restoreTranslate() {
+
         this.state.restoreTranslate();
     }
 

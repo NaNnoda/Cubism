@@ -1,4 +1,5 @@
-import {PointerHandleableLayout} from "./PointerHandleableLayout";
-export abstract class LinearLayout extends PointerHandleableLayout {
+import PointerHandlerParentElement from "../PointerHanderParentElement";
+
+export abstract class LinearLayout extends PointerHandlerParentElement {
 
 }

@@ -1,27 +1,21 @@
-import {CubismBuilder} from "./CubismBuilder";
 import {Cubism} from "./Cubism";
-import {VerticalLayout} from "./Elements/Layouts/VerticalLayout";
-import {DraggableRect} from "./Elements/DraggableRect";
 import {ButtonElement} from "./Elements/ButtonElement";
-import {HorizontalLayout} from "./Elements/Layouts/HorizontalLayout";
-import CubismParentElement from "./Elements/CubismParentElement";
 import {initConsole} from "./Debug/Console";
-import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
-import {EventKeys} from "./Constants/Constants";
+import {EventKeys, LayoutValues, Values} from "./Constants/Constants";
 import PointerHandlerParentElement from "./Elements/PointerHanderParentElement";
+import RecursiveRect from "./Elements/Fancy/RecursiveRect";
+import {ChangingRainbowBackground} from "./Elements/Fancy/ChangingRainbowBackground";
 
 
 console.log("loading Index.ts");
 
 
 class LiveDemo {
-    builder: CubismBuilder
     codeText: HTMLTextAreaElement;
 
     constructor() {
         this.codeText = document.getElementById("codeText") as HTMLTextAreaElement;
         this.codeText.value = this.getFormattedFunctionString();
-        this.builder = new CubismBuilder();
         this.userFunction = this.getUserFunction();
     }
 
@@ -77,10 +71,15 @@ function defaultInitCode() {
     app.init(
         new PointerHandlerParentElement(
             null,
-            new DraggableRect().setWidth(100).setHeight(100),
+            new ChangingRainbowBackground()
+                .setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT)
+                .setLightness(70).setSaturation(80)
+            ,
+            new RecursiveRect(10, 200, 200)
+                .setPosFromXY(100, 100)
         )
-    )
 
+    )
     app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
         let fpsCounter = document.getElementById("fpsCounter") as HTMLParagraphElement;
         fpsCounter.innerText = `FPS: ${fps}`;
