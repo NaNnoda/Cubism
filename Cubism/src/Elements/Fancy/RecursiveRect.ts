@@ -11,12 +11,20 @@ export default class RecursiveRect extends PointerHandlerParentElement {
 
     frameCount: number = 0;
 
-    _position: PhysicalPoint2D = new PhysicalPoint2D(0, 0).setResistance(0.01);
+    _position: PhysicalPoint2D = new PhysicalPoint2D(0, 0).setResistance(0.001);
     get position(): PhysicalPoint2D {
+        if (this._cubism) {
+            this.c.setRedraw(true);
+        }
+
         return this._position;
     }
 
     set position(point: PhysicalPoint2D) {
+        if (this._cubism) {
+            this.c.setRedraw(true);
+        }
+        // this.c.setRedraw(true);
         this._position = point;
     }
 
@@ -29,9 +37,7 @@ export default class RecursiveRect extends PointerHandlerParentElement {
     }
 
     wiggle() {
-        if (this.frameCount % 60 == 0) {
-
-
+        if (this.frameCount % 120 == 0) {
             let range = this.wiggleStrength * Math.random();
             this.position.impulse(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
         }
@@ -52,8 +58,11 @@ export default class RecursiveRect extends PointerHandlerParentElement {
         this.c.translate(this.position);
 
         this.position.update();
-        if(!this.pressed){
+        if (!this.pressed) {
             this.wiggle();
+        }
+        if (this.pressed) {
+            this.frameCount = 0;
         }
 
         // this.wiggle();

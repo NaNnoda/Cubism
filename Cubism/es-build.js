@@ -1,3 +1,15 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
 // src/Datatypes/TransformMatrix2D.ts
 var TransformMatrix2D = class {
   constructor(m11, m12, m21, m22, dx, dy) {
@@ -1108,14 +1120,20 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     this.lastPoint = null;
     this.relativePosition = new Point2D(200, 200);
     this.frameCount = 0;
-    this._position = new PhysicalPoint2D(0, 0).setResistance(0.01);
+    this._position = new PhysicalPoint2D(0, 0).setResistance(1e-3);
     this.recursionCount = 0;
     this.wiggleStrength = 0.1;
   }
   get position() {
+    if (this._cubism) {
+      this.c.setRedraw(true);
+    }
     return this._position;
   }
   set position(point) {
+    if (this._cubism) {
+      this.c.setRedraw(true);
+    }
     this._position = point;
   }
   setRecursionCount(recursionCount) {
@@ -1123,7 +1141,7 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     return this;
   }
   wiggle() {
-    if (this.frameCount % 60 == 0) {
+    if (this.frameCount % 120 == 0) {
       let range = this.wiggleStrength * Math.random();
       this.position.impulse(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
     }
@@ -1142,6 +1160,9 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     this.position.update();
     if (!this.pressed) {
       this.wiggle();
+    }
+    if (this.pressed) {
+      this.frameCount = 0;
     }
     this.c.setFillStyle(Colors.green100);
     this.c.setStrokeWidth(2);
@@ -1211,59 +1232,172 @@ var ChangingRainbowBackground = class extends CubismElement {
   }
 };
 
-// src/Index.ts
-console.log("loading Index.ts");
-var LiveDemo = class {
+// src/Demo/StaticDemo.ts
+var StaticDemo = class {
   constructor() {
+    this._demoFunctions = {};
+    this.selector = document.getElementById("selector");
     this.codeText = document.getElementById("codeText");
-    this.codeText.value = this.getFormattedFunctionString();
-    this.userFunction = this.getUserFunction();
+    this.updateButton = document.getElementById("update");
+    this.currDemoFunction = null;
+    this.initSelector();
+    this.initCodeText();
+    this.initUpdateButton();
   }
-  userFunction() {
+  initCodeText() {
+    this.codeText.onchange = this.onCodeTextChange.bind(this);
+    this.codeText.oninput = this.onCodeTextInput.bind(this);
   }
-  main() {
-    initConsole();
-    let updateButton = document.getElementById("update");
-    updateButton.onclick = this.updateCubism.bind(this);
-    this.updateCubism();
+  initUpdateButton() {
+    this.updateButton.onclick = this.updateButtonOnClick.bind(this);
   }
-  updateCubism() {
-    console.log("update");
-    this.updateUserFunction();
-    this.runUserFunction();
+  updateButtonOnClick() {
+    this.updateCurrDemoFunction();
   }
-  getFormattedFunctionString() {
-    let s = defaultInitCode.toString();
-    s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
-    s = s.replace(/^ {2}/gm, "");
-    return s;
+  updateCurrDemoFunction() {
+    console.log("updateCurrDemoFunction");
+    let currName = this.selector.value;
+    this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
+    this.setCurrentDemoCode(this.selector.value);
   }
-  getUserFunction() {
-    let code = this.codeText.value;
-    return new Function(code);
+  onCodeTextInput() {
+    console.log("code text input");
   }
-  updateUserFunction() {
-    this.userFunction = this.getUserFunction();
+  onCodeTextChange() {
+    console.log("code text changed");
   }
-  runUserFunction() {
-    this.userFunction();
+  initSelector() {
+    this.selector.onchange = this.onSelectorChange.bind(this);
+    this.selector.onload = this.onSelectorChange.bind(this);
+  }
+  setCurrentDemoCode(name) {
+    this.codeText.value = this._demoFunctions[name].toString();
+    this.selector.value = name;
+    this.currDemoFunction = this._demoFunctions[name];
+    this.runCurrentDemo();
+  }
+  runCurrentDemo() {
+    if (this.currDemoFunction) {
+      this.currDemoFunction.run();
+    }
+  }
+  addDemoFunction(name, func) {
+    let option = document.createElement("option");
+    option.text = name;
+    this.selector.add(option);
+    this._demoFunctions[name] = new DemoFunction(func);
+    this.setCurrentDemoCode(name);
+  }
+  onSelectorChange() {
+    let selected = this.selector.options[this.selector.selectedIndex].text;
+    console.log(`selected: ${selected}`);
+    this.setCurrentDemoCode(selected);
+  }
+  createFunctionFromString(s) {
+    return new Function(s);
+  }
+  static get i() {
+    if (!StaticDemo._instance) {
+      StaticDemo._instance = new StaticDemo();
+    }
+    return StaticDemo._instance;
   }
 };
-function defaultInitCode() {
-  let app = Cubism.createFromId("mainCanvas");
-  app.init(
-    new PointerHandlerParentElement(
-      null,
-      new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
-      new RecursiveRect().setWiggleStrength(8).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
-    )
-  );
-  app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
-    let fpsCounter = document.getElementById("fpsCounter");
-    fpsCounter.innerText = `FPS: ${fps}`;
-  });
-  app.initializer.initializeAlwaysRedraw();
-  app.initializer.initializeFPSCounter();
+var DemoFunction = class {
+  constructor(func) {
+    this.func = func;
+    this.funcName = func.name;
+  }
+  toString() {
+    return this.functionToFormattedString(this.funcName, this.func);
+  }
+  functionToFormattedString(funcName, func) {
+    let s = func.toString();
+    s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
+    s = s.replace(/\t/g, "");
+    s = s.replace(/^\s*\n/gm, "");
+    s = s.replace(/\n\s*$/gm, "");
+    s = s.replace(/;/g, ";\n");
+    s = "function " + funcName + "() {\n" + s + "\n}";
+    s += "\n";
+    s += funcName + "();";
+    return s;
+  }
+  setFunction(func) {
+    this.func = func;
+  }
+  setFunctionThroughFormattedString(s) {
+    this.func = new Function(s);
+  }
+  toFunction() {
+    return this.func;
+  }
+  run() {
+    this.func();
+  }
+};
+
+// src/Demo/DemoDecorators.ts
+function demoFunction() {
+  return function(target, propertyKey, descriptor) {
+    let demo = StaticDemo.i;
+    let currFunction = target[propertyKey];
+    demo.addDemoFunction(propertyKey, currFunction);
+    console.log("target is:" + target);
+    console.log("propertyKey is:" + propertyKey);
+    console.log(propertyKey);
+    console.log(target[propertyKey]);
+    console.log("descriptor is:" + descriptor);
+    console.log(descriptor);
+  };
 }
-new LiveDemo().main();
+
+// src/Demo/Demo.ts
+console.log("loading Demo.ts");
+var DemoFunctions = class {
+  d(target) {
+    console.log("demoFunction");
+    console.log(target);
+  }
+  function2() {
+    console.log("function2");
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new PointerHandlerParentElement(
+        null,
+        new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
+        new RecursiveRect().setWiggleStrength(2).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(20)
+      )
+    );
+  }
+  defaultInitCode() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new PointerHandlerParentElement(
+        null,
+        new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
+        new RecursiveRect().setWiggleStrength(2).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
+      )
+    );
+    app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
+      let fpsCounter = document.getElementById("fpsCounter");
+      fpsCounter.innerText = `FPS: ${fps}`;
+    });
+    app.initializer.initializeAlwaysRedraw();
+    app.initializer.initializeFPSCounter();
+  }
+};
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "d", 1);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "function2", 1);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "defaultInitCode", 1);
+function main() {
+  initConsole();
+}
+main();
 //# sourceMappingURL=es-build.js.map

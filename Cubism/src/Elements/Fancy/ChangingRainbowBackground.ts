@@ -30,8 +30,6 @@ export class ChangingRainbowBackground extends CubismElement{
         return this;
     }
     draw() {
-
-
         this.frameCount++;
         this.c.translate(this.position);
         let currHue = this.frameCount * this.changingSpeed % 360;
