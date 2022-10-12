@@ -3,10 +3,22 @@ import {Colors} from "../../Theme/Colors";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
 import {CubismElement} from "../CubismElement";
+import PhysicalPoint2D from "../../Physics/Physics2D/PhysicalPoint2D";
 
 export default class RecursiveRect extends PointerHandlerParentElement {
     lastPoint: PointerPoint | null = null;
     relativePosition: Point2D = new Point2D(200, 200);
+
+    frameCount: number = 0;
+
+    _position: PhysicalPoint2D = new PhysicalPoint2D(0, 0).setResistance(0.01);
+    get position(): PhysicalPoint2D {
+        return this._position;
+    }
+
+    set position(point: PhysicalPoint2D) {
+        this._position = point;
+    }
 
     recursionCount: number = 0;
     wiggleStrength: number = 0.1;
@@ -17,8 +29,12 @@ export default class RecursiveRect extends PointerHandlerParentElement {
     }
 
     wiggle() {
-        let range = this.wiggleStrength;
-        this.position = this.position.add(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+        if (this.frameCount % 60 == 0) {
+
+
+            let range = this.wiggleStrength * Math.random();
+            this.position.impulse(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+        }
     }
 
     setWiggleStrength(strength: number) {
@@ -32,10 +48,15 @@ export default class RecursiveRect extends PointerHandlerParentElement {
     }
 
     draw() {
-        this.c.translate(
-            this.position
-        );
-        this.wiggle();
+        this.frameCount++;
+        this.c.translate(this.position);
+
+        this.position.update();
+        if(!this.pressed){
+            this.wiggle();
+        }
+
+        // this.wiggle();
         this.c.setFillStyle(Colors.green100);
         this.c.setStrokeWidth(2);
         this.c.setStrokeStyle(Colors.green700);
@@ -54,12 +75,11 @@ export default class RecursiveRect extends PointerHandlerParentElement {
     }
 
     onMove(point: PointerPoint) {
-        // console.log("onMove");
         if (point.pressure > 0) {
             if (!this.lastPoint) {
                 this.lastPoint = point.sub(this.position);
             }
-            this.position = point.sub(this.lastPoint);
+            this.position.set(point.sub(this.lastPoint));
         } else {
             this.lastPoint = null;
         }

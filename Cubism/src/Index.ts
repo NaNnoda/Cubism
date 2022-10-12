@@ -78,7 +78,7 @@ function defaultInitCode() {
                 .setChangingSpeed(0.1)
             ,
             new RecursiveRect()
-                .setWiggleStrength(1)
+                .setWiggleStrength(8)
                 .setSizeFromXY(200,200)
                 .setPosFromXY(100, 100)
                 .setRelativePosition(new Point2D(100,100))

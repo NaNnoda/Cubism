@@ -405,6 +405,16 @@ var Point2D = class {
   clone() {
     return new Point2D(this.x, this.y);
   }
+  setXY(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+  set(point) {
+    this.x = point.x;
+    this.y = point.y;
+    return this;
+  }
   offset(offset) {
     this.x += offset.x;
     this.y += offset.y;
@@ -1055,22 +1065,68 @@ Colors.transparentOrange = "rgba(255,128,0,0.5)";
 Colors.transparentPurple = "rgba(128,0,255,0.5)";
 Colors.transparentPink = "rgba(255,0,128,0.5)";
 
+// src/Physics/Physics2D/PhysicalPoint2D.ts
+var PhysicalPoint2D = class extends Point2D {
+  constructor() {
+    super(...arguments);
+    this.velocity = new Point2D(0, 0);
+    this.resistance = 0;
+    this.velocityScale = 0;
+  }
+  setVelocity(velocity) {
+    this.velocity = velocity;
+    return this;
+  }
+  setResistance(resistance) {
+    this.resistance = resistance;
+    return this;
+  }
+  impulse(impulse) {
+    this.velocity.offset(impulse);
+    this.velocityScale = 1;
+    return this;
+  }
+  update() {
+    if (this.velocityScale > 0) {
+      this.velocity = this.velocity.scale(this.velocityScale);
+      this.velocityScale -= this.resistance;
+    }
+    if (this.velocityScale < 0) {
+      this.velocityScale = 0;
+    }
+    if (this.velocityScale == 0) {
+      this.velocity.setXY(0, 0);
+    }
+    this.offset(this.velocity);
+  }
+};
+
 // src/Elements/Fancy/RecursiveRect.ts
 var RecursiveRect = class extends PointerHandlerParentElement {
   constructor() {
     super(...arguments);
     this.lastPoint = null;
     this.relativePosition = new Point2D(200, 200);
+    this.frameCount = 0;
+    this._position = new PhysicalPoint2D(0, 0).setResistance(0.01);
     this.recursionCount = 0;
     this.wiggleStrength = 0.1;
+  }
+  get position() {
+    return this._position;
+  }
+  set position(point) {
+    this._position = point;
   }
   setRecursionCount(recursionCount) {
     this.recursionCount = recursionCount;
     return this;
   }
   wiggle() {
-    let range = this.wiggleStrength;
-    this.position = this.position.add(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+    if (this.frameCount % 60 == 0) {
+      let range = this.wiggleStrength * Math.random();
+      this.position.impulse(new Point2D(range * (Math.random() - 0.5), range * (Math.random() - 0.5)));
+    }
   }
   setWiggleStrength(strength) {
     this.wiggleStrength = strength;
@@ -1081,10 +1137,12 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     return this;
   }
   draw() {
-    this.c.translate(
-      this.position
-    );
-    this.wiggle();
+    this.frameCount++;
+    this.c.translate(this.position);
+    this.position.update();
+    if (!this.pressed) {
+      this.wiggle();
+    }
     this.c.setFillStyle(Colors.green100);
     this.c.setStrokeWidth(2);
     this.c.setStrokeStyle(Colors.green700);
@@ -1106,7 +1164,7 @@ var RecursiveRect = class extends PointerHandlerParentElement {
       if (!this.lastPoint) {
         this.lastPoint = point.sub(this.position);
       }
-      this.position = point.sub(this.lastPoint);
+      this.position.set(point.sub(this.lastPoint));
     } else {
       this.lastPoint = null;
     }
@@ -1197,7 +1255,7 @@ function defaultInitCode() {
     new PointerHandlerParentElement(
       null,
       new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
-      new RecursiveRect().setWiggleStrength(1).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
+      new RecursiveRect().setWiggleStrength(8).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
     )
   );
   app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {

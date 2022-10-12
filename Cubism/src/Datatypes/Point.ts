@@ -28,6 +28,18 @@ export class Point2D {
         return new Point2D(this.x, this.y);
     }
 
+    setXY(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    set(point: Point2D) {
+        this.x = point.x;
+        this.y = point.y;
+        return this;
+    }
+
 
     /**
      * Offset the point by the given amount.
@@ -56,6 +68,7 @@ export class Point2D {
     sub(other: Point2D): Point2D {
         return this.clone().nOffset(other);
     }
+
     subXY(x: number, y: number): Point2D {
         return this.sub(new Point2D(x, y));
     }
