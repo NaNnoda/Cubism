@@ -121,10 +121,10 @@ var TransformMatrix2D = class {
 
 // src/State.ts
 var CubismCanvasState = class {
-  constructor(canvas, ctx) {
+  constructor(canvas2, ctx) {
     this.translates = [TransformMatrix2D.identity()];
     this._needsRedraw = true;
-    this.canvas = canvas;
+    this.canvas = canvas2;
     this.ctx = ctx;
   }
   set translate(offset) {
@@ -217,11 +217,11 @@ EventKeys.POINTER_MOVE = "onMouseMove";
 
 // src/CanvasDrawer.ts
 var CanvasDrawer = class extends CubismPart {
-  constructor(canvas) {
+  constructor(canvas2) {
     super();
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
-    this.state = new CubismCanvasState(canvas, this.ctx);
+    this.canvas = canvas2;
+    this.ctx = canvas2.getContext("2d");
+    this.state = new CubismCanvasState(canvas2, this.ctx);
   }
   get eventSystem() {
     return this.cubism.eventSystem;
@@ -563,20 +563,20 @@ var CubismElementManger = class {
 
 // src/Cubism.ts
 var Cubism = class extends CubismElementManger {
-  constructor(canvas) {
+  constructor(canvas2) {
     super();
     this._root = null;
-    this.canvas = canvas;
+    this.canvas = canvas2;
     this.eventSystem = new CubismEventSystem();
-    this.canvasDrawer = new CanvasDrawer(canvas);
+    this.canvasDrawer = new CanvasDrawer(canvas2);
     this._initializer = new CubismInitializer();
     this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
     this.registerRedraw();
     this.registerGlobalPointerEvents();
-    if (canvas.id === null || canvas.id === void 0 || canvas.id === "") {
+    if (canvas2.id === null || canvas2.id === void 0 || canvas2.id === "") {
       throw new Error("Canvas must have an id");
     }
-    this.cubismId = canvas.id;
+    this.cubismId = canvas2.id;
     CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
   }
   get initializer() {
@@ -611,8 +611,8 @@ var Cubism = class extends CubismElementManger {
   registerRedraw() {
     this.eventSystem.registerEvent(EventKeys.REDRAW, this.redraw.bind(this));
   }
-  static createFromCanvas(canvas) {
-    return new Cubism(canvas);
+  static createFromCanvas(canvas2) {
+    return new Cubism(canvas2);
   }
   static createFromId(id) {
     return Cubism.createFromCanvas(document.getElementById(id));
@@ -1387,6 +1387,54 @@ function demoFunction() {
   };
 }
 
+// src/CanvasRecorder.ts
+var CanvasRecorder = class {
+  constructor(canvas2, fps = 60) {
+    this.recorder = null;
+    this.chunks = [];
+    this.videoStream = null;
+    this.isRecording = false;
+    if (typeof canvas2 === "string") {
+      let tempCanvas = document.getElementById(canvas2);
+      if (!tempCanvas) {
+        throw new Error("Canvas not found");
+      }
+      this.canvas = tempCanvas;
+    } else {
+      this.canvas = canvas2;
+    }
+    this.fps = fps;
+  }
+  startRecording(fileName = "video", fileType = "webm") {
+    this.videoStream = this.canvas.captureStream(this.fps);
+    this.recorder = new MediaRecorder(this.videoStream);
+    this.recorder.ondataavailable = (e) => {
+      this.chunks.push(e.data);
+    };
+    this.recorder.start();
+    this.recorder.onstop = () => {
+      console.log("Recording stopped");
+      let blob = new Blob(this.chunks, { type: `video/${fileType}` });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement("a");
+      a.href = url;
+      a.download = `${fileName}.${fileType}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    this.isRecording = true;
+  }
+  stopRecording() {
+    if (this.recorder) {
+      if (this.recorder.state === "recording") {
+        console.log("is recording");
+        this.recorder.stop();
+      }
+    }
+    this.isRecording = false;
+  }
+};
+
 // src/Demo/Demo.ts
 console.log("loading Demo.ts");
 var DemoFunctions = class {
@@ -1436,8 +1484,23 @@ __decorateClass([
 __decorateClass([
   demoFunction()
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
+var canvas = document.getElementById("mainCanvas");
+var canvasRecorder = new CanvasRecorder(canvas, 30);
 function main() {
   initConsole();
+  let recordBtn = document.getElementById("recordBtn");
+  let recordText = "Start Recording";
+  let stopText = "Stop";
+  recordBtn.innerText = recordText;
+  recordBtn.onclick = () => {
+    if (canvasRecorder.isRecording) {
+      canvasRecorder.stopRecording();
+      recordBtn.innerText = recordText;
+    } else {
+      canvasRecorder.startRecording("canvasRecording");
+      recordBtn.innerText = stopText;
+    }
+  };
 }
 main();
 //# sourceMappingURL=es-build.js.map

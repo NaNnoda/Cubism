@@ -7,6 +7,7 @@ import {Point2D} from "../Datatypes/Point";
 import {demoFunction} from "./DemoDecorators";
 import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
+import CanvasRecorder from "../CanvasRecorder";
 
 
 console.log("loading Demo.ts");
@@ -78,9 +79,24 @@ class DemoFunctions {
     }
 }
 
+let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+let canvasRecorder: CanvasRecorder = new CanvasRecorder(canvas, 30);
 
 function main() {
     initConsole();
+    let recordBtn = document.getElementById("recordBtn") as HTMLButtonElement;
+    let recordText = "Start Recording";
+    let stopText = "Stop";
+    recordBtn.innerText = recordText;
+    recordBtn.onclick = () => {
+        if (canvasRecorder.isRecording) {
+            canvasRecorder.stopRecording();
+            recordBtn.innerText = recordText;
+        }else{
+            canvasRecorder.startRecording("canvasRecording");
+            recordBtn.innerText = stopText;
+        }
+    }
 }
 
 main();
