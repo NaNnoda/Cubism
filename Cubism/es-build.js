@@ -1223,6 +1223,7 @@ var StaticDemo = class {
     this._demoFunctions = {};
     this.selector = document.getElementById("selector");
     this.codeText = document.getElementById("codeText");
+    this.descriptionText = document.getElementById("descriptionText");
     this.controlDiv = document.getElementById("controlDiv");
     this.currDemoFunction = null;
     this.hotReloadCheckbox = null;
@@ -1288,6 +1289,7 @@ var StaticDemo = class {
   setCurrentDemoCode(name) {
     this.codeText.value = this._demoFunctions[name].toString();
     this.selector.value = name;
+    this.descriptionText.innerHTML = this._demoFunctions[name].description;
     this.currDemoFunction = this._demoFunctions[name];
     this.runCurrentDemo();
   }
@@ -1296,11 +1298,11 @@ var StaticDemo = class {
       this.currDemoFunction.run();
     }
   }
-  addDemoFunction(name, func) {
+  addDemoFunction(name, func, description = "[No description]") {
     let option = document.createElement("option");
     option.text = name;
     this.selector.add(option);
-    this._demoFunctions[name] = new DemoFunction(func);
+    this._demoFunctions[name] = new DemoFunction(func, name, description);
     this.setCurrentDemoCode(name);
   }
   onSelectorChange() {
@@ -1320,9 +1322,10 @@ var StaticDemo = class {
   }
 };
 var DemoFunction = class {
-  constructor(func) {
+  constructor(func, funcName, description) {
     this.func = func;
-    this.funcName = func.name;
+    this.funcName = funcName;
+    this.description = description;
   }
   toString() {
     return this.functionToFormattedString(this.funcName, this.func);
@@ -1379,11 +1382,13 @@ ${spaces}.`);
 };
 
 // src/Demo/DemoDecorators.ts
-function demoFunction() {
+function demoFunction(description = "[No description]") {
   return function(target, propertyKey, descriptor) {
     let demo = StaticDemo.i;
     let currFunction = target[propertyKey];
-    demo.addDemoFunction(propertyKey, currFunction);
+    let name = propertyKey.replace(/([A-Z])/g, " $1").trim();
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    demo.addDemoFunction(name, currFunction, description);
   };
 }
 
@@ -1479,10 +1484,12 @@ __decorateClass([
   demoFunction()
 ], DemoFunctions.prototype, "testFunction", 1);
 __decorateClass([
-  demoFunction()
+  demoFunction("This is a demo function")
 ], DemoFunctions.prototype, "staticRecursiveRect", 1);
 __decorateClass([
-  demoFunction()
+  demoFunction(
+    "This is an animated recursive rectangle.\nTry to drag it around and see what happens"
+  )
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
 var canvas = document.getElementById("mainCanvas");
 var canvasRecorder = new CanvasRecorder(canvas, 30);

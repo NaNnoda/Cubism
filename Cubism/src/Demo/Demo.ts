@@ -19,7 +19,7 @@ class DemoFunctions {
         console.log();
     }
 
-    @demoFunction()
+    @demoFunction("This is a demo function")
     staticRecursiveRect() {
         let app = Cubism.createFromId("mainCanvas");
         app.init(
@@ -41,7 +41,11 @@ class DemoFunctions {
         )
     }
 
-    @demoFunction()
+    @demoFunction(
+        "" +
+        "This is an animated recursive rectangle.\n" +
+        "Try to drag it around and see what happens"
+    )
     animatedRecursiveRect() {
         let app = Cubism.createFromId("mainCanvas");
         app.init(
@@ -60,7 +64,6 @@ class DemoFunctions {
                     .setRecursionCount(10)
             ).setId("parent")
         )
-
 
         app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
             if (document.getElementById("fps") === null) {

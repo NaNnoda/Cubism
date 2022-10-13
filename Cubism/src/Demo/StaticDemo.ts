@@ -7,6 +7,7 @@ export class StaticDemo {
 
     selector: HTMLSelectElement = document.getElementById("selector") as HTMLSelectElement;
     codeText: HTMLTextAreaElement = document.getElementById("codeText") as HTMLTextAreaElement;
+    descriptionText: HTMLDivElement = document.getElementById("descriptionText") as HTMLDivElement;
 
     controlDiv: HTMLDivElement = document.getElementById("controlDiv") as HTMLDivElement;
 
@@ -22,6 +23,8 @@ export class StaticDemo {
         this.initCodeText();
         this.resetControlsDiv();
     }
+
+
 
     initControlDiv() {
         this.initHotReload();
@@ -63,16 +66,19 @@ export class StaticDemo {
     }
 
     updateButtonOnClick() {
-        // this.updateCubism();
         this.updateCurrDemoFunction();
     }
 
     updateCurrDemoFunction() {
         console.log("updateCurrDemoFunction");
         CubismOuterGlobal.getCubismInstance("mainCanvas").destroy();
+
         let currName = this.selector.value;
+
         this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
+
         this.setCurrentDemoCode(this.selector.value);
+
         this.resetControlsDiv();
     }
 
@@ -96,6 +102,7 @@ export class StaticDemo {
     setCurrentDemoCode(name: string) {
         this.codeText.value = this._demoFunctions[name].toString();
         this.selector.value = name;
+        this.descriptionText.innerHTML = this._demoFunctions[name].description;
 
         this.currDemoFunction = this._demoFunctions[name];
 
@@ -112,13 +119,14 @@ export class StaticDemo {
      * Add a demo function to the dict of demo functions
      * @param name
      * @param func
+     * @param description optional description of the demo function
      */
-    addDemoFunction(name: string, func: Function) {
+    addDemoFunction(name: string, func: Function, description: string = "[No description]") {
         let option = document.createElement("option");
         option.text = name;
         this.selector.add(option);
 
-        this._demoFunctions[name] = new DemoFunction(func);
+        this._demoFunctions[name] = new DemoFunction(func, name, description);
         this.setCurrentDemoCode(name);
     }
 
@@ -145,11 +153,14 @@ export class StaticDemo {
 class DemoFunction {
     func: Function;
     funcName: string;
+    description: string;
 
 
-    constructor(func: Function) {
+    constructor(func: Function, funcName: string, description: string) {
         this.func = func;
-        this.funcName = func.name;
+
+        this.funcName = funcName;
+        this.description = description;
     }
 
     toString() {
@@ -158,8 +169,6 @@ class DemoFunction {
 
     functionToFormattedString(funcName: string, func: Function) {
         let s = func.toString();
-
-
         // Remove the first and last line
         s = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}"));
         // Add a new line after each object
