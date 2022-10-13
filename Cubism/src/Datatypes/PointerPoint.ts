@@ -17,4 +17,8 @@ export class PointerPoint extends Point2D {
     sub(other: Point2D): PointerPoint {
         return new PointerPoint(this.x - other.x, this.y - other.y, this.pressure);
     }
+
+    get pressed(): boolean {
+        return this.pressure > 0;
+    }
 }

@@ -4,7 +4,7 @@
 import {CubismElement} from "./CubismElement";
 import {Cubism} from "../Cubism";
 import {Point2D} from "../Datatypes/Point";
-import {LayoutValues} from "../Constants/Constants";
+import SizeKeys from "../Constants/SizeKeys";
 
 export default class CubismParentElement extends CubismElement {
     children: CubismElement[];
@@ -47,10 +47,10 @@ export default class CubismParentElement extends CubismElement {
         for (let child of this.children) {
             let x = child.width;
             let y = child.height;
-            if (x === LayoutValues.MATCH_PARENT) {
+            if (x === SizeKeys.MATCH_PARENT) {
                 x = this.absWidth;
             }
-            if (y === LayoutValues.MATCH_PARENT) {
+            if (y === SizeKeys.MATCH_PARENT) {
                 y = this.absHeight;
                 console.log("this.absHeight", this.absHeight);
             }

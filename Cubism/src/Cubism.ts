@@ -1,6 +1,6 @@
 import {CanvasDrawer} from "./CanvasDrawer";
 import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
-import {EventKeys} from "./Constants/Constants";
+import {EventKeys} from "./Constants/EventKeys";
 import {Point2D} from "./Datatypes/Point";
 import {PointerPoint} from "./Datatypes/PointerPoint";
 import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";

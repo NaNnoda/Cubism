@@ -1,4 +1,4 @@
-import {Colors} from "./Colors";
+import {Colors} from "../Constants/Colors";
 
 export class CubismElementThemeRoot {
     color: ColorTheme;

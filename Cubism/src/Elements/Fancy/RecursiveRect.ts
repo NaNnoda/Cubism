@@ -1,5 +1,5 @@
 import PointerHandlerParentElement from "../PointerHanderParentElement";
-import {Colors} from "../../Theme/Colors";
+import {Colors} from "../../Constants/Colors";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
 import {CubismElement} from "../CubismElement";

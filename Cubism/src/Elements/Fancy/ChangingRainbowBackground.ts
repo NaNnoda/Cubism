@@ -1,6 +1,6 @@
 import PointerHandlerParentElement from "../PointerHanderParentElement";
 import {CubismElement} from "../CubismElement";
-import {Colors} from "../../Theme/Colors";
+import {Colors} from "../../Constants/Colors";
 import {EventKeys} from "../../Constants/Constants";
 import {Cubism} from "../../Cubism";
 

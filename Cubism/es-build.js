@@ -156,40 +156,35 @@ var CubismCanvasState = class {
   }
 };
 
-// src/Constants/Constants.ts
-var LayoutValues = class {
+// src/CubismPart.ts
+var CubismPart = class {
+  constructor() {
+    this._cubism = null;
+  }
+  get cubism() {
+    return this.getCubism();
+  }
+  set cubism(cubism) {
+    this.setCubism(cubism);
+  }
+  setCubism(cubism) {
+    this._cubism = cubism;
+  }
+  getCubism() {
+    if (this._cubism === null) {
+      throw new Error(`Cubism is not set for ${this.className}`);
+    }
+    return this._cubism;
+  }
+  get className() {
+    return this.constructor.name;
+  }
+  toString() {
+    return `${this.className}(${this._cubism === null ? this._cubism : "NO CUBISM"})`;
+  }
 };
-LayoutValues.DEFAULT_PADDING = 10;
-LayoutValues.DEFAULT_MARGIN = 10;
-LayoutValues.DEFAULT_BORDER = 1;
-LayoutValues.MATCH_PARENT = -1;
-var Orientation = class {
-};
-Orientation.HORIZONTAL = 1;
-Orientation.VERTICAL = 0;
-var Alignment = class {
-};
-Alignment.START = 0;
-Alignment.END = 1;
-Alignment.CENTER = 2;
-Alignment.STRETCH = 3;
-var Direction = class {
-};
-Direction.LEFT = 0;
-Direction.RIGHT = 1;
-Direction.UP = 2;
-Direction.DOWN = 3;
-Direction.START = 4;
-Direction.END = 5;
-var Axis = class {
-};
-Axis.X = 0;
-Axis.Y = 1;
-var PointerType = class {
-};
-PointerType.MOUSE = 0;
-PointerType.TOUCH = 1;
-PointerType.PEN = 2;
+
+// src/Constants/EventKeys.ts
 var EventKeys = class {
 };
 EventKeys.ON_MOVE = "onMove";
@@ -219,34 +214,6 @@ EventKeys.REDRAW = "onRedraw";
 EventKeys.POINTER_DOWN = "onMouseDown";
 EventKeys.POINTER_UP = "onMouseUp";
 EventKeys.POINTER_MOVE = "onMouseMove";
-
-// src/CubismPart.ts
-var CubismPart = class {
-  constructor() {
-    this._cubism = null;
-  }
-  get cubism() {
-    return this.getCubism();
-  }
-  set cubism(cubism) {
-    this.setCubism(cubism);
-  }
-  setCubism(cubism) {
-    this._cubism = cubism;
-  }
-  getCubism() {
-    if (this._cubism === null) {
-      throw new Error(`Cubism is not set for ${this.className}`);
-    }
-    return this._cubism;
-  }
-  get className() {
-    return this.constructor.name;
-  }
-  toString() {
-    return `${this.className}(${this._cubism === null ? this._cubism : "NO CUBISM"})`;
-  }
-};
 
 // src/CanvasDrawer.ts
 var CanvasDrawer = class extends CubismPart {
@@ -472,6 +439,9 @@ var PointerPoint = class extends Point2D {
   sub(other) {
     return new PointerPoint(this.x - other.x, this.y - other.y, this.pressure);
   }
+  get pressed() {
+    return this.pressure > 0;
+  }
 };
 
 // src/Global/Outer/CubismOuterGlobal.ts
@@ -684,7 +654,7 @@ var Cubism = class extends CubismElementManger {
   }
 };
 
-// src/Debug/Console.ts
+// src/Debug/DebugConsole.ts
 function initConsole() {
   let w = window;
   w.test = () => {
@@ -693,6 +663,14 @@ function initConsole() {
   w.cubismGlobal = CubismOuterGlobal.instance;
 }
 
+// src/Constants/SizeKeys.ts
+var SizeKeys = class {
+};
+SizeKeys.DEFAULT_PADDING = 10;
+SizeKeys.DEFAULT_MARGIN = 10;
+SizeKeys.DEFAULT_BORDER = 1;
+SizeKeys.MATCH_PARENT = -1;
+
 // src/Elements/CubismElement.ts
 var CubismElement = class extends CubismEventSystem {
   constructor(elementId = null) {
@@ -700,7 +678,7 @@ var CubismElement = class extends CubismEventSystem {
     this.elementId = null;
     this.needsResize = true;
     this._position = new Point2D(0, 0);
-    this._size = new Point2D(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT);
+    this._size = new Point2D(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT);
     this._absSize = new Point2D(0, 0);
     this.elementId = elementId;
   }
@@ -828,10 +806,10 @@ var CubismParentElement = class extends CubismElement {
     for (let child of this.children) {
       let x = child.width;
       let y = child.height;
-      if (x === LayoutValues.MATCH_PARENT) {
+      if (x === SizeKeys.MATCH_PARENT) {
         x = this.absWidth;
       }
-      if (y === LayoutValues.MATCH_PARENT) {
+      if (y === SizeKeys.MATCH_PARENT) {
         y = this.absHeight;
         console.log("this.absHeight", this.absHeight);
       }
@@ -919,34 +897,39 @@ var PointerHandlerParentElement = class extends CubismParentElement {
     this.triggerChildrenPointerEvent(point.sub(this.position));
   }
   triggerThisPointerEvent(point) {
+    this.onParentMove(point);
     if (this.pointerInRange(point)) {
       if (!this._pointerWasInRange) {
         this.onEnter(point);
       }
       this._pointerWasInRange = true;
       this.onMove(point);
-      if (point.pressure !== 0 && !this._pressed) {
+      if (!point.pressed) {
+        this.hovered = true;
+      }
+      if (point.pressed && !this.pressed) {
         this.onDown(point);
         this._dragPoint = point;
-        this._pressed = true;
+        this.pressed = true;
       }
-      if (point.pressure === 0 && this._pressed) {
+      if (!point.pressed && this.pressed) {
         this.onUp(point);
         this._dragPoint = null;
-        this._pressed = false;
+        this.pressed = false;
       }
     } else {
+      this.hovered = false;
       if (this._pointerWasInRange) {
         this.onLeave(point);
         this._pointerWasInRange = false;
       }
     }
-    this.onParentMove(point);
   }
   triggerChildrenPointerEvent(point) {
     if (this.pointerInRange(point)) {
+      let childrenPointerPoint = point.sub(this.position);
       for (let child of this.children) {
-        child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
+        child.triggerEvent(EventKeys.ON_POINTER_EVENT, childrenPointerPoint);
       }
     }
   }
@@ -960,7 +943,7 @@ var PointerHandlerParentElement = class extends CubismParentElement {
   }
 };
 
-// src/Theme/Colors.ts
+// src/Constants/Colors.ts
 var Colors = class {
 };
 Colors.black = "#000000";
@@ -1412,12 +1395,11 @@ var DemoFunctions = class {
     console.log();
   }
   staticRecursiveRect() {
-    console.log("function2");
     let app = Cubism.createFromId("mainCanvas");
     app.init(
       new PointerHandlerParentElement(
         null,
-        new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
+        new ChangingRainbowBackground().setSizeFromXY(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
         new RecursiveRect().setWiggleStrength(2).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(20)
       )
     );
@@ -1427,7 +1409,7 @@ var DemoFunctions = class {
     app.init(
       new PointerHandlerParentElement(
         null,
-        new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
+        new ChangingRainbowBackground().setSizeFromXY(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
         new RecursiveRect().setWiggleStrength(2).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
       ).setId("parent")
     );

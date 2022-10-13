@@ -1,8 +1,6 @@
-import {PointerPoint} from "../Datatypes/PointerPoint";
 import {CanvasDrawer} from "../CanvasDrawer";
 import {ThemedElement} from "./ThemedElement";
 import {FontTheme} from "../Theme/Theme";
-import {EventKeys} from "../Constants/Constants";
 
 export class ButtonElement extends ThemedElement {
     text: string;

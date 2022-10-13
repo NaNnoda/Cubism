@@ -1,6 +1,6 @@
 import CubismParentElement from "./CubismParentElement";
 import {Point2D} from "../Datatypes/Point";
-import {EventKeys} from "../Constants/Constants";
+import {EventKeys} from "../Constants/EventKeys";
 import {PointerPoint} from "../Datatypes/PointerPoint";
 import {CubismElement} from "./CubismElement";
 
@@ -28,7 +28,6 @@ export default class PointerHandlerParentElement extends CubismParentElement {
 
     constructor(id: string | null = null, ...children: CubismElement[]) {
         super(id, ...children);
-
         this.registerEvent(EventKeys.ON_POINTER_EVENT, this.onPointerEvent.bind(this));
     }
 
@@ -47,7 +46,6 @@ export default class PointerHandlerParentElement extends CubismParentElement {
 
     onEnter(point: PointerPoint) {
         // console.log("onEnter");
-
     }
 
     onMove(point: PointerPoint) {
@@ -59,61 +57,64 @@ export default class PointerHandlerParentElement extends CubismParentElement {
     }
 
 
-
-
     onPointerEvent(point: PointerPoint) {
         this.triggerThisPointerEvent(point);
         this.triggerChildrenPointerEvent(point.sub(this.position));
     }
 
     triggerThisPointerEvent(point: PointerPoint) {
-        // console.log("triggerThisPointerEvent");
+        this.onParentMove(point);
         /**
          * If the pointer is in range of the element
          */
         if (this.pointerInRange(point)) {
-            // console.log("inRange");
-            // console.log(`In range of ${this}`);
             if (!this._pointerWasInRange) {
                 this.onEnter(point);
             }
             this._pointerWasInRange = true;
             this.onMove(point);
 
-            if (point.pressure !== 0 && !this._pressed) {
+            if (!point.pressed) {
+                this.hovered = true;
+            }
+
+            if (point.pressed && !this.pressed) {
                 this.onDown(point);
                 this._dragPoint = point;
-                this._pressed = true;
+                this.pressed = true;
             }
-            if (point.pressure === 0 && this._pressed) {
+            if (!point.pressed && this.pressed) {
                 this.onUp(point);
                 this._dragPoint = null;
-                this._pressed = false;
+                this.pressed = false;
             }
         }
         /**
          * Not in range
          */
         else {
-            // console.log(`Not in range of ${this}`);
+            this.hovered = false;
             if (this._pointerWasInRange) {
                 this.onLeave(point);
                 this._pointerWasInRange = false;
             }
         }
-        this.onParentMove(point);
     }
 
     triggerChildrenPointerEvent(point: PointerPoint) {
         if (this.pointerInRange(point)) {
+            let childrenPointerPoint = point.sub(this.position);
             for (let child of this.children) {
-                child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
+                child.triggerEvent(EventKeys.ON_POINTER_EVENT, childrenPointerPoint);
             }
         }
     }
 
-
-    pointerInRange(point: PointerPoint) {
+    /**
+     * Checks if the pointer is in range of the element
+     * @param point The pointer point
+     */
+    pointerInRange(point: Point2D): boolean {
         if (point.x >= this.position.x && point.x <= this.absWidth + this.position.x) {
             if (point.y >= this.position.y && point.y <= this.absHeight + this.position.y) {
                 return true;

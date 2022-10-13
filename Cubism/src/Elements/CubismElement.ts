@@ -1,8 +1,8 @@
 import {Point2D} from "../Datatypes/Point";
 import {CanvasDrawer} from "../CanvasDrawer";
-import {LayoutValues} from "../Constants/Constants";
 import {Cubism} from "../Cubism";
 import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
+import SizeKeys from "../Constants/SizeKeys";
 
 /**
  * Base class for all elements that can be rendered on the canvas
@@ -20,7 +20,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     constructor(elementId: string | null = null) {
         super();
         this._position = new Point2D(0, 0);
-        this._size = new Point2D(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT);
+        this._size = new Point2D(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT);
         this._absSize = new Point2D(0, 0);
         // Optional id
         this.elementId = elementId;

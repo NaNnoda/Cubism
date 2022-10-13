@@ -1,9 +1,10 @@
-import {EventKeys} from "./Constants/Constants";
+
 import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
 import IGlobalHandler from "./Interface/IGlobalHandler";
 import IHasCubism from "./Interface/IGlobalHandler";
 import CubismPart from "./CubismPart";
 import {triggerAsyncId} from "async_hooks";
+import {EventKeys} from "./Constants/EventKeys";
 
 export default class CubismInitializer extends CubismPart {
     get eventSystem(): CubismEventSystem {

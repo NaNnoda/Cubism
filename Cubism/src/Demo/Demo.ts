@@ -1,11 +1,12 @@
 import {Cubism} from "../Cubism";
-import {initConsole} from "../Debug/Console";
-import {EventKeys, LayoutValues, Values} from "../Constants/Constants";
+import {initConsole} from "../Debug/DebugConsole";
 import PointerHandlerParentElement from "../Elements/PointerHanderParentElement";
 import RecursiveRect from "../Elements/Fancy/RecursiveRect";
 import {ChangingRainbowBackground} from "../Elements/Fancy/ChangingRainbowBackground";
 import {Point2D} from "../Datatypes/Point";
 import {demoFunction} from "./DemoDecorators";
+import {EventKeys} from "../Constants/EventKeys";
+import SizeKeys from "../Constants/SizeKeys";
 
 
 console.log("loading Demo.ts");
@@ -19,15 +20,13 @@ class DemoFunctions {
 
     @demoFunction()
     staticRecursiveRect() {
-        console.log("function2");
-
         let app = Cubism.createFromId("mainCanvas");
         app.init(
             new PointerHandlerParentElement(
                 null,
                 new ChangingRainbowBackground()
-                    .setSizeFromXY(LayoutValues
-                        .MATCH_PARENT, LayoutValues.MATCH_PARENT)
+                    .setSizeFromXY(SizeKeys
+                        .MATCH_PARENT, SizeKeys.MATCH_PARENT)
                     .setLightness(70).setSaturation(80)
                     .setChangingSpeed(0.1)
                 ,
@@ -48,7 +47,7 @@ class DemoFunctions {
             new PointerHandlerParentElement(
                 null,
                 new ChangingRainbowBackground()
-                    .setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT)
+                    .setSizeFromXY(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT)
                     .setLightness(70).setSaturation(80)
                     .setChangingSpeed(0.1)
                 ,
