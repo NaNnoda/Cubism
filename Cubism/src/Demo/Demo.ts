@@ -42,12 +42,14 @@ class DemoFunctions {
     }
 
     @demoFunction(
-        "" +
-        "This is an animated recursive rectangle.\n" +
-        "Try to drag it around and see what happens"
+        "This is an animated recursive rectangle.",
+        "Try to drag it around and see what happens."
     )
     animatedRecursiveRect() {
         let app = Cubism.createFromId("mainCanvas");
+
+        app.width = 500;
+        app.height = 500;
         app.init(
             new PointerHandlerParentElement(
                 null,
@@ -95,7 +97,7 @@ function main() {
         if (canvasRecorder.isRecording) {
             canvasRecorder.stopRecording();
             recordBtn.innerText = recordText;
-        }else{
+        } else {
             canvasRecorder.startRecording("canvasRecording");
             recordBtn.innerText = stopText;
         }

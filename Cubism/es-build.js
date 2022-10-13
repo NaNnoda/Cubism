@@ -579,6 +579,18 @@ var Cubism = class extends CubismElementManger {
     this.cubismId = canvas2.id;
     CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
   }
+  get width() {
+    return this.canvas.width;
+  }
+  set width(width) {
+    this.canvas.width = width;
+  }
+  get height() {
+    return this.canvas.height;
+  }
+  set height(height) {
+    this.canvas.height = height;
+  }
   get initializer() {
     return this._initializer;
   }
@@ -1382,10 +1394,14 @@ ${spaces}.`);
 };
 
 // src/Demo/DemoDecorators.ts
-function demoFunction(description = "[No description]") {
+function demoFunction(...descriptionLines) {
   return function(target, propertyKey, descriptor) {
     let demo = StaticDemo.i;
     let currFunction = target[propertyKey];
+    if (descriptionLines.length === 0) {
+      descriptionLines.push("[No description]");
+    }
+    let description = descriptionLines.join("\n");
     let name = propertyKey.replace(/([A-Z])/g, " $1").trim();
     name = name.charAt(0).toUpperCase() + name.slice(1);
     demo.addDemoFunction(name, currFunction, description);
@@ -1459,6 +1475,8 @@ var DemoFunctions = class {
   }
   animatedRecursiveRect() {
     let app = Cubism.createFromId("mainCanvas");
+    app.width = 500;
+    app.height = 500;
     app.init(
       new PointerHandlerParentElement(
         null,
@@ -1488,7 +1506,8 @@ __decorateClass([
 ], DemoFunctions.prototype, "staticRecursiveRect", 1);
 __decorateClass([
   demoFunction(
-    "This is an animated recursive rectangle.\nTry to drag it around and see what happens"
+    "This is an animated recursive rectangle.",
+    "Try to drag it around and see what happens."
   )
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
 var canvas = document.getElementById("mainCanvas");

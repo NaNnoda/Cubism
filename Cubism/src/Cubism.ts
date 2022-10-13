@@ -20,6 +20,19 @@ export class Cubism extends CubismElementManger {
     readonly canvasDrawer: CanvasDrawer;
     readonly eventSystem: CubismEventSystem;
 
+    get width() {
+        return this.canvas.width;
+    }
+    set width(width: number) {
+        this.canvas.width = width;
+    }
+    get height() {
+        return this.canvas.height;
+    }
+    set height(height: number) {
+        this.canvas.height = height;
+    }
+
     _initializer: CubismInitializer;
     get initializer() {
         return this._initializer;
