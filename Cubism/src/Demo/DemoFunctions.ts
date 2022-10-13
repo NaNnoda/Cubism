@@ -9,8 +9,7 @@ import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
 import CanvasRecorder from "../CanvasRecorder";
 
-
-console.log("loading Demo.ts");
+console.log("loading DemoFunctions.ts");
 
 class DemoFunctions {
     @demoFunction()
@@ -48,8 +47,6 @@ class DemoFunctions {
     animatedRecursiveRect() {
         let app = Cubism.createFromId("mainCanvas");
 
-        app.width = 500;
-        app.height = 500;
         app.init(
             new PointerHandlerParentElement(
                 null,

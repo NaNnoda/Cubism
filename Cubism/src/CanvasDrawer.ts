@@ -111,6 +111,7 @@ export class CanvasDrawer extends CubismPart {
         this.state.translate = offset;
     }
 
+
     /**
      * Restore translation and rotation to previous state
      */

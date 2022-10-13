@@ -1243,6 +1243,7 @@ var StaticDemo = class {
     this.initSelector();
     this.initCodeText();
     this.resetControlsDiv();
+    this.resetCanvas();
   }
   initControlDiv() {
     this.initHotReload();
@@ -1282,6 +1283,7 @@ var StaticDemo = class {
   updateCurrDemoFunction() {
     console.log("updateCurrDemoFunction");
     CubismOuterGlobal.getCubismInstance("mainCanvas").destroy();
+    this.resetCanvas();
     let currName = this.selector.value;
     this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
     this.setCurrentDemoCode(this.selector.value);
@@ -1297,6 +1299,11 @@ var StaticDemo = class {
   initSelector() {
     this.selector.onchange = this.onSelectorChange.bind(this);
     this.selector.onload = this.onSelectorChange.bind(this);
+  }
+  resetCanvas() {
+    let canvas2 = document.getElementById("mainCanvas");
+    canvas2.width = 400;
+    canvas2.height = 400;
   }
   setCurrentDemoCode(name) {
     this.codeText.value = this._demoFunctions[name].toString();
@@ -1456,8 +1463,8 @@ var CanvasRecorder = class {
   }
 };
 
-// src/Demo/Demo.ts
-console.log("loading Demo.ts");
+// src/Demo/DemoFunctions.ts
+console.log("loading DemoFunctions.ts");
 var DemoFunctions = class {
   testFunction() {
     console.log("demoFunction");
@@ -1475,8 +1482,6 @@ var DemoFunctions = class {
   }
   animatedRecursiveRect() {
     let app = Cubism.createFromId("mainCanvas");
-    app.width = 500;
-    app.height = 500;
     app.init(
       new PointerHandlerParentElement(
         null,

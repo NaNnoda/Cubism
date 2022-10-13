@@ -22,6 +22,7 @@ export class StaticDemo {
         this.initSelector();
         this.initCodeText();
         this.resetControlsDiv();
+        this.resetCanvas();
     }
 
 
@@ -72,6 +73,7 @@ export class StaticDemo {
     updateCurrDemoFunction() {
         console.log("updateCurrDemoFunction");
         CubismOuterGlobal.getCubismInstance("mainCanvas").destroy();
+        this.resetCanvas();
 
         let currName = this.selector.value;
 
@@ -97,6 +99,12 @@ export class StaticDemo {
     initSelector() {
         this.selector.onchange = this.onSelectorChange.bind(this);
         this.selector.onload = this.onSelectorChange.bind(this);
+    }
+
+    resetCanvas() {
+        let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+        canvas.width = 400;
+        canvas.height = 400;
     }
 
     setCurrentDemoCode(name: string) {
