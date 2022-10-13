@@ -675,7 +675,9 @@ var Cubism = class extends CubismElementManger {
     );
   }
   destroy() {
+    console.log(`Destroying [${this}]`);
     this.eventSystem.removeAllEvents();
+    this.canvasDrawer.clear();
   }
   toString() {
     return `Cubism [${this.cubismId}]`;
@@ -704,8 +706,8 @@ var CubismElement = class extends CubismEventSystem {
   }
   setId(id) {
     this.elementId = id;
-    if (this.cubism) {
-      this.cubism.registerElementId(id, this);
+    if (this._cubism) {
+      this._cubism.registerElementId(id, this);
     }
     return this;
   }
@@ -1238,33 +1240,63 @@ var StaticDemo = class {
     this._demoFunctions = {};
     this.selector = document.getElementById("selector");
     this.codeText = document.getElementById("codeText");
-    this.updateButton = document.getElementById("update");
+    this.controlDiv = document.getElementById("controlDiv");
     this.currDemoFunction = null;
+    this.hotReloadCheckbox = null;
+    this.updateButton = null;
     this.initSelector();
     this.initCodeText();
+    this.resetControlsDiv();
+  }
+  initControlDiv() {
+    this.initHotReload();
     this.initUpdateButton();
+  }
+  resetControlsDiv() {
+    this.controlDiv.innerHTML = "";
+    this.initControlDiv();
+  }
+  initHotReload() {
+    let hotReload = document.createElement("input");
+    hotReload.type = "checkbox";
+    hotReload.id = "hotReloadCheckbox";
+    hotReload.checked = true;
+    this.hotReloadCheckbox = hotReload;
+    let hotReloadLabel = document.createElement("label");
+    hotReloadLabel.htmlFor = "hotReloadCheckbox";
+    hotReloadLabel.innerHTML = "Hot Reload";
+    hotReloadLabel.style.marginRight = "10px";
+    this.controlDiv.appendChild(hotReload);
+    this.controlDiv.appendChild(hotReloadLabel);
   }
   initCodeText() {
     this.codeText.onchange = this.onCodeTextChange.bind(this);
     this.codeText.oninput = this.onCodeTextInput.bind(this);
   }
   initUpdateButton() {
-    this.updateButton.onclick = this.updateButtonOnClick.bind(this);
+    let updateButton = document.createElement("button");
+    updateButton.innerHTML = "Reload";
+    updateButton.onclick = this.updateButtonOnClick.bind(this);
+    this.updateButton = updateButton;
+    this.controlDiv.appendChild(updateButton);
   }
   updateButtonOnClick() {
     this.updateCurrDemoFunction();
   }
   updateCurrDemoFunction() {
     console.log("updateCurrDemoFunction");
+    CubismOuterGlobal.getCubismInstance("mainCanvas").destroy();
     let currName = this.selector.value;
     this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
     this.setCurrentDemoCode(this.selector.value);
+    this.resetControlsDiv();
   }
   onCodeTextInput() {
-    console.log("code text input");
+    if (this.hotReloadCheckbox && this.hotReloadCheckbox.checked) {
+      this.updateCurrDemoFunction();
+    }
   }
   onCodeTextChange() {
-    console.log("code text changed");
   }
   initSelector() {
     this.selector.onchange = this.onSelectorChange.bind(this);
@@ -1292,6 +1324,7 @@ var StaticDemo = class {
     let selected = this.selector.options[this.selector.selectedIndex].text;
     console.log(`selected: ${selected}`);
     this.setCurrentDemoCode(selected);
+    this.updateCurrDemoFunction();
   }
   createFunctionFromString(s) {
     return new Function(s);
@@ -1336,6 +1369,10 @@ var DemoFunction = class {
         while (line[currLeadingSpacesCount] === " ") {
           currLeadingSpacesCount++;
         }
+        if (currLeadingSpacesCount === 0 && line.length > 0 && !(line[0] === "}" || line[0] === ")")) {
+          newString += `
+`;
+        }
         let spaces = new Array(currLeadingSpacesCount + 5).join(" ");
         let lineToAppend = line.replace(/\)\./gm, `)
 ${spaces}.`);
@@ -1364,23 +1401,17 @@ function demoFunction() {
     let demo = StaticDemo.i;
     let currFunction = target[propertyKey];
     demo.addDemoFunction(propertyKey, currFunction);
-    console.log("target is:" + target);
-    console.log("propertyKey is:" + propertyKey);
-    console.log(propertyKey);
-    console.log(target[propertyKey]);
-    console.log("descriptor is:" + descriptor);
-    console.log(descriptor);
   };
 }
 
 // src/Demo/Demo.ts
 console.log("loading Demo.ts");
 var DemoFunctions = class {
-  d(target) {
+  testFunction() {
     console.log("demoFunction");
-    console.log(target);
+    console.log();
   }
-  function2() {
+  staticRecursiveRect() {
     console.log("function2");
     let app = Cubism.createFromId("mainCanvas");
     app.init(
@@ -1391,18 +1422,24 @@ var DemoFunctions = class {
       )
     );
   }
-  defaultInitCode() {
+  animatedRecursiveRect() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
       new PointerHandlerParentElement(
         null,
         new ChangingRainbowBackground().setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT).setLightness(70).setSaturation(80).setChangingSpeed(0.1),
         new RecursiveRect().setWiggleStrength(2).setSizeFromXY(200, 200).setPosFromXY(100, 100).setRelativePosition(new Point2D(100, 100)).setRecursionCount(10)
-      )
+      ).setId("parent")
     );
     app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
-      let fpsCounter = document.getElementById("fpsCounter");
-      fpsCounter.innerText = `FPS: ${fps}`;
+      var _a;
+      if (document.getElementById("fps") === null) {
+        let fpsCounter = document.createElement("div");
+        fpsCounter.id = "fps";
+        (_a = document.getElementById("controlDiv")) == null ? void 0 : _a.appendChild(fpsCounter);
+      }
+      document.getElementById("fps").innerHTML = "FPS: " + fps;
+      console.log(fps);
     });
     app.initializer.initializeAlwaysRedraw();
     app.initializer.initializeFPSCounter();
@@ -1410,13 +1447,13 @@ var DemoFunctions = class {
 };
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "d", 1);
+], DemoFunctions.prototype, "testFunction", 1);
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "function2", 1);
+], DemoFunctions.prototype, "staticRecursiveRect", 1);
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "defaultInitCode", 1);
+], DemoFunctions.prototype, "animatedRecursiveRect", 1);
 function main() {
   initConsole();
 }

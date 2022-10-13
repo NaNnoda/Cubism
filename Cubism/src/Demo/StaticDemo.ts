@@ -1,3 +1,5 @@
+import {CubismOuterGlobal} from "../Global/Outer/CubismOuterGlobal";
+
 export class StaticDemo {
     private static _instance: StaticDemo;
 
@@ -5,16 +7,46 @@ export class StaticDemo {
 
     selector: HTMLSelectElement = document.getElementById("selector") as HTMLSelectElement;
     codeText: HTMLTextAreaElement = document.getElementById("codeText") as HTMLTextAreaElement;
-    updateButton: HTMLButtonElement = document.getElementById("update") as HTMLButtonElement;
+
+    controlDiv: HTMLDivElement = document.getElementById("controlDiv") as HTMLDivElement;
 
     currDemoFunction: DemoFunction | null = null;
+
+    hotReloadCheckbox: HTMLInputElement | null = null;
+    updateButton: HTMLButtonElement | null = null;
 
     // currentDemoName: string | null = null;
 
     private constructor() {
         this.initSelector();
         this.initCodeText();
+        this.resetControlsDiv();
+    }
+
+    initControlDiv() {
+        this.initHotReload();
         this.initUpdateButton();
+    }
+
+    resetControlsDiv() {
+        this.controlDiv.innerHTML = "";
+        this.initControlDiv();
+    }
+
+    initHotReload() {
+        let hotReload = document.createElement("input");
+        hotReload.type = "checkbox";
+        hotReload.id = "hotReloadCheckbox";
+        hotReload.checked = true;
+        this.hotReloadCheckbox = hotReload;
+
+        let hotReloadLabel = document.createElement("label");
+        hotReloadLabel.htmlFor = "hotReloadCheckbox";
+        hotReloadLabel.innerHTML = "Hot Reload";
+        hotReloadLabel.style.marginRight = "10px";
+
+        this.controlDiv.appendChild(hotReload);
+        this.controlDiv.appendChild(hotReloadLabel);
     }
 
     initCodeText() {
@@ -23,7 +55,11 @@ export class StaticDemo {
     }
 
     initUpdateButton() {
-        this.updateButton.onclick = this.updateButtonOnClick.bind(this);
+        let updateButton = document.createElement("button");
+        updateButton.innerHTML = "Reload";
+        updateButton.onclick = this.updateButtonOnClick.bind(this);
+        this.updateButton = updateButton;
+        this.controlDiv.appendChild(updateButton);
     }
 
     updateButtonOnClick() {
@@ -33,19 +69,22 @@ export class StaticDemo {
 
     updateCurrDemoFunction() {
         console.log("updateCurrDemoFunction");
+        CubismOuterGlobal.getCubismInstance("mainCanvas").destroy();
         let currName = this.selector.value;
         this._demoFunctions[currName].setFunctionThroughFormattedString(this.codeText.value);
-
         this.setCurrentDemoCode(this.selector.value);
+        this.resetControlsDiv();
     }
 
 
     onCodeTextInput() {
-        console.log("code text input");
+        // console.log("code text input");
+        if (this.hotReloadCheckbox && this.hotReloadCheckbox.checked) {
+            this.updateCurrDemoFunction();
+        }
     }
 
     onCodeTextChange() {
-        console.log("code text changed");
     }
 
 
@@ -87,14 +126,13 @@ export class StaticDemo {
     onSelectorChange() {
         let selected = this.selector.options[this.selector.selectedIndex].text;
         console.log(`selected: ${selected}`);
-        // this.runDemo(selected);
         this.setCurrentDemoCode(selected);
+        this.updateCurrDemoFunction();
     }
 
     createFunctionFromString(s: string) {
         return new Function(s) as () => void;
     }
-
 
     static get i() {
         if (!StaticDemo._instance) {
@@ -138,7 +176,6 @@ class DemoFunction {
                 leadingSpacesCount++;
             }
         }
-        // console.log(`leadingSpacesCount: ${leadingSpacesCount}`);
 
         // // Remove leading spaces
         let p = `^ {${leadingSpacesCount}}`;
@@ -151,13 +188,17 @@ class DemoFunction {
             let line = lines[i];
             if (i == 0) {
                 newString += line;
-            }
-            else {
+            } else {
                 let currLeadingSpacesCount = 0;
                 while (line[currLeadingSpacesCount] === " ") {
                     currLeadingSpacesCount++;
                 }
-                let spaces = new Array(currLeadingSpacesCount + 5).join( " " );
+
+                if (currLeadingSpacesCount ===0 && line.length > 0 && !(line[0] === "}" || line[0] === ")")) {
+                    newString += `\n`;
+                }
+
+                let spaces = new Array(currLeadingSpacesCount + 5).join(" ");
                 // console.log(`spaces: [${spaces}]`);
                 // newString += "\n" + line;
                 // Replace all spaces with 5 spaces

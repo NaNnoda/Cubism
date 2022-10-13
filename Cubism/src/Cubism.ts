@@ -147,7 +147,10 @@ export class Cubism extends CubismElementManger {
     }
 
     destroy() {
+        console.log(`Destroying [${this}]`);
         this.eventSystem.removeAllEvents();
+
+        this.canvasDrawer.clear();
     }
 
     toString() {

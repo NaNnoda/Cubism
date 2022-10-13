@@ -32,8 +32,8 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      */
     setId(id: string): this {
         this.elementId = id;
-        if (this.cubism) {
-            this.cubism.registerElementId(id, this);
+        if (this._cubism) {
+            this._cubism.registerElementId(id, this);
         }
         return this;
     }

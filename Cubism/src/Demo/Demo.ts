@@ -1,5 +1,4 @@
 import {Cubism} from "../Cubism";
-import {ButtonElement} from "../Elements/ButtonElement";
 import {initConsole} from "../Debug/Console";
 import {EventKeys, LayoutValues, Values} from "../Constants/Constants";
 import PointerHandlerParentElement from "../Elements/PointerHanderParentElement";
@@ -13,13 +12,13 @@ console.log("loading Demo.ts");
 
 class DemoFunctions {
     @demoFunction()
-    d(target: any) {
+    testFunction() {
         console.log("demoFunction");
-        console.log(target);
+        console.log();
     }
 
     @demoFunction()
-    function2() {
+    staticRecursiveRect() {
         console.log("function2");
 
         let app = Cubism.createFromId("mainCanvas");
@@ -27,7 +26,8 @@ class DemoFunctions {
             new PointerHandlerParentElement(
                 null,
                 new ChangingRainbowBackground()
-                    .setSizeFromXY(LayoutValues.MATCH_PARENT, LayoutValues.MATCH_PARENT)
+                    .setSizeFromXY(LayoutValues
+                        .MATCH_PARENT, LayoutValues.MATCH_PARENT)
                     .setLightness(70).setSaturation(80)
                     .setChangingSpeed(0.1)
                 ,
@@ -39,17 +39,10 @@ class DemoFunctions {
                     .setRecursionCount(20)
             )
         )
-        // app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
-        //     let fpsCounter = document.getElementById("fpsCounter") as HTMLParagraphElement;
-        //     fpsCounter.innerText = `FPS: ${fps}`;
-        // });
-        //
-        // app.initializer.initializeAlwaysRedraw(); // Redraw every frame, by default it only redraws when the elements change
-        // app.initializer.initializeFPSCounter(); // Show FPS
     }
 
     @demoFunction()
-    defaultInitCode() {
+    animatedRecursiveRect() {
         let app = Cubism.createFromId("mainCanvas");
         app.init(
             new PointerHandlerParentElement(
@@ -65,13 +58,22 @@ class DemoFunctions {
                     .setPosFromXY(100, 100)
                     .setRelativePosition(new Point2D(100, 100))
                     .setRecursionCount(10)
-            )
+            ).setId("parent")
         )
-        app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
-            let fpsCounter = document.getElementById("fpsCounter") as HTMLParagraphElement;
-            fpsCounter.innerText = `FPS: ${fps}`;
-        });
 
+
+        app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
+            if (document.getElementById("fps") === null) {
+                let fpsCounter = document.createElement("div");
+                fpsCounter.id = "fps";
+                document.getElementById("controlDiv")?.appendChild(fpsCounter);
+            }
+            document.getElementById("fps")!.innerHTML = "FPS: " + fps;
+            //
+            // StaticDemo.i.controlDiv.appendChild(fpsCounter);
+            // fpsCounter.innerText = `FPS: ${fps}`;
+            console.log(fps);
+        });
         app.initializer.initializeAlwaysRedraw(); // Redraw every frame, by default it only redraws when the elements change
         app.initializer.initializeFPSCounter(); // Show FPS
     }
