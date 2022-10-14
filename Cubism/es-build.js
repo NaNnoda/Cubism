@@ -1760,6 +1760,23 @@ var HorizontalLayout = class extends LinearLayout {
   }
 };
 
+// src/Elements/Background.ts
+var Background = class extends CubismElement {
+  constructor() {
+    super(...arguments);
+    this.color = Colors.white;
+  }
+  setColor(color) {
+    this.color = color;
+    return this;
+  }
+  draw() {
+    super.draw();
+    this.c.setFillStyle(this.color);
+    this.c.drawRect(0, 0, this.cubism.width, this.cubism.height);
+  }
+};
+
 // src/Demo/DemoFunctions.ts
 console.log("loading DemoFunctions.ts");
 var DemoFunctions = class {
@@ -1832,6 +1849,7 @@ var DemoFunctions = class {
     app.init(
       new PointerHandlerParentElement(
         "PointerHandlerParentElement",
+        new Background().setColor(Colors.blue700),
         new VerticalLayout(
           "Outer Vertical Layout",
           new RectElement().setWidth(100).setHeight(100),
@@ -1843,7 +1861,7 @@ var DemoFunctions = class {
             new CircleElement().setWidth(100).setHeight(100)
           )
         ).setPosFromXY(50, 50)
-      ).setPosFromXY(50, 0)
+      ).setPosFromXY(0, 0)
     );
   }
 };

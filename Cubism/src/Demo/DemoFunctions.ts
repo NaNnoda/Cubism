@@ -13,6 +13,8 @@ import {VerticalLayout} from "../Elements/Layouts/VerticalLayout";
 import {RectElement} from "../Elements/RectElement";
 import {CircleElement} from "../Elements/CircleElement";
 import {HorizontalLayout} from "../Elements/Layouts/HorizontalLayout";
+import {Background} from "../Elements/Background";
+import {Colors} from "../Constants/Colors";
 
 console.log("loading DemoFunctions.ts");
 
@@ -125,6 +127,7 @@ class DemoFunctions {
         app.init(
             new PointerHandlerParentElement(
                 "PointerHandlerParentElement",
+                new Background().setColor(Colors.blue700),
                 new VerticalLayout("Outer Vertical Layout",
                     new RectElement()
                         .setWidth(100).setHeight(100),
@@ -140,7 +143,7 @@ class DemoFunctions {
                             .setWidth(100).setHeight(100),
                     )
                 ).setPosFromXY(50, 50)
-            ).setPosFromXY(50, 0)
+            ).setPosFromXY(0, 0)
         )
     }
 
