@@ -119,7 +119,7 @@ var TransformMatrix2D = class {
   }
 };
 
-// src/State.ts
+// src/CubismCanvasState.ts
 var CubismCanvasState = class {
   constructor(canvas2, ctx) {
     this.translates = [TransformMatrix2D.identity()];
