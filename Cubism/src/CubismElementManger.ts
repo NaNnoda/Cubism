@@ -1,4 +1,4 @@
-import {CubismElement} from "./Elements/CubismElement";
+import {CubismElement} from "./Elements/Basic/CubismElement";
 
 export default class CubismElementManger{
 

@@ -7,4 +7,5 @@ export function initConsole() {
         console.log('test');
     }
     w.cubismGlobal = CubismOuterGlobal.instance;
+    w.root = CubismOuterGlobal.getCubismInstance("mainCanvas").rootElement;
 }

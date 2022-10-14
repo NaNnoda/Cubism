@@ -1,5 +1,5 @@
-import PointerHandlerParentElement from "../PointerHanderParentElement";
-import {CubismElement} from "../CubismElement";
+import PointerHandlerParentElement from "../Basic/PointerHanderParentElement";
+import {CubismElement} from "../Basic/CubismElement";
 import {Colors} from "../../Constants/Colors";
 import {Cubism} from "../../Cubism";
 import {needsRedrawAccessor} from "../../NeedsRedraw";

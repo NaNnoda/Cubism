@@ -396,6 +396,12 @@ var Point2D = class {
     this.y = y;
     return this;
   }
+  get max() {
+    return Math.max(this.x, this.y);
+  }
+  get min() {
+    return Math.min(this.x, this.y);
+  }
   set(point) {
     this.x = point.x;
     this.y = point.y;
@@ -428,6 +434,9 @@ var Point2D = class {
   }
   toString() {
     return `(${this.x}, ${this.y})`;
+  }
+  euclideanDistance(other) {
+    return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
   }
 };
 
@@ -700,6 +709,7 @@ function initConsole() {
     console.log("test");
   };
   w.cubismGlobal = CubismOuterGlobal.instance;
+  w.root = CubismOuterGlobal.getCubismInstance("mainCanvas").rootElement;
 }
 
 // src/Constants/SizeKeys.ts
@@ -744,7 +754,7 @@ function setRedrawHelper(descriptor) {
   }
 }
 
-// src/Elements/CubismElement.ts
+// src/Elements/Basic/CubismElement.ts
 var CubismElement = class extends CubismEventSystem {
   constructor(elementId = null) {
     super();
@@ -845,6 +855,9 @@ var CubismElement = class extends CubismEventSystem {
     this.position.y = y;
     return this;
   }
+  get centerPoint() {
+    return new Point2D(this.position.x + this.width / 2, this.position.y + this.height / 2);
+  }
   resize(targetSize) {
     this.resizeFromXY(targetSize.x, targetSize.y);
   }
@@ -876,7 +889,7 @@ __decorateClass([
   needsRedrawAccessor()
 ], CubismElement.prototype, "absSize", 1);
 
-// src/Elements/CubismParentElement.ts
+// src/Elements/Basic/CubismParentElement.ts
 var CubismParentElement = class extends CubismElement {
   constructor(elementId = null, ...children) {
     super(elementId);
@@ -949,7 +962,7 @@ var CubismParentElement = class extends CubismElement {
   }
 };
 
-// src/Elements/PointerHanderParentElement.ts
+// src/Elements/Basic/PointerHanderParentElement.ts
 var PointerHandlerParentElement = class extends CubismParentElement {
   constructor(id = null, ...children) {
     super(id, ...children);
@@ -1018,9 +1031,8 @@ var PointerHandlerParentElement = class extends CubismParentElement {
   }
   triggerChildrenPointerEvent(point) {
     if (this.pointerInRange(point)) {
-      let childrenPointerPoint = point.sub(this.position);
       for (let child of this.children) {
-        child.triggerEvent(EventKeys.ON_POINTER_EVENT, childrenPointerPoint);
+        child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
       }
     }
   }
@@ -1610,18 +1622,14 @@ var ThemedElement = class extends PointerHandlerParentElement {
   }
   draw() {
     super.draw();
-    let c = this.c;
-    c.translate(this.position);
     this.updateCanvasDrawerTheme();
-    c.drawRectWithPoints(this.absSize);
-    c.restoreTranslate();
   }
 };
 __decorateClass([
   needsRedrawAccessor()
 ], ThemedElement.prototype, "currTheme", 1);
 
-// src/Elements/PointerInteractThemeElement.ts
+// src/Elements/Basic/PointerInteractThemeElement.ts
 var PointerInteractThemeElement = class extends ThemedElement {
   onCreate() {
     super.onCreate();
@@ -1643,6 +1651,112 @@ var PointerInteractThemeElement = class extends ThemedElement {
   onLeave(point) {
     super.onLeave(point);
     this.currTheme = this.themes[ThemeKeys.DEFAULT_THEME];
+  }
+};
+
+// src/Elements/Layouts/LinearLayout.ts
+var LinearLayout = class extends PointerHandlerParentElement {
+  getMaxWidth() {
+    let maxWidth = 0;
+    for (let child of this.children) {
+      if (child.absWidth > maxWidth) {
+        maxWidth = child.absWidth;
+      }
+    }
+    return maxWidth;
+  }
+  getCumulativeWidth() {
+    let width = 0;
+    for (let child of this.children) {
+      width += child.absWidth;
+    }
+    return width;
+  }
+  getMaxHeight() {
+    let maxHeight = 0;
+    for (let child of this.children) {
+      if (child.absHeight > maxHeight) {
+        maxHeight = child.absHeight;
+      }
+    }
+    return maxHeight;
+  }
+  getCumulativeHeight() {
+    let height = 0;
+    for (let child of this.children) {
+      height += child.absHeight;
+    }
+    return height;
+  }
+  pointerInRange(point) {
+    return true;
+  }
+};
+
+// src/Elements/Layouts/VerticalLayout.ts
+var VerticalLayout = class extends LinearLayout {
+  updateChildrenPosition() {
+    let maxChildWidth = 0;
+    super.updateChildrenPosition();
+    let x = 0;
+    let y = 0;
+    for (let child of this.children) {
+      child.position = new Point2D(x, y);
+      if (child.width > maxChildWidth) {
+        maxChildWidth = child.width;
+      }
+      y += child.height;
+    }
+    this.absWidth = maxChildWidth;
+    this.absHeight = y;
+  }
+};
+
+// src/Elements/RectElement.ts
+var RectElement = class extends PointerInteractThemeElement {
+  draw() {
+    super.draw();
+    let c = this.c;
+    c.translate(this.position);
+    c.drawRectWithPoints(this.absSize);
+    c.restoreTranslate();
+  }
+};
+
+// src/Elements/CircleElement.ts
+var CircleElement = class extends PointerInteractThemeElement {
+  draw() {
+    super.draw();
+    let c = this.c;
+    let center = this.centerPoint;
+    c.translate(this.position);
+    c.drawCircle(this.width / 2, this.height / 2, this.size.min / 2);
+    console.log("Drawing circle at: ", center);
+    c.restoreTranslate();
+  }
+  pointerInRange(point) {
+    let radius = this.size.min / 2;
+    let dist = this.centerPoint.euclideanDistance(point);
+    return dist <= radius;
+  }
+};
+
+// src/Elements/Layouts/HorizontalLayout.ts
+var HorizontalLayout = class extends LinearLayout {
+  updateChildrenPosition() {
+    let maxChildHeight = 0;
+    super.updateChildrenPosition();
+    let x = 0;
+    let y = 0;
+    for (let child of this.children) {
+      child.position = new Point2D(x, y);
+      if (child.height > maxChildHeight) {
+        maxChildHeight = child.height;
+      }
+      x += child.width;
+    }
+    this.absHeight = maxChildHeight;
+    this.absWidth = x;
   }
 };
 
@@ -1684,15 +1798,6 @@ var DemoFunctions = class {
     app.initializer.initializeAlwaysRedraw();
     app.initializer.initializeFPSCounter();
   }
-  themedElements() {
-    let app = Cubism.createFromId("mainCanvas");
-    app.init(
-      new PointerHandlerParentElement(
-        null,
-        new PointerInteractThemeElement().setWidth(100).setHeight(100)
-      )
-    );
-  }
   eventDemo() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
@@ -1722,6 +1827,25 @@ var DemoFunctions = class {
       document.getElementById("draws").innerHTML = "DFS(Draws per second): " + draws;
     });
   }
+  themedElements() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new PointerHandlerParentElement(
+        "PointerHandlerParentElement",
+        new VerticalLayout(
+          "Outer Vertical Layout",
+          new RectElement().setWidth(100).setHeight(100),
+          new CircleElement().setWidth(100).setHeight(100),
+          new HorizontalLayout(
+            "Inner Horizontal Layout",
+            new RectElement().setWidth(100).setHeight(100),
+            new RectElement().setWidth(100).setHeight(100),
+            new CircleElement().setWidth(100).setHeight(100)
+          )
+        ).setPosFromXY(50, 50)
+      ).setPosFromXY(50, 0)
+    );
+  }
 };
 __decorateClass([
   demoFunction()
@@ -1736,11 +1860,11 @@ __decorateClass([
   )
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
 __decorateClass([
-  demoFunction("Demo function for theme changing")
-], DemoFunctions.prototype, "themedElements", 1);
-__decorateClass([
   demoFunction("Demo function for events")
 ], DemoFunctions.prototype, "eventDemo", 1);
+__decorateClass([
+  demoFunction("Demo function for theme changing")
+], DemoFunctions.prototype, "themedElements", 1);
 var canvas = document.getElementById("mainCanvas");
 var canvasRecorder = new CanvasRecorder(canvas, 60);
 function main() {

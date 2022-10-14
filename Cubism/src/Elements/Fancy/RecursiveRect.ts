@@ -1,8 +1,8 @@
-import PointerHandlerParentElement from "../PointerHanderParentElement";
+import PointerHandlerParentElement from "../Basic/PointerHanderParentElement";
 import {Colors} from "../../Constants/Colors";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
-import {CubismElement} from "../CubismElement";
+import {CubismElement} from "../Basic/CubismElement";
 import PhysicalPoint2D from "../../Physics/Physics2D/PhysicalPoint2D";
 import {needsRedrawAccessor} from "../../NeedsRedraw";
 

@@ -1,9 +1,9 @@
-import {Point2D} from "../Datatypes/Point";
-import {CanvasDrawer} from "../CanvasDrawer";
-import {Cubism} from "../Cubism";
-import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
-import SizeKeys from "../Constants/SizeKeys";
-import {needsRedrawAccessor} from "../NeedsRedraw";
+import {Point2D} from "../../Datatypes/Point";
+import {CanvasDrawer} from "../../CanvasDrawer";
+import {Cubism} from "../../Cubism";
+import {CubismEventSystem} from "../../Global/Inter/CubismEventSystem";
+import SizeKeys from "../../Constants/SizeKeys";
+import {needsRedrawAccessor} from "../../NeedsRedraw";
 
 /**
  * Base class for all elements that can be rendered on the canvas
@@ -174,6 +174,10 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         this.position.x = x;
         this.position.y = y;
         return this;
+    }
+
+    get centerPoint(): Point2D {
+        return new Point2D(this.position.x + this.width / 2, this.position.y + this.height / 2);
     }
 
 

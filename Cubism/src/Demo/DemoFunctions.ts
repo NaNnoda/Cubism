@@ -1,6 +1,6 @@
 import {Cubism} from "../Cubism";
 import {initConsole} from "../Debug/DebugConsole";
-import PointerHandlerParentElement from "../Elements/PointerHanderParentElement";
+import PointerHandlerParentElement from "../Elements/Basic/PointerHanderParentElement";
 import RecursiveRect from "../Elements/Fancy/RecursiveRect";
 import {ChangingRainbowBackground} from "../Elements/Fancy/ChangingRainbowBackground";
 import {Point2D} from "../Datatypes/Point";
@@ -8,7 +8,11 @@ import {demoFunction} from "./DemoDecorators";
 import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
 import CanvasRecorder from "../CanvasRecorder";
-import {PointerInteractThemeElement} from "../Elements/PointerInteractThemeElement";
+import {PointerInteractThemeElement} from "../Elements/Basic/PointerInteractThemeElement";
+import {VerticalLayout} from "../Elements/Layouts/VerticalLayout";
+import {RectElement} from "../Elements/RectElement";
+import {CircleElement} from "../Elements/CircleElement";
+import {HorizontalLayout} from "../Elements/Layouts/HorizontalLayout";
 
 console.log("loading DemoFunctions.ts");
 
@@ -81,17 +85,6 @@ class DemoFunctions {
         app.initializer.initializeFPSCounter(); // Show FPS
     }
 
-    @demoFunction("Demo function for theme changing")
-    themedElements() {
-        let app = Cubism.createFromId("mainCanvas");
-        app.init(
-            new PointerHandlerParentElement(
-                null,
-                new PointerInteractThemeElement()
-                    .setWidth(100).setHeight(100)
-            )
-        )
-    }
 
     @demoFunction("Demo function for events")
     eventDemo() {
@@ -123,6 +116,32 @@ class DemoFunctions {
             }
             document.getElementById("draws")!.innerHTML = "DFS(Draws per second): " + draws;
         });
+    }
+
+
+    @demoFunction("Demo function for theme changing")
+    themedElements() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.init(
+            new PointerHandlerParentElement(
+                "PointerHandlerParentElement",
+                new VerticalLayout("Outer Vertical Layout",
+                    new RectElement()
+                        .setWidth(100).setHeight(100),
+                    new CircleElement()
+                        .setWidth(100).setHeight(100),
+                    new HorizontalLayout(
+                        "Inner Horizontal Layout",
+                        new RectElement()
+                            .setWidth(100).setHeight(100),
+                        new RectElement()
+                            .setWidth(100).setHeight(100),
+                        new CircleElement()
+                            .setWidth(100).setHeight(100),
+                    )
+                ).setPosFromXY(50, 50)
+            ).setPosFromXY(50, 0)
+        )
     }
 
 }

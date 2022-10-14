@@ -1,8 +1,8 @@
-import {ThemedElement} from "./ThemedElement";
-import BasicTheme from "../Theme/BasicTheme";
-import {PointerPoint} from "../Datatypes/PointerPoint";
-import ThemeKeys from "../Constants/ThemeKeys";
-import {Colors} from "../Constants/Colors";
+import {ThemedElement} from "../ThemedElement";
+import BasicTheme from "../../Theme/BasicTheme";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
+import ThemeKeys from "../../Constants/ThemeKeys";
+import {Colors} from "../../Constants/Colors";
 
 export class PointerInteractThemeElement extends ThemedElement {
     // pointerDownTheme: BasicTheme = new BasicTheme("red", "red", 1);

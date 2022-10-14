@@ -34,6 +34,13 @@ export class Point2D {
         return this;
     }
 
+    get max(){
+        return Math.max(this.x, this.y);
+    }
+    get min(){
+        return Math.min(this.x, this.y);
+    }
+
     set(point: Point2D) {
         this.x = point.x;
         this.y = point.y;
@@ -83,5 +90,9 @@ export class Point2D {
 
     toString() {
         return `(${this.x}, ${this.y})`;
+    }
+
+    euclideanDistance(other: Point2D): number {
+        return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
 }

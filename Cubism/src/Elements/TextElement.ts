@@ -1,6 +1,6 @@
 
 import {CanvasDrawer} from "../CanvasDrawer";
-import {CubismElement} from "./CubismElement";
+import {CubismElement} from "./Basic/CubismElement";
 
 export class TextElement extends CubismElement {
     constructor(public text: string) {

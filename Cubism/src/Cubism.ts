@@ -7,7 +7,7 @@ import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
 import CubismPart from "./CubismPart";
 import CubismInitializer from "./CubismInitializer";
 import CubismElementManger from "./CubismElementManger";
-import {CubismElement} from "./Elements/CubismElement";
+import {CubismElement} from "./Elements/Basic/CubismElement";
 
 /**
  * Entry point of the application

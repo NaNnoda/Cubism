@@ -1,7 +1,7 @@
 import {CanvasDrawer} from "../CanvasDrawer";
 import {PointerPoint} from "../Datatypes/PointerPoint";
 
-import PointerHandlerParentElement from "./PointerHanderParentElement";
+import PointerHandlerParentElement from "./Basic/PointerHanderParentElement";
 import BasicTheme from "../Theme/BasicTheme";
 import {needsRedrawAccessor} from "../NeedsRedraw";
 import ThemeKeys from "../Constants/ThemeKeys";
@@ -53,11 +53,6 @@ export class ThemedElement extends PointerHandlerParentElement {
 
     draw(): void {
         super.draw();
-        let c = this.c as CanvasDrawer;
-        c.translate(this.position);
         this.updateCanvasDrawerTheme();
-
-        c.drawRectWithPoints(this.absSize);
-        c.restoreTranslate();
     }
 }

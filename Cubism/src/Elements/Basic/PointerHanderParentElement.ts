@@ -1,7 +1,7 @@
 import CubismParentElement from "./CubismParentElement";
-import {Point2D} from "../Datatypes/Point";
-import {EventKeys} from "../Constants/EventKeys";
-import {PointerPoint} from "../Datatypes/PointerPoint";
+import {Point2D} from "../../Datatypes/Point";
+import {EventKeys} from "../../Constants/EventKeys";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {CubismElement} from "./CubismElement";
 
 export default class PointerHandlerParentElement extends CubismParentElement {
@@ -101,11 +101,16 @@ export default class PointerHandlerParentElement extends CubismParentElement {
         }
     }
 
+    /**
+     * Triggers the pointer event on the children
+     * @param point the pointer point relative to the parent
+     */
     triggerChildrenPointerEvent(point: PointerPoint) {
         if (this.pointerInRange(point)) {
-            let childrenPointerPoint = point.sub(this.position);
+            // console.log("Children pointer point: ", childrenPointerPoint);
             for (let child of this.children) {
-                child.triggerEvent(EventKeys.ON_POINTER_EVENT, childrenPointerPoint);
+                // console.log(`Triggering child ${child}`);
+                child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
             }
         }
     }

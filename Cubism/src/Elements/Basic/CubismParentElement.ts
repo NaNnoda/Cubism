@@ -2,9 +2,9 @@
  * An Element with children
  */
 import {CubismElement} from "./CubismElement";
-import {Cubism} from "../Cubism";
-import {Point2D} from "../Datatypes/Point";
-import SizeKeys from "../Constants/SizeKeys";
+import {Cubism} from "../../Cubism";
+import {Point2D} from "../../Datatypes/Point";
+import SizeKeys from "../../Constants/SizeKeys";
 
 export default class CubismParentElement extends CubismElement {
     children: CubismElement[];
