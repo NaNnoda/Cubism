@@ -42,4 +42,8 @@ export class CubismEventSystem extends CubismPart implements IEventManger {
         }
         this._globalEventListeners = {};
     }
+
+    hasEvent(event: string): boolean {
+        return this._globalEventListeners[event] !== undefined;
+    }
 }

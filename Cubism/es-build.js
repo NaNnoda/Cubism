@@ -214,6 +214,10 @@ EventKeys.REDRAW = "onRedraw";
 EventKeys.POINTER_DOWN = "onMouseDown";
 EventKeys.POINTER_UP = "onMouseUp";
 EventKeys.POINTER_MOVE = "onMouseMove";
+EventKeys.SECOND_UPDATE = "onSecondUpdate";
+EventKeys.MINUTE_UPDATE = "onMinuteUpdate";
+EventKeys.HOUR_UPDATE = "onHourUpdate";
+EventKeys.DRAW_COUNT_UPDATE = "onDrawCountUpdate";
 
 // src/CanvasDrawer.ts
 var CanvasDrawer = class extends CubismPart {
@@ -362,6 +366,9 @@ var CubismEventSystem = class extends CubismPart {
     }
     this._globalEventListeners = {};
   }
+  hasEvent(event) {
+    return this._globalEventListeners[event] !== void 0;
+  }
 };
 
 // src/Datatypes/Point.ts
@@ -473,7 +480,8 @@ var CubismOuterGlobal = class {
 var CubismInitializer = class extends CubismPart {
   constructor() {
     super(...arguments);
-    this.fps = 0;
+    this.frameCount = 0;
+    this.drawCount = 0;
   }
   get eventSystem() {
     return this.cubism.eventSystem;
@@ -490,30 +498,34 @@ var CubismInitializer = class extends CubismPart {
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
     return this;
   }
-  initializeFPSCounter() {
-    this.eventSystem.registerEvent(EventKeys.FPS_UPDATE, this.doFPSUpdate.bind(this));
-    setInterval(this.triggerFPSUpdate.bind(this), 1e3);
-    this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.incrementFPS.bind(this));
-    return this;
-  }
-  triggerFPSUpdate() {
-    this.eventSystem.triggerEvent(EventKeys.FPS_UPDATE, this.fps);
-    this.resetFPSCounter();
-  }
-  doFPSUpdate(fps) {
-  }
-  resetFPSCounter() {
-    this.fps = 0;
-  }
-  incrementFPS() {
-    this.fps++;
-  }
-  getFPS() {
-    return this.fps;
-  }
   doFrameUpdate() {
     this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
     window.requestAnimationFrame(this.doFrameUpdate.bind(this));
+  }
+  initializeSecondUpdate() {
+    setInterval(this.triggerSecondUpdate.bind(this), 1e3);
+    return this;
+  }
+  triggerSecondUpdate() {
+    this.eventSystem.triggerEvent(EventKeys.SECOND_UPDATE);
+  }
+  initializeFPSCounter() {
+    if (!this.eventSystem.hasEvent(EventKeys.SECOND_UPDATE)) {
+      this.initializeSecondUpdate();
+    }
+    if (!this.eventSystem.hasEvent(EventKeys.FRAME_UPDATE)) {
+      this.initializeFrameUpdate();
+    }
+    this.eventSystem.registerEvent(EventKeys.SECOND_UPDATE, this.triggerFPSUpdate.bind(this));
+    this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.incrementFrameCount.bind(this));
+    return this;
+  }
+  triggerFPSUpdate() {
+    this.eventSystem.triggerEvent(EventKeys.FPS_UPDATE, this.frameCount);
+    this.frameCount = 0;
+  }
+  incrementFrameCount() {
+    this.frameCount++;
   }
   initializeAlwaysRedraw() {
     this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
@@ -521,6 +533,21 @@ var CubismInitializer = class extends CubismPart {
   }
   triggerRedraw() {
     this.eventSystem.triggerEvent(EventKeys.REDRAW);
+  }
+  initializeDrawsPerSecondCounter() {
+    this.eventSystem.registerEvent(EventKeys.REDRAW, this.onRedraw.bind(this));
+    if (!this.eventSystem.hasEvent(EventKeys.SECOND_UPDATE)) {
+      this.initializeSecondUpdate();
+    }
+    this.eventSystem.registerEvent(EventKeys.SECOND_UPDATE, this.doDrawCountUpdate.bind(this));
+    return this;
+  }
+  onRedraw() {
+    this.drawCount++;
+  }
+  doDrawCountUpdate() {
+    this.eventSystem.triggerEvent(EventKeys.DRAW_COUNT_UPDATE, this.drawCount);
+    this.drawCount = 0;
   }
 };
 
@@ -721,12 +748,22 @@ function setRedrawHelper(descriptor) {
 var CubismElement = class extends CubismEventSystem {
   constructor(elementId = null) {
     super();
-    this.elementId = null;
-    this.needsResize = true;
     this._position = new Point2D(0, 0);
     this._size = new Point2D(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT);
     this._absSize = new Point2D(0, 0);
+    this._anchor = new Point2D(0, 0);
+    this.elementId = null;
+    this.needsResize = true;
     this.elementId = elementId;
+    this.onCreate();
+  }
+  onCreate() {
+  }
+  get anchor() {
+    return this._anchor;
+  }
+  set anchor(anchor) {
+    this._anchor = anchor;
   }
   setId(id) {
     this.elementId = id;
@@ -831,7 +868,13 @@ var CubismElement = class extends CubismEventSystem {
 };
 __decorateClass([
   needsRedrawAccessor()
+], CubismElement.prototype, "anchor", 1);
+__decorateClass([
+  needsRedrawAccessor()
 ], CubismElement.prototype, "position", 1);
+__decorateClass([
+  needsRedrawAccessor()
+], CubismElement.prototype, "absSize", 1);
 
 // src/Elements/CubismParentElement.ts
 var CubismParentElement = class extends CubismElement {
@@ -1262,6 +1305,55 @@ var ChangingRainbowBackground = class extends CubismElement {
   }
 };
 
+// src/CanvasRecorder.ts
+var CanvasRecorder = class {
+  constructor(canvas2, fps = 60) {
+    this.recorder = null;
+    this.chunks = [];
+    this.videoStream = null;
+    this.isRecording = false;
+    if (typeof canvas2 === "string") {
+      let tempCanvas = document.getElementById(canvas2);
+      if (!tempCanvas) {
+        throw new Error("Canvas not found");
+      }
+      this.canvas = tempCanvas;
+    } else {
+      this.canvas = canvas2;
+    }
+    this.fps = fps;
+  }
+  startRecording(fileName = "video", fileType = "webm") {
+    this.videoStream = this.canvas.captureStream(this.fps);
+    this.recorder = new MediaRecorder(this.videoStream);
+    this.chunks = [];
+    this.recorder.ondataavailable = (e) => {
+      this.chunks.push(e.data);
+    };
+    this.recorder.start();
+    this.recorder.onstop = () => {
+      console.log("Recording stopped");
+      let blob = new Blob(this.chunks, { type: `video/${fileType}` });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement("a");
+      a.href = url;
+      a.download = `${fileName}.${fileType}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    this.isRecording = true;
+  }
+  stopRecording() {
+    if (this.recorder) {
+      if (this.recorder.state === "recording") {
+        console.log("is recording");
+        this.recorder.stop();
+      }
+    }
+    this.isRecording = false;
+  }
+};
+
 // src/Demo/StaticDemo.ts
 var StaticDemo = class {
   constructor() {
@@ -1273,10 +1365,27 @@ var StaticDemo = class {
     this.currDemoFunction = null;
     this.hotReloadCheckbox = null;
     this.updateButton = null;
+    this.canvasRecorder = new CanvasRecorder("mainCanvas");
     this.initSelector();
     this.initCodeText();
     this.resetControlsDiv();
     this.resetCanvas();
+    this.initRecorder();
+  }
+  initRecorder() {
+    let recordBtn = document.getElementById("recordBtn");
+    let recordText = "Start Recording";
+    let stopText = "Stop";
+    recordBtn.innerText = recordText;
+    recordBtn.onclick = () => {
+      if (this.canvasRecorder.isRecording) {
+        this.canvasRecorder.stopRecording();
+        recordBtn.innerText = recordText;
+      } else {
+        this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`);
+        recordBtn.innerText = stopText;
+      }
+    };
   }
   initControlDiv() {
     this.initHotReload();
@@ -1448,51 +1557,92 @@ function demoFunction(...descriptionLines) {
   };
 }
 
-// src/CanvasRecorder.ts
-var CanvasRecorder = class {
-  constructor(canvas2, fps = 60) {
-    this.recorder = null;
-    this.chunks = [];
-    this.videoStream = null;
-    this.isRecording = false;
-    if (typeof canvas2 === "string") {
-      let tempCanvas = document.getElementById(canvas2);
-      if (!tempCanvas) {
-        throw new Error("Canvas not found");
-      }
-      this.canvas = tempCanvas;
+// src/Theme/BasicTheme.ts
+var BasicTheme = class {
+  constructor(fillStyle = Colors.white, strokeStyle = Colors.blue700, lineWidth = 2) {
+    this.fillStyle = fillStyle;
+    this.strokeStyle = strokeStyle;
+    this.lineWidth = lineWidth;
+  }
+};
+
+// src/Constants/ThemeKeys.ts
+var ThemeKeys = class {
+};
+ThemeKeys.ON_HOVER_THEME = "ON_HOVER_THEME";
+ThemeKeys.ON_DOWN_THEME = "ON_DOWN_THEME";
+ThemeKeys.DEFAULT_THEME = "DEFAULT_THEME";
+
+// src/Elements/ThemedElement.ts
+var ThemedElement = class extends PointerHandlerParentElement {
+  get themes() {
+    if (this._themes === void 0) {
+      this._themes = {};
+    }
+    return this._themes;
+  }
+  setTheme(name, theme) {
+    this.themes[name] = theme;
+    return this;
+  }
+  onCreate() {
+    super.onCreate();
+    this.setTheme(ThemeKeys.DEFAULT_THEME, new BasicTheme());
+    this.currTheme = this.themes[ThemeKeys.DEFAULT_THEME];
+  }
+  get currTheme() {
+    if (this._currTheme === void 0) {
+      this._currTheme = new BasicTheme();
+    }
+    return this._currTheme;
+  }
+  set currTheme(theme) {
+    this._currTheme = theme;
+  }
+  updateCanvasDrawerTheme() {
+    if (this.currTheme) {
+      this.c.setFillStyle(this.currTheme.fillStyle);
+      this.c.setStrokeStyle(this.currTheme.strokeStyle);
+      this.c.setStrokeWidth(this.currTheme.lineWidth);
     } else {
-      this.canvas = canvas2;
+      console.log("No theme set for element");
     }
-    this.fps = fps;
   }
-  startRecording(fileName = "video", fileType = "webm") {
-    this.videoStream = this.canvas.captureStream(this.fps);
-    this.recorder = new MediaRecorder(this.videoStream);
-    this.recorder.ondataavailable = (e) => {
-      this.chunks.push(e.data);
-    };
-    this.recorder.start();
-    this.recorder.onstop = () => {
-      console.log("Recording stopped");
-      let blob = new Blob(this.chunks, { type: `video/${fileType}` });
-      let url = URL.createObjectURL(blob);
-      let a = document.createElement("a");
-      a.href = url;
-      a.download = `${fileName}.${fileType}`;
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-    this.isRecording = true;
+  draw() {
+    super.draw();
+    let c = this.c;
+    c.translate(this.position);
+    this.updateCanvasDrawerTheme();
+    c.drawRectWithPoints(this.absSize);
+    c.restoreTranslate();
   }
-  stopRecording() {
-    if (this.recorder) {
-      if (this.recorder.state === "recording") {
-        console.log("is recording");
-        this.recorder.stop();
-      }
-    }
-    this.isRecording = false;
+};
+__decorateClass([
+  needsRedrawAccessor()
+], ThemedElement.prototype, "currTheme", 1);
+
+// src/Elements/PointerInteractThemeElement.ts
+var PointerInteractThemeElement = class extends ThemedElement {
+  onCreate() {
+    super.onCreate();
+    this.setTheme(ThemeKeys.ON_DOWN_THEME, new BasicTheme(Colors.grey200));
+    this.setTheme(ThemeKeys.ON_HOVER_THEME, new BasicTheme(Colors.grey100));
+  }
+  onDown(point) {
+    super.onDown(point);
+    this.currTheme = this.themes[ThemeKeys.ON_DOWN_THEME];
+  }
+  onUp(point) {
+    super.onUp(point);
+    this.currTheme = this.themes[ThemeKeys.ON_HOVER_THEME];
+  }
+  onEnter(point) {
+    super.onEnter(point);
+    this.currTheme = this.themes[ThemeKeys.ON_HOVER_THEME];
+  }
+  onLeave(point) {
+    super.onLeave(point);
+    this.currTheme = this.themes[ThemeKeys.DEFAULT_THEME];
   }
 };
 
@@ -1530,10 +1680,47 @@ var DemoFunctions = class {
         (_a = document.getElementById("controlDiv")) == null ? void 0 : _a.appendChild(fpsCounter);
       }
       document.getElementById("fps").innerHTML = "FPS: " + fps;
-      console.log(fps);
     });
     app.initializer.initializeAlwaysRedraw();
     app.initializer.initializeFPSCounter();
+  }
+  themedElements() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new PointerHandlerParentElement(
+        null,
+        new PointerInteractThemeElement().setWidth(100).setHeight(100)
+      )
+    );
+  }
+  eventDemo() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new PointerHandlerParentElement(
+        null,
+        new PointerInteractThemeElement().setWidth(100).setHeight(100)
+      )
+    );
+    app.initializer.initializeFPSCounter();
+    app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps) => {
+      var _a;
+      if (document.getElementById("fps") === null) {
+        let fpsCounter = document.createElement("div");
+        fpsCounter.id = "fps";
+        (_a = document.getElementById("controlDiv")) == null ? void 0 : _a.appendChild(fpsCounter);
+      }
+      document.getElementById("fps").innerHTML = "FPS: " + fps;
+    });
+    app.initializer.initializeDrawsPerSecondCounter();
+    app.eventSystem.registerEvent(EventKeys.DRAW_COUNT_UPDATE, (draws) => {
+      var _a;
+      if (document.getElementById("draws") === null) {
+        let drawsCounter = document.createElement("div");
+        drawsCounter.id = "draws";
+        (_a = document.getElementById("controlDiv")) == null ? void 0 : _a.appendChild(drawsCounter);
+      }
+      document.getElementById("draws").innerHTML = "DFS(Draws per second): " + draws;
+    });
   }
 };
 __decorateClass([
@@ -1548,23 +1735,16 @@ __decorateClass([
     "Try to drag it around and see what happens."
   )
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
+__decorateClass([
+  demoFunction("Demo function for theme changing")
+], DemoFunctions.prototype, "themedElements", 1);
+__decorateClass([
+  demoFunction("Demo function for events")
+], DemoFunctions.prototype, "eventDemo", 1);
 var canvas = document.getElementById("mainCanvas");
-var canvasRecorder = new CanvasRecorder(canvas, 30);
+var canvasRecorder = new CanvasRecorder(canvas, 60);
 function main() {
   initConsole();
-  let recordBtn = document.getElementById("recordBtn");
-  let recordText = "Start Recording";
-  let stopText = "Stop";
-  recordBtn.innerText = recordText;
-  recordBtn.onclick = () => {
-    if (canvasRecorder.isRecording) {
-      canvasRecorder.stopRecording();
-      recordBtn.innerText = recordText;
-    } else {
-      canvasRecorder.startRecording("canvasRecording");
-      recordBtn.innerText = stopText;
-    }
-  };
 }
 main();
 //# sourceMappingURL=es-build.js.map

@@ -145,6 +145,7 @@ export class Cubism extends CubismElementManger {
      * Redraw the whole canvas from the root element
      */
     redraw() {
+        // console.log("Redrawing");
         this.canvasDrawer.clear();
         if (this.rootElement) {
             this.rootElement.draw();

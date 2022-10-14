@@ -33,6 +33,8 @@ export default class CanvasRecorder {
         this.videoStream = this.canvas.captureStream(this.fps);
         this.recorder = new MediaRecorder(this.videoStream);
 
+        this.chunks = [];
+
         this.recorder.ondataavailable = (e) => {
             this.chunks.push(e.data);
         }

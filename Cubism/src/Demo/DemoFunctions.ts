@@ -8,6 +8,7 @@ import {demoFunction} from "./DemoDecorators";
 import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
 import CanvasRecorder from "../CanvasRecorder";
+import {PointerInteractThemeElement} from "../Elements/PointerInteractThemeElement";
 
 console.log("loading DemoFunctions.ts");
 
@@ -74,31 +75,64 @@ class DemoFunctions {
             //
             // StaticDemo.i.controlDiv.appendChild(fpsCounter);
             // fpsCounter.innerText = `FPS: ${fps}`;
-            console.log(fps);
+            // console.log(fps);
         });
         app.initializer.initializeAlwaysRedraw(); // Redraw every frame, by default it only redraws when the elements change
         app.initializer.initializeFPSCounter(); // Show FPS
     }
+
+    @demoFunction("Demo function for theme changing")
+    themedElements() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.init(
+            new PointerHandlerParentElement(
+                null,
+                new PointerInteractThemeElement()
+                    .setWidth(100).setHeight(100)
+            )
+        )
+    }
+
+    @demoFunction("Demo function for events")
+    eventDemo() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.init(
+            new PointerHandlerParentElement(
+                null,
+                new PointerInteractThemeElement()
+                    .setWidth(100).setHeight(100)
+            )
+        )
+        app.initializer.initializeFPSCounter();
+        app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
+            // console.log(fps);
+            if (document.getElementById("fps") === null) {
+                let fpsCounter = document.createElement("div");
+                fpsCounter.id = "fps";
+                document.getElementById("controlDiv")?.appendChild(fpsCounter);
+            }
+            document.getElementById("fps")!.innerHTML = "FPS: " + fps;
+        });
+        app.initializer.initializeDrawsPerSecondCounter();
+        app.eventSystem.registerEvent(EventKeys.DRAW_COUNT_UPDATE, (draws: number) => {
+            // console.log(draws);
+            if (document.getElementById("draws") === null) {
+                let drawsCounter = document.createElement("div");
+                drawsCounter.id = "draws";
+                document.getElementById("controlDiv")?.appendChild(drawsCounter);
+            }
+            document.getElementById("draws")!.innerHTML = "DFS(Draws per second): " + draws;
+        });
+    }
+
 }
 
 let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
-let canvasRecorder: CanvasRecorder = new CanvasRecorder(canvas, 30);
+let canvasRecorder: CanvasRecorder = new CanvasRecorder(canvas, 60);
 
 function main() {
     initConsole();
-    let recordBtn = document.getElementById("recordBtn") as HTMLButtonElement;
-    let recordText = "Start Recording";
-    let stopText = "Stop";
-    recordBtn.innerText = recordText;
-    recordBtn.onclick = () => {
-        if (canvasRecorder.isRecording) {
-            canvasRecorder.stopRecording();
-            recordBtn.innerText = recordText;
-        } else {
-            canvasRecorder.startRecording("canvasRecording");
-            recordBtn.innerText = stopText;
-        }
-    }
+
 }
 
 main();

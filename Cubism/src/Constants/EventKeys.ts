@@ -33,4 +33,10 @@ export class EventKeys {
     public static readonly POINTER_DOWN = "onMouseDown";
     public static readonly POINTER_UP = "onMouseUp";
     public static readonly POINTER_MOVE = "onMouseMove";
+
+    public static readonly SECOND_UPDATE = "onSecondUpdate";
+    public static readonly MINUTE_UPDATE = "onMinuteUpdate";
+    public static readonly HOUR_UPDATE = "onHourUpdate";
+
+    public static readonly DRAW_COUNT_UPDATE = "onDrawCountUpdate";
 }

@@ -1,4 +1,5 @@
 import {CubismOuterGlobal} from "../Global/Outer/CubismOuterGlobal";
+import CanvasRecorder from "../CanvasRecorder";
 
 export class StaticDemo {
     private static _instance: StaticDemo;
@@ -17,14 +18,32 @@ export class StaticDemo {
     updateButton: HTMLButtonElement | null = null;
 
     // currentDemoName: string | null = null;
+    canvasRecorder: CanvasRecorder = new CanvasRecorder("mainCanvas");
 
     private constructor() {
         this.initSelector();
         this.initCodeText();
         this.resetControlsDiv();
         this.resetCanvas();
+        this.initRecorder();
     }
 
+    initRecorder() {
+        let recordBtn = document.getElementById("recordBtn") as HTMLButtonElement;
+        let recordText = "Start Recording";
+        let stopText = "Stop";
+        recordBtn.innerText = recordText;
+        recordBtn.onclick = () => {
+            if (this.canvasRecorder.isRecording) {
+                this.canvasRecorder.stopRecording();
+                recordBtn.innerText = recordText;
+            } else {
+
+                this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`);
+                recordBtn.innerText = stopText;
+            }
+        }
+    }
 
 
     initControlDiv() {
@@ -163,7 +182,6 @@ class DemoFunction {
     funcName: string;
     description: string;
 
-
     constructor(func: Function, funcName: string, description: string) {
         this.func = func;
 
@@ -211,7 +229,7 @@ class DemoFunction {
                     currLeadingSpacesCount++;
                 }
 
-                if (currLeadingSpacesCount ===0 && line.length > 0 && !(line[0] === "}" || line[0] === ")")) {
+                if (currLeadingSpacesCount === 0 && line.length > 0 && !(line[0] === "}" || line[0] === ")")) {
                     newString += `\n`;
                 }
 

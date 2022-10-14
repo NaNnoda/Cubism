@@ -10,9 +10,10 @@ import {needsRedrawAccessor} from "../NeedsRedraw";
  * With size, position, and global events
  */
 export class CubismElement extends CubismEventSystem implements IDrawable {
-    _position: Point2D;
-    _size: Point2D;
-    _absSize: Point2D; // Absolute size is the size of the element
+    _position: Point2D = new Point2D(0, 0);
+    _size: Point2D = new Point2D(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT);
+    _absSize: Point2D = new Point2D(0, 0); // Absolute size is the size of the element
+    _anchor: Point2D = new Point2D(0, 0);
 
 
     elementId: string | null = null;
@@ -20,11 +21,23 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
 
     constructor(elementId: string | null = null) {
         super();
-        this._position = new Point2D(0, 0);
-        this._size = new Point2D(SizeKeys.MATCH_PARENT, SizeKeys.MATCH_PARENT);
-        this._absSize = new Point2D(0, 0);
         // Optional id
         this.elementId = elementId;
+        this.onCreate();
+    }
+
+    onCreate(): void {
+
+    }
+
+
+    get anchor(): Point2D {
+        return this._anchor;
+    }
+
+    @needsRedrawAccessor()
+    set anchor(anchor: Point2D) {
+        this._anchor = anchor;
     }
 
     /**
@@ -103,6 +116,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Set the actual size of this element
      * @param size
      */
+    @needsRedrawAccessor()
     set absSize(size: Point2D) {
         this._absSize = size;
         this.c.setRedraw(true);
