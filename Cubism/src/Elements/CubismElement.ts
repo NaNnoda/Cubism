@@ -57,7 +57,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     @needsRedrawAccessor()
     set position(pos: Point2D) {
         this._position = pos;
-        this.c.setRedraw(true);
+        // this.c.setRedraw(true);
     }
 
     /**
@@ -71,6 +71,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Get a size description of this element
      * Not necessarily the size of the element
      */
+
     get size(): Point2D {
         return this._size;
     }
@@ -106,15 +107,6 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         this._absSize = size;
         this.c.setRedraw(true);
     }
-
-    // /**
-    //  * Initialize this element
-    //  * @param parentSize
-    //  */
-    // initElement(parentSize: Point2D): void {
-    //     console.log(`Init element ${this}`);
-    //     // this.resize(parentSize);
-    // }
 
     get height(): number {
         return this.size.y;
@@ -207,7 +199,6 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Render this element
      */
     draw(): void {
-        // console.log(`Drawing ${this}`);
     }
 
     /**

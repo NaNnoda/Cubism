@@ -1,12 +1,10 @@
 import CubismPart from "./CubismPart";
 import {Runtime} from "inspector";
 
-export function needsRedrawAccessor(needRedrawGet = false, needRedrawSet = true) {
+export function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = true) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
-            console.log("descriptor is:");
-            console.log(descriptor);
-            if (descriptor.set && needRedrawSet) {
+            if (descriptor.set && needsRedrawSet) {
                 console.log("descriptor.set is:");
                 console.log(descriptor.set);
                 let oldSet = descriptor.set;
@@ -15,7 +13,7 @@ export function needsRedrawAccessor(needRedrawGet = false, needRedrawSet = true)
                     setRedrawHelper(this);
                 }
             }
-            if (descriptor.get && needRedrawGet) {
+            if (descriptor.get && needsRedrawGet) {
                 let oldGet = descriptor.get;
                 descriptor.get = function () {
                     setRedrawHelper(this);
@@ -30,9 +28,9 @@ function setRedrawHelper(descriptor: any) {
     if (descriptor instanceof CubismPart) {
         if (descriptor._cubism) {
             descriptor._cubism.canvasDrawer.setRedraw(true);
-            console.log("descriptor.set(): set redraw to true");
         }
     } else {
         console.log("this is not a CubismPart");
+        throw new Error("this is not a CubismPart");
     }
 }

@@ -684,12 +684,10 @@ SizeKeys.DEFAULT_BORDER = 1;
 SizeKeys.MATCH_PARENT = -1;
 
 // src/NeedsRedraw.ts
-function needsRedrawAccessor(needRedrawGet = false, needRedrawSet = true) {
+function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = true) {
   return function(target, propertyKey, descriptor) {
     if (descriptor) {
-      console.log("descriptor is:");
-      console.log(descriptor);
-      if (descriptor.set && needRedrawSet) {
+      if (descriptor.set && needsRedrawSet) {
         console.log("descriptor.set is:");
         console.log(descriptor.set);
         let oldSet = descriptor.set;
@@ -698,7 +696,7 @@ function needsRedrawAccessor(needRedrawGet = false, needRedrawSet = true) {
           setRedrawHelper(this);
         };
       }
-      if (descriptor.get && needRedrawGet) {
+      if (descriptor.get && needsRedrawGet) {
         let oldGet = descriptor.get;
         descriptor.get = function() {
           setRedrawHelper(this);
@@ -712,10 +710,10 @@ function setRedrawHelper(descriptor) {
   if (descriptor instanceof CubismPart) {
     if (descriptor._cubism) {
       descriptor._cubism.canvasDrawer.setRedraw(true);
-      console.log("descriptor.set(): set redraw to true");
     }
   } else {
     console.log("this is not a CubismPart");
+    throw new Error("this is not a CubismPart");
   }
 }
 
@@ -745,7 +743,6 @@ var CubismElement = class extends CubismEventSystem {
   }
   set position(pos) {
     this._position = pos;
-    this.c.setRedraw(true);
   }
   get position() {
     return this._position;
@@ -1161,15 +1158,9 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     this.wiggleStrength = 0.1;
   }
   get position() {
-    if (this._cubism) {
-      this.c.setRedraw(true);
-    }
     return this._position;
   }
   set position(point) {
-    if (this._cubism) {
-      this.c.setRedraw(true);
-    }
     this._position = point;
   }
   setRecursionCount(recursionCount) {
@@ -1227,24 +1218,18 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     }
   }
 };
+__decorateClass([
+  needsRedrawAccessor(true, true)
+], RecursiveRect.prototype, "position", 1);
 
 // src/Elements/Fancy/ChangingRainbowBackground.ts
 var ChangingRainbowBackground = class extends CubismElement {
   constructor() {
     super(...arguments);
-    this._frameCount = 0;
+    this.frameCount = 0;
     this.saturation = 70;
-    this._lightness = 90;
+    this.lightness = 90;
     this.changingSpeed = 0.2;
-  }
-  get frameCount() {
-    return this._frameCount;
-  }
-  set frameCount(frameCount) {
-    this._frameCount = frameCount;
-  }
-  set lightness(l) {
-    this._lightness = l;
   }
   setSaturation(s) {
     if (s > 100) {
@@ -1276,12 +1261,6 @@ var ChangingRainbowBackground = class extends CubismElement {
     this.c.restoreTranslate();
   }
 };
-__decorateClass([
-  needsRedrawAccessor()
-], ChangingRainbowBackground.prototype, "frameCount", 1);
-__decorateClass([
-  needsRedrawAccessor()
-], ChangingRainbowBackground.prototype, "lightness", 1);
 
 // src/Demo/StaticDemo.ts
 var StaticDemo = class {

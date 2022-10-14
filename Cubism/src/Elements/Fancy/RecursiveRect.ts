@@ -4,6 +4,7 @@ import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
 import {CubismElement} from "../CubismElement";
 import PhysicalPoint2D from "../../Physics/Physics2D/PhysicalPoint2D";
+import {needsRedrawAccessor} from "../../NeedsRedraw";
 
 export default class RecursiveRect extends PointerHandlerParentElement {
     lastPoint: PointerPoint | null = null;
@@ -12,19 +13,11 @@ export default class RecursiveRect extends PointerHandlerParentElement {
     frameCount: number = 0;
 
     _position: PhysicalPoint2D = new PhysicalPoint2D(0, 0).setResistance(0.001);
+    @needsRedrawAccessor(true, true)
     get position(): PhysicalPoint2D {
-        if (this._cubism) {
-            this.c.setRedraw(true);
-        }
-
         return this._position;
     }
-
     set position(point: PhysicalPoint2D) {
-        if (this._cubism) {
-            this.c.setRedraw(true);
-        }
-        // this.c.setRedraw(true);
         this._position = point;
     }
 
@@ -64,8 +57,6 @@ export default class RecursiveRect extends PointerHandlerParentElement {
         if (this.pressed) {
             this.frameCount = 0;
         }
-
-        // this.wiggle();
         this.c.setFillStyle(Colors.green100);
         this.c.setStrokeWidth(2);
         this.c.setStrokeStyle(Colors.green700);
