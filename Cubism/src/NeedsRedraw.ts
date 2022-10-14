@@ -1,6 +1,10 @@
 import CubismPart from "./CubismPart";
-import {Runtime} from "inspector";
 
+/**
+ * A decorator that trys to redraw the canvas after the accessor is called.
+ * @param needsRedrawGet if true, the getter will be decorated
+ * @param needsRedrawSet if true, the setter will be decorated
+ */
 export function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = true) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
