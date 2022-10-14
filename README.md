@@ -14,27 +14,36 @@ Code:
  * Demo of a simple layout
  */
 let app = Cubism.createFromId("mainCanvas");
-        app.init(
-            new PointerHandlerParentElement(
-                "PointerHandlerParentElement",
-                new Background().setColor(Colors.blue700),
-                new VerticalLayout("Outer Vertical Layout",
-                    new RectElement()
-                        .setWidth(100).setHeight(100),
-                    new CircleElement()
-                        .setWidth(100).setHeight(100),
-                    new HorizontalLayout(
-                        "Inner Horizontal Layout",
-                        new RectElement()
-                            .setWidth(100).setHeight(100),
-                        new RectElement()
-                            .setWidth(100).setHeight(100),
-                        new CircleElement()
-                            .setWidth(100).setHeight(100),
-                    )
-                ).setPosFromXY(50, 50)
-            ).setPosFromXY(0, 0)
-        )
+
+app.init(
+  new PointerHandlerParentElement(
+    "PointerHandlerParentElement",
+    new Background()
+        .setColor(Colors.blue700),
+    new VerticalLayout(
+      "Outer Vertical Layout",
+      new RectElement()
+          .setWidth(100)
+          .setHeight(100),
+      new CircleElement()
+          .setWidth(100)
+          .setHeight(100),
+      new HorizontalLayout(
+        "Inner Horizontal Layout",
+        new RectElement()
+            .setWidth(100)
+            .setHeight(100),
+        new RectElement()
+            .setWidth(100)
+            .setHeight(100),
+        new CircleElement()
+            .setWidth(100)
+            .setHeight(100)
+      )
+    )
+        .setPosFromXY(50, 50)
+  )
+);
 ```
 Try it out in [here](/Cubism/index.html)
 
