@@ -683,6 +683,42 @@ SizeKeys.DEFAULT_MARGIN = 10;
 SizeKeys.DEFAULT_BORDER = 1;
 SizeKeys.MATCH_PARENT = -1;
 
+// src/NeedsRedraw.ts
+function needsRedrawAccessor(needRedrawGet = false, needRedrawSet = true) {
+  return function(target, propertyKey, descriptor) {
+    if (descriptor) {
+      console.log("descriptor is:");
+      console.log(descriptor);
+      if (descriptor.set && needRedrawSet) {
+        console.log("descriptor.set is:");
+        console.log(descriptor.set);
+        let oldSet = descriptor.set;
+        descriptor.set = function(value) {
+          oldSet.call(this, value);
+          setRedrawHelper(this);
+        };
+      }
+      if (descriptor.get && needRedrawGet) {
+        let oldGet = descriptor.get;
+        descriptor.get = function() {
+          setRedrawHelper(this);
+          return oldGet.call(this);
+        };
+      }
+    }
+  };
+}
+function setRedrawHelper(descriptor) {
+  if (descriptor instanceof CubismPart) {
+    if (descriptor._cubism) {
+      descriptor._cubism.canvasDrawer.setRedraw(true);
+      console.log("descriptor.set(): set redraw to true");
+    }
+  } else {
+    console.log("this is not a CubismPart");
+  }
+}
+
 // src/Elements/CubismElement.ts
 var CubismElement = class extends CubismEventSystem {
   constructor(elementId = null) {
@@ -796,6 +832,9 @@ var CubismElement = class extends CubismEventSystem {
     return `[${this.elementId ? this.elementId : "NO ID"}]: ${this.className} abs(${this.absWidth}x${this.absHeight}) rel(${this.width}x${this.height})`;
   }
 };
+__decorateClass([
+  needsRedrawAccessor()
+], CubismElement.prototype, "position", 1);
 
 // src/Elements/CubismParentElement.ts
 var CubismParentElement = class extends CubismElement {
@@ -1193,10 +1232,19 @@ var RecursiveRect = class extends PointerHandlerParentElement {
 var ChangingRainbowBackground = class extends CubismElement {
   constructor() {
     super(...arguments);
-    this.frameCount = 0;
+    this._frameCount = 0;
     this.saturation = 70;
-    this.lightness = 90;
+    this._lightness = 90;
     this.changingSpeed = 0.2;
+  }
+  get frameCount() {
+    return this._frameCount;
+  }
+  set frameCount(frameCount) {
+    this._frameCount = frameCount;
+  }
+  set lightness(l) {
+    this._lightness = l;
   }
   setSaturation(s) {
     if (s > 100) {
@@ -1228,6 +1276,12 @@ var ChangingRainbowBackground = class extends CubismElement {
     this.c.restoreTranslate();
   }
 };
+__decorateClass([
+  needsRedrawAccessor()
+], ChangingRainbowBackground.prototype, "frameCount", 1);
+__decorateClass([
+  needsRedrawAccessor()
+], ChangingRainbowBackground.prototype, "lightness", 1);
 
 // src/Demo/StaticDemo.ts
 var StaticDemo = class {

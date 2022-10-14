@@ -3,6 +3,7 @@ import {CanvasDrawer} from "../CanvasDrawer";
 import {Cubism} from "../Cubism";
 import {CubismEventSystem} from "../Global/Inter/CubismEventSystem";
 import SizeKeys from "../Constants/SizeKeys";
+import {needsRedrawAccessor} from "../NeedsRedraw";
 
 /**
  * Base class for all elements that can be rendered on the canvas
@@ -53,6 +54,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
      * Set position of this element relative to parent
      * @param pos
      */
+    @needsRedrawAccessor()
     set position(pos: Point2D) {
         this._position = pos;
         this.c.setRedraw(true);

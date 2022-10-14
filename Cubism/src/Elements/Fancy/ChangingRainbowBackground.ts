@@ -1,15 +1,27 @@
 import PointerHandlerParentElement from "../PointerHanderParentElement";
 import {CubismElement} from "../CubismElement";
 import {Colors} from "../../Constants/Colors";
-import {EventKeys} from "../../Constants/Constants";
 import {Cubism} from "../../Cubism";
+import {needsRedrawAccessor} from "../../NeedsRedraw";
 
 export class ChangingRainbowBackground extends CubismElement{
-    frameCount: number = 0;
+    _frameCount: number = 0;
+
+    get frameCount(): number {
+        return this._frameCount;
+    }
+    @needsRedrawAccessor()
+    set frameCount(frameCount: number) {
+        this._frameCount = frameCount;
+    }
 
     saturation:number = 70;
-    lightness: number = 90;
+    _lightness: number = 90;
     changingSpeed: number = 0.2;
+    @needsRedrawAccessor()
+    set lightness(l: number) {
+        this._lightness = l;
+    }
 
     setSaturation(s: number) {
         if (s > 100) {
