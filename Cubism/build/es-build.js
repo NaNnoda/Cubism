@@ -1993,24 +1993,24 @@ var AddIcon = class extends BasicIcon {
   }
 };
 
-// src/Elements/Icons/SVGIcon.ts
-var WebSvgIcon = class extends BasicIcon {
-  constructor(svgUrl) {
+// src/Elements/Icons/MaterialIcons.ts
+var MaterialIcons = class extends BasicIcon {
+  constructor(iconName) {
     super();
+    this.theme = new BasicTheme().setFillStyle(Colors.blue700).setStrokeStyle(Colors.blue200);
     this.svgImg = new Image();
-    this.svgImg.src = svgUrl;
+    let iconUrl = "https://fonts.gstatic.com/s/i/materialicons/" + iconName + "/v8/20px.svg";
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", iconUrl, false);
+    xmlHttp.send(null);
+    let rawSvg = xmlHttp.responseText;
+    this.svgImg.src = "data:image/svg+xml;base64," + btoa(rawSvg);
   }
   draw() {
     this.c.translate(this.position);
+    this.c.setFillStyle(this.theme.fillStyle);
     this.c.drawImage(this.svgImg, 0, 0, this.width, this.height);
     this.c.restoreTranslate();
-  }
-};
-
-// src/Elements/Icons/MaterialIcons.ts
-var MaterialIcons = class extends WebSvgIcon {
-  constructor(iconName) {
-    super("https://fonts.gstatic.com/s/i/materialicons/" + iconName + "/v8/20px.svg");
   }
   static get add() {
     return new MaterialIcons("add");
