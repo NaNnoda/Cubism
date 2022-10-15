@@ -1,4 +1,4 @@
-import { Point2D } from "../../Datatypes/Point";
+import { Point2D } from "../Math/Point";
 import {CubismOuterGlobal} from "../../Global/Outer/CubismOuterGlobal";
 
 export function initConsole() {

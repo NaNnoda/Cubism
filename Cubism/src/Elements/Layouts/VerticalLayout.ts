@@ -1,5 +1,5 @@
 import {LinearLayout} from "./LinearLayout";
-import {Point2D} from "../../Datatypes/Point";
+import {Point2D} from "../../Utils/Math/Point";
 
 export class VerticalLayout extends LinearLayout {
     updateChildrenPosition() {

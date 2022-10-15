@@ -1,4 +1,4 @@
-import {Point2D} from "../Datatypes/Point";
+import {Point2D} from "../Utils/Math/Point";
 import {CubismCanvasState} from "./CubismCanvasState";
 import CubismPart from "../CubismPart";
 import {Cubism} from "../Cubism";

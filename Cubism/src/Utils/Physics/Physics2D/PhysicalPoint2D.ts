@@ -1,4 +1,4 @@
-import {Point2D} from "../../../Datatypes/Point";
+import {Point2D} from "../../Math/Point";
 
 export default class PhysicalPoint2D extends Point2D {
     velocity: Point2D = new Point2D(0, 0);

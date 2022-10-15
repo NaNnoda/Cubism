@@ -10,7 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 
-// src/Datatypes/TransformMatrix2D.ts
+// src/Utils/Math/TransformMatrix2D.ts
 var TransformMatrix2D = class {
   constructor(m11, m12, m21, m22, dx, dy) {
     this.arr = [];
@@ -377,7 +377,7 @@ var CubismEventSystem = class extends CubismPart {
   }
 };
 
-// src/Datatypes/Point.ts
+// src/Utils/Math/Point.ts
 var Point2D = class {
   constructor(x, y) {
     this.arr = [x, y];
@@ -1840,6 +1840,9 @@ var TextElement = class extends CubismElement {
   setFontSize(size) {
     this.theme.fontSize = size;
   }
+  get height() {
+    return this.theme.fontSize;
+  }
   draw() {
     super.draw();
     let c = this.c;
@@ -1860,10 +1863,14 @@ var ButtonElement = class extends PointerInteractThemeElement {
     super(...arguments);
     this._icon = null;
     this._text = null;
+    this.iconXOffset = 10;
+    this.textXOffset = 10;
   }
   set icon(icon) {
     this._icon = icon;
     if (icon !== null) {
+      icon.position.x = this.iconXOffset;
+      icon.position.y = this.size.y / 2 - icon.height / 2;
       this.addChildren(icon);
     }
   }
@@ -1876,8 +1883,10 @@ var ButtonElement = class extends PointerInteractThemeElement {
   set text(text) {
     this._text = text;
     if (text !== null) {
+      text.position.x = this.textXOffset;
+      text.position.y = this.size.y / 2 - text.height / 2 - 2;
       if (this.icon !== null) {
-        text.position.x += this.icon.width;
+        text.position.x += this.icon.width + this.iconXOffset;
       }
       this.addChildren(text);
     }
@@ -1893,9 +1902,6 @@ var ButtonElement = class extends PointerInteractThemeElement {
       this.text.draw();
     }
     this.c.restoreTranslate();
-  }
-  internalAddChildren() {
-    super.internalAddChildren();
   }
   setIcon(icon) {
     this.icon = icon;
@@ -2089,11 +2095,13 @@ var DemoFunctions = class {
     app.init(
       new VerticalLayout(
         null,
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new CloseIcon()).setText("Close"),
+        new ButtonElement().setWidth(100).setHeight(30).setIcon(new CloseIcon()).setText("Close"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("ZoomIn"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown")
+        new ButtonElement().setWidth(150).setHeight(50).setIcon(new ZoomInIcon()).setText("ZoomIn"),
+        new ButtonElement().setWidth(200).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown"),
+        new ButtonElement().setWidth(200).setHeight(50).setText("Text Only"),
+        new ButtonElement().setWidth(200).setHeight(50).setIcon(new UnknownIcon())
       ).setPosFromXY(50, 50)
     );
   }

@@ -1,4 +1,4 @@
-import {Point2D} from "./Point";
+import {Point2D} from "../Utils/Math/Point";
 
 export class PointerPoint extends Point2D {
 

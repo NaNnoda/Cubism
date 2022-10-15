@@ -1,5 +1,5 @@
-import {Point2D} from "../Datatypes/Point";
-import {TransformMatrix2D} from "../Datatypes/TransformMatrix2D";
+import {Point2D} from "../Utils/Math/Point";
+import {TransformMatrix2D} from "../Utils/Math/TransformMatrix2D";
 
 /**
  * The state of the canvas

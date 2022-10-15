@@ -1,4 +1,3 @@
-import {CanvasDrawer} from "../Drawer/CanvasDrawer";
 import {CubismElement} from "./Basic/CubismElement";
 import {FontTheme} from "../Theme/FontTheme";
 
@@ -13,6 +12,10 @@ export class TextElement extends CubismElement {
     constructor(content: string, id: string | null = null) {
         super(id);
         this.content = content;
+    }
+
+    get height(): number {
+        return this.theme.fontSize;
     }
 
     draw() {

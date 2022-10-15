@@ -2,15 +2,20 @@ import {PointerInteractThemeElement} from "./Basic/PointerInteractThemeElement";
 import BasicIcon from "./Icons/BasicIcon";
 import {VerticalLayout} from "./Layouts/VerticalLayout";
 import {TextElement} from "./TextElement";
+import {Point2D} from "../Utils/Math/Point";
 
 export class ButtonElement extends PointerInteractThemeElement {
     _icon: BasicIcon | null = null;
     _text: TextElement | null = null;
 
+    iconXOffset = 10;
+    textXOffset = 10;
+
     set icon(icon: BasicIcon | null) {
         this._icon = icon;
-
         if (icon !== null) {
+            icon.position.x = this.iconXOffset;
+            icon.position.y = this.size.y / 2 - icon.height / 2;
             this.addChildren(icon);
         }
     }
@@ -26,30 +31,27 @@ export class ButtonElement extends PointerInteractThemeElement {
     set text(text: TextElement | null) {
         this._text = text;
         if (text !== null) {
+            text.position.x = this.textXOffset;
+            text.position.y = this.size.y / 2 - text.height / 2 -2;
             if (this.icon !== null) {
-                text.position.x += this.icon.width;
+                text.position.x += this.icon.width + this.iconXOffset;
             }
             this.addChildren(text);
         }
     }
 
     draw() {
-        // super.draw();
         this.updateCanvasDrawerTheme();
         this.c.translate(this.position);
         this.c.drawRectWithPoints(this.size);
         if (this.icon !== null) {
+
             this.icon.draw();
         }
         if (this.text !== null) {
             this.text.draw();
         }
         this.c.restoreTranslate();
-    }
-
-    internalAddChildren() {
-        super.internalAddChildren();
-        // this.addChildren(this.layout);
     }
 
     setIcon(icon: BasicIcon) {

@@ -3,7 +3,7 @@
  */
 import {CubismElement} from "./CubismElement";
 import {Cubism} from "../../Cubism";
-import {Point2D} from "../../Datatypes/Point";
+import {Point2D} from "../../Utils/Math/Point";
 import SizeKeys from "../../Constants/SizeKeys";
 
 export default class CubismParentElement extends CubismElement {

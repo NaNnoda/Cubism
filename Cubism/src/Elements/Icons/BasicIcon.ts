@@ -1,5 +1,5 @@
 import {CubismElement} from "../Basic/CubismElement";
-import {Point2D} from "../../Datatypes/Point";
+import {Point2D} from "../../Utils/Math/Point";
 
 export default class BasicIcon extends CubismElement {
     _size: Point2D = new Point2D(20, 20);

@@ -1,5 +1,5 @@
 import {PointerInteractThemeElement} from "./Basic/PointerInteractThemeElement";
-import {Point2D} from "../Datatypes/Point";
+import {Point2D} from "../Utils/Math/Point";
 
 export class CircleElement extends PointerInteractThemeElement {
     draw(): void {

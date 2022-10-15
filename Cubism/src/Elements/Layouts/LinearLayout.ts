@@ -1,5 +1,5 @@
 import PointerHandlerParentElement from "../Basic/PointerHanderParentElement";
-import {Point2D} from "../../Datatypes/Point";
+import {Point2D} from "../../Utils/Math/Point";
 
 export abstract class LinearLayout extends PointerHandlerParentElement {
     getMaxWidth(): number {

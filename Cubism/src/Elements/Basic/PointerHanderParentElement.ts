@@ -1,5 +1,5 @@
 import CubismParentElement from "./CubismParentElement";
-import {Point2D} from "../../Datatypes/Point";
+import {Point2D} from "../../Utils/Math/Point";
 import {EventKeys} from "../../Constants/EventKeys";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {CubismElement} from "./CubismElement";

@@ -3,7 +3,7 @@ import {initConsole} from "../Utils/Debug/DebugConsole";
 import PointerHandlerParentElement from "../Elements/Basic/PointerHanderParentElement";
 import RecursiveRect from "../Elements/Fancy/RecursiveRect";
 import {ChangingRainbowBackground} from "../Elements/Fancy/ChangingRainbowBackground";
-import {Point2D} from "../Datatypes/Point";
+import {Point2D} from "../Utils/Math/Point";
 import {demoFunction} from "./DemoDecorators";
 import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
@@ -160,15 +160,21 @@ class DemoFunctions {
             new VerticalLayout(
                 null,
                 new ButtonElement()
-                    .setWidth(100).setHeight(50)
+                    .setWidth(100).setHeight(30)
                     .setIcon(new CloseIcon()).setText("Close"),
                 new ButtonElement()
                     .setWidth(100).setHeight(50)
                     .setIcon(new AddIcon()).setText("Add"),
-                new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
-                new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("ZoomIn"),
-                new ButtonElement().setWidth(100).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown"),
-
+                new ButtonElement().setWidth(100).setHeight(50)
+                    .setIcon(new OkIcon()).setText("OK"),
+                new ButtonElement().setWidth(150).setHeight(50)
+                    .setIcon(new ZoomInIcon()).setText("ZoomIn"),
+                new ButtonElement().setWidth(200).setHeight(50)
+                    .setIcon(new UnknownIcon()).setText("Unknown"),
+                new ButtonElement().setWidth(200).setHeight(50)
+                    .setText("Text Only"),
+                new ButtonElement().setWidth(200).setHeight(50)
+                    .setIcon(new UnknownIcon()),
             ).setPosFromXY(50, 50)
         )
     }
