@@ -1,5 +1,5 @@
-import { Point2D } from "../Datatypes/Point";
-import {CubismOuterGlobal} from "../Global/Outer/CubismOuterGlobal";
+import { Point2D } from "../../Datatypes/Point";
+import {CubismOuterGlobal} from "../../Global/Outer/CubismOuterGlobal";
 
 export function initConsole() {
     let w = window as any;

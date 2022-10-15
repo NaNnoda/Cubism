@@ -1,23 +1,31 @@
-
-import {CanvasDrawer} from "../CanvasDrawer";
+import {CanvasDrawer} from "../Drawer/CanvasDrawer";
 import {CubismElement} from "./Basic/CubismElement";
+import {FontTheme} from "../Theme/FontTheme";
 
 export class TextElement extends CubismElement {
-    constructor(public text: string) {
-        super();
+    theme: FontTheme = FontTheme.default;
+    content: string = "NO CONTENT";
+
+    setFontSize(size: number) {
+        this.theme.fontSize = size;
     }
+
+    constructor(content: string, id: string | null = null) {
+        super(id);
+        this.content = content;
+    }
+
     draw() {
         super.draw();
-        let c = this.c as CanvasDrawer;
-        let ctx = c.ctx;
-        ctx.font = "30px Arial";
-
+        let c = this.c;
+        c.setFont(`${this.theme.fontSize}px ${this.theme.fontFamily}`);
         c.translate(this.position);
+        c.setFillStyle(this.theme.fillStyle);
+        c.setStrokeStyle(this.theme.strokeStyle);
 
-        // ctx.fillText("width:" + ctx.measureText(this.text).width, 10, 50)
-        let textWidth = ctx.measureText(this.text).width;
-        let textHeight = 30;
-        ctx.fillText(this.text, 0, textHeight);
+        let textWidth = c.measureText(this.content).width;
+        let textHeight = this.theme.fontSize;
+        c.fillText(this.content, 0, textHeight);
         c.restoreTranslate();
     }
 }

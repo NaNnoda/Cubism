@@ -1,5 +1,5 @@
 import {Cubism} from "../Cubism";
-import {initConsole} from "../Debug/DebugConsole";
+import {initConsole} from "../Utils/Debug/DebugConsole";
 import PointerHandlerParentElement from "../Elements/Basic/PointerHanderParentElement";
 import RecursiveRect from "../Elements/Fancy/RecursiveRect";
 import {ChangingRainbowBackground} from "../Elements/Fancy/ChangingRainbowBackground";
@@ -15,6 +15,11 @@ import {CircleElement} from "../Elements/CircleElement";
 import {HorizontalLayout} from "../Elements/Layouts/HorizontalLayout";
 import {Background} from "../Elements/Background";
 import {Colors} from "../Constants/Colors";
+import {ButtonElement} from "../Elements/ButtonElement";
+import {CloseIcon} from "../Elements/Icons/CloseIcon";
+import {AddIcon} from "../Elements/Icons/AddIcon";
+import {OkIcon} from "../Elements/Icons/OkIcon";
+import {ZoomInIcon} from "../Elements/Icons/ZoomInIcon";
 
 console.log("loading DemoFunctions.ts");
 
@@ -147,10 +152,27 @@ class DemoFunctions {
         )
     }
 
-}
+    @demoFunction()
+    testButton() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.init(
+            new VerticalLayout(
+                null,
+                new ButtonElement()
+                    .setWidth(100).setHeight(50)
+                    .setIcon(new CloseIcon()).setText("Close"),
+                new ButtonElement()
+                    .setWidth(100).setHeight(50)
+                    .setIcon(new AddIcon()).setText("Add"),
+                new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
+                new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In"),
+            ).setPosFromXY(50, 50)
 
-let canvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
-let canvasRecorder: CanvasRecorder = new CanvasRecorder(canvas, 60);
+        )
+
+    }
+
+}
 
 function main() {
     initConsole();

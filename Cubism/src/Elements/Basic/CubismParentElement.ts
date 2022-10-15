@@ -63,7 +63,12 @@ export default class CubismParentElement extends CubismElement {
      * @param children
      */
     addChildren(...children: CubismElement[]): this {
+        if (children === undefined) {
+            console.log("children is undefined");
+            return this;
+        }
         for (let child of children) {
+
             this.children.push(child);
             if (this._cubism) {
                 child.setCubism(this.cubism);

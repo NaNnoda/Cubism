@@ -1,17 +1,15 @@
-import {ThemedElement} from "../ThemedElement";
+import {ThemedElement} from "./ThemedElement";
 import BasicTheme from "../../Theme/BasicTheme";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import ThemeKeys from "../../Constants/ThemeKeys";
 import {Colors} from "../../Constants/Colors";
 
 export class PointerInteractThemeElement extends ThemedElement {
-    // pointerDownTheme: BasicTheme = new BasicTheme("red", "red", 1);
-    // pointerHoverTheme: BasicTheme = new BasicTheme("green", "green", 1);
 
     onCreate() {
         super.onCreate();
-        this.setTheme(ThemeKeys.ON_DOWN_THEME, new BasicTheme(Colors.grey200));
-        this.setTheme(ThemeKeys.ON_HOVER_THEME, new BasicTheme(Colors.grey100));
+        this.setTheme(ThemeKeys.ON_DOWN_THEME, BasicTheme.pressed);
+        this.setTheme(ThemeKeys.ON_HOVER_THEME, BasicTheme.hover);
     }
     onDown(point: PointerPoint) {
         super.onDown(point);

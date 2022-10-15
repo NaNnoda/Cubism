@@ -1,4 +1,4 @@
-import {CanvasDrawer} from "./CanvasDrawer";
+import {CanvasDrawer} from "./Drawer/CanvasDrawer";
 import {CubismEventSystem} from "./Events/CubismEventSystem";
 import {EventKeys} from "./Constants/EventKeys";
 import {Point2D} from "./Datatypes/Point";

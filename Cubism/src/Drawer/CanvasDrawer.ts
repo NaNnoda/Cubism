@@ -1,8 +1,8 @@
-import {Point2D} from "./Datatypes/Point";
+import {Point2D} from "../Datatypes/Point";
 import {CubismCanvasState} from "./CubismCanvasState";
-import CubismPart from "./CubismPart";
-import {Cubism} from "./Cubism";
-import {EventKeys} from "./Constants/EventKeys";
+import CubismPart from "../CubismPart";
+import {Cubism} from "../Cubism";
+import {EventKeys} from "../Constants/EventKeys";
 
 /**
  * Adaptor class for the canvas
@@ -207,11 +207,23 @@ export class CanvasDrawer extends CubismPart {
     }
 
     /**
+     * Set the font of the canvas
+     * @param font
+     */
+    setFont(font: string) {
+        this.ctx.font = font;
+    }
+
+    /**
      * Set the need redraw flag
      * @param redraw
      */
     setRedraw(redraw: boolean) {
         this.state.needsRedraw = redraw;
+    }
+
+    measureText(text: string) {
+        return this.ctx.measureText(text);
     }
 
     /**

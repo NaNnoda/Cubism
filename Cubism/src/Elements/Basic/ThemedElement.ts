@@ -1,10 +1,10 @@
-import {CanvasDrawer} from "../CanvasDrawer";
-import {PointerPoint} from "../Datatypes/PointerPoint";
+import {CanvasDrawer} from "../../Drawer/CanvasDrawer";
+import {PointerPoint} from "../../Datatypes/PointerPoint";
 
-import PointerHandlerParentElement from "./Basic/PointerHanderParentElement";
-import BasicTheme from "../Theme/BasicTheme";
-import {needsRedrawAccessor} from "../NeedsRedraw";
-import ThemeKeys from "../Constants/ThemeKeys";
+import PointerHandlerParentElement from "./PointerHanderParentElement";
+import BasicTheme from "../../Theme/BasicTheme";
+import {needsRedrawAccessor} from "../../Utils/Decorators/NeedsRedraw";
+import ThemeKeys from "../../Constants/ThemeKeys";
 
 export class ThemedElement extends PointerHandlerParentElement {
     _themes: { [key: string]: BasicTheme } | undefined;
@@ -24,7 +24,7 @@ export class ThemedElement extends PointerHandlerParentElement {
 
     onCreate() {
         super.onCreate();
-        this.setTheme(ThemeKeys.DEFAULT_THEME, new BasicTheme());
+        this.setTheme(ThemeKeys.DEFAULT_THEME, BasicTheme.default);
         this.currTheme = this.themes[ThemeKeys.DEFAULT_THEME];
     }
 

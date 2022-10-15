@@ -1,4 +1,4 @@
-import CubismPart from "./CubismPart";
+import CubismPart from "../../CubismPart";
 
 /**
  * A decorator that trys to redraw the canvas after the accessor is called.

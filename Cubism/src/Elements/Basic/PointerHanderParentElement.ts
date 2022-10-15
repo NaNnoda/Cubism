@@ -29,6 +29,11 @@ export default class PointerHandlerParentElement extends CubismParentElement {
     constructor(id: string | null = null, ...children: CubismElement[]) {
         super(id, ...children);
         this.registerEvent(EventKeys.ON_POINTER_EVENT, this.onPointerEvent.bind(this));
+        this.internalAddChildren();
+    }
+
+    internalAddChildren() {
+
     }
 
     onDown(point: PointerPoint) {

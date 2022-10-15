@@ -2,7 +2,7 @@ import PointerHandlerParentElement from "../Basic/PointerHanderParentElement";
 import {CubismElement} from "../Basic/CubismElement";
 import {Colors} from "../../Constants/Colors";
 import {Cubism} from "../../Cubism";
-import {needsRedrawAccessor} from "../../NeedsRedraw";
+import {needsRedrawAccessor} from "../../Utils/Decorators/NeedsRedraw";
 
 export class ChangingRainbowBackground extends CubismElement{
     frameCount: number = 0;

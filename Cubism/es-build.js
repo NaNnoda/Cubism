@@ -119,12 +119,12 @@ var TransformMatrix2D = class {
   }
 };
 
-// src/CubismCanvasState.ts
+// src/Drawer/CubismCanvasState.ts
 var CubismCanvasState = class {
-  constructor(canvas2, ctx) {
+  constructor(canvas, ctx) {
     this.translates = [TransformMatrix2D.identity()];
     this._needsRedraw = true;
-    this.canvas = canvas2;
+    this.canvas = canvas;
     this.ctx = ctx;
   }
   set translate(offset) {
@@ -219,13 +219,13 @@ EventKeys.MINUTE_UPDATE = "onMinuteUpdate";
 EventKeys.HOUR_UPDATE = "onHourUpdate";
 EventKeys.DRAW_COUNT_UPDATE = "onDrawCountUpdate";
 
-// src/CanvasDrawer.ts
+// src/Drawer/CanvasDrawer.ts
 var CanvasDrawer = class extends CubismPart {
-  constructor(canvas2) {
+  constructor(canvas) {
     super();
-    this.canvas = canvas2;
-    this.ctx = canvas2.getContext("2d");
-    this.state = new CubismCanvasState(canvas2, this.ctx);
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.state = new CubismCanvasState(canvas, this.ctx);
   }
   get eventSystem() {
     return this.cubism.eventSystem;
@@ -324,8 +324,14 @@ var CanvasDrawer = class extends CubismPart {
     this.ctx.fill();
     this.ctx.stroke();
   }
+  setFont(font) {
+    this.ctx.font = font;
+  }
   setRedraw(redraw) {
     this.state.needsRedraw = redraw;
+  }
+  measureText(text) {
+    return this.ctx.measureText(text);
   }
   triggerRedraw() {
     this.eventSystem.triggerEvent(EventKeys.REDRAW);
@@ -599,20 +605,20 @@ var CubismElementManger = class {
 
 // src/Cubism.ts
 var Cubism = class extends CubismElementManger {
-  constructor(canvas2) {
+  constructor(canvas) {
     super();
     this._root = null;
-    this.canvas = canvas2;
+    this.canvas = canvas;
     this.eventSystem = new CubismEventSystem();
-    this.canvasDrawer = new CanvasDrawer(canvas2);
+    this.canvasDrawer = new CanvasDrawer(canvas);
     this._initializer = new CubismInitializer();
     this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
     this.registerRedraw();
     this.registerGlobalPointerEvents();
-    if (canvas2.id === null || canvas2.id === void 0 || canvas2.id === "") {
+    if (canvas.id === null || canvas.id === void 0 || canvas.id === "") {
       throw new Error("Canvas must have an id");
     }
-    this.cubismId = canvas2.id;
+    this.cubismId = canvas.id;
     CubismOuterGlobal.registerCubismInstance(this.cubismId, this);
   }
   get width() {
@@ -659,8 +665,8 @@ var Cubism = class extends CubismElementManger {
   registerRedraw() {
     this.eventSystem.registerEvent(EventKeys.REDRAW, this.redraw.bind(this));
   }
-  static createFromCanvas(canvas2) {
-    return new Cubism(canvas2);
+  static createFromCanvas(canvas) {
+    return new Cubism(canvas);
   }
   static createFromId(id) {
     return Cubism.createFromCanvas(document.getElementById(id));
@@ -701,7 +707,7 @@ var Cubism = class extends CubismElementManger {
   }
 };
 
-// src/Debug/DebugConsole.ts
+// src/Utils/Debug/DebugConsole.ts
 function initConsole() {
   let w = window;
   w.test = () => {
@@ -719,7 +725,7 @@ SizeKeys.DEFAULT_MARGIN = 10;
 SizeKeys.DEFAULT_BORDER = 1;
 SizeKeys.MATCH_PARENT = -1;
 
-// src/NeedsRedraw.ts
+// src/Utils/Decorators/NeedsRedraw.ts
 function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = true) {
   return function(target, propertyKey, descriptor) {
     if (descriptor) {
@@ -918,6 +924,10 @@ var CubismParentElement = class extends CubismElement {
     }
   }
   addChildren(...children) {
+    if (children === void 0) {
+      console.log("children is undefined");
+      return this;
+    }
     for (let child of children) {
       this.children.push(child);
       if (this._cubism) {
@@ -968,6 +978,7 @@ var PointerHandlerParentElement = class extends CubismParentElement {
     this._hovered = false;
     this._pressed = false;
     this.registerEvent(EventKeys.ON_POINTER_EVENT, this.onPointerEvent.bind(this));
+    this.internalAddChildren();
   }
   get pressed() {
     return this._pressed;
@@ -980,6 +991,8 @@ var PointerHandlerParentElement = class extends CubismParentElement {
   }
   set hovered(value) {
     this._hovered = value;
+  }
+  internalAddChildren() {
   }
   onDown(point) {
   }
@@ -1162,7 +1175,7 @@ Colors.transparentOrange = "rgba(255,128,0,0.5)";
 Colors.transparentPurple = "rgba(128,0,255,0.5)";
 Colors.transparentPink = "rgba(255,0,128,0.5)";
 
-// src/Physics/Physics2D/PhysicalPoint2D.ts
+// src/Utils/Physics/Physics2D/PhysicalPoint2D.ts
 var PhysicalPoint2D = class extends Point2D {
   constructor() {
     super(...arguments);
@@ -1316,19 +1329,19 @@ var ChangingRainbowBackground = class extends CubismElement {
 
 // src/Demo/CanvasRecorder.ts
 var CanvasRecorder = class {
-  constructor(canvas2, fps = 60) {
+  constructor(canvas, fps = 60) {
     this.recorder = null;
     this.chunks = [];
     this.videoStream = null;
     this.isRecording = false;
-    if (typeof canvas2 === "string") {
-      let tempCanvas = document.getElementById(canvas2);
+    if (typeof canvas === "string") {
+      let tempCanvas = document.getElementById(canvas);
       if (!tempCanvas) {
         throw new Error("Canvas not found");
       }
       this.canvas = tempCanvas;
     } else {
-      this.canvas = canvas2;
+      this.canvas = canvas;
     }
     this.fps = fps;
   }
@@ -1452,9 +1465,9 @@ var StaticDemo = class {
     this.selector.onload = this.onSelectorChange.bind(this);
   }
   resetCanvas() {
-    let canvas2 = document.getElementById("mainCanvas");
-    canvas2.width = 400;
-    canvas2.height = 400;
+    let canvas = document.getElementById("mainCanvas");
+    canvas.width = 400;
+    canvas.height = 400;
   }
   setCurrentDemoCode(name) {
     this.codeText.value = this._demoFunctions[name].toString();
@@ -1626,10 +1639,34 @@ var VerticalLayout = class extends LinearLayout {
 
 // src/Theme/BasicTheme.ts
 var BasicTheme = class {
-  constructor(fillStyle = Colors.white, strokeStyle = Colors.blue700, lineWidth = 2) {
+  constructor() {
+    this.fillStyle = Colors.white;
+    this.strokeStyle = Colors.blue700;
+    this.lineWidth = 2;
+  }
+  setFillStyle(fillStyle) {
     this.fillStyle = fillStyle;
+    return this;
+  }
+  setStrokeStyle(strokeStyle) {
     this.strokeStyle = strokeStyle;
-    this.lineWidth = lineWidth;
+    return this;
+  }
+  setLineWidth(width) {
+    this.lineWidth = width;
+    return this;
+  }
+  static get default() {
+    return new BasicTheme();
+  }
+  static get transparent() {
+    return new BasicTheme().setLineWidth(0).setFillStyle(Colors.transparent).setStrokeStyle(Colors.transparent);
+  }
+  static get hover() {
+    return new BasicTheme().setFillStyle(Colors.grey100);
+  }
+  static get pressed() {
+    return new BasicTheme().setFillStyle(Colors.grey200);
   }
 };
 
@@ -1640,7 +1677,7 @@ ThemeKeys.ON_HOVER_THEME = "ON_HOVER_THEME";
 ThemeKeys.ON_DOWN_THEME = "ON_DOWN_THEME";
 ThemeKeys.DEFAULT_THEME = "DEFAULT_THEME";
 
-// src/Elements/ThemedElement.ts
+// src/Elements/Basic/ThemedElement.ts
 var ThemedElement = class extends PointerHandlerParentElement {
   get themes() {
     if (this._themes === void 0) {
@@ -1654,7 +1691,7 @@ var ThemedElement = class extends PointerHandlerParentElement {
   }
   onCreate() {
     super.onCreate();
-    this.setTheme(ThemeKeys.DEFAULT_THEME, new BasicTheme());
+    this.setTheme(ThemeKeys.DEFAULT_THEME, BasicTheme.default);
     this.currTheme = this.themes[ThemeKeys.DEFAULT_THEME];
   }
   get currTheme() {
@@ -1688,8 +1725,8 @@ __decorateClass([
 var PointerInteractThemeElement = class extends ThemedElement {
   onCreate() {
     super.onCreate();
-    this.setTheme(ThemeKeys.ON_DOWN_THEME, new BasicTheme(Colors.grey200));
-    this.setTheme(ThemeKeys.ON_HOVER_THEME, new BasicTheme(Colors.grey100));
+    this.setTheme(ThemeKeys.ON_DOWN_THEME, BasicTheme.pressed);
+    this.setTheme(ThemeKeys.ON_HOVER_THEME, BasicTheme.hover);
   }
   onDown(point) {
     super.onDown(point);
@@ -1769,6 +1806,175 @@ var Background = class extends CubismElement {
     super.draw();
     this.c.setFillStyle(this.color);
     this.c.drawRect(0, 0, this.cubism.width, this.cubism.height);
+  }
+};
+
+// src/Theme/FontTheme.ts
+var FontTheme = class extends BasicTheme {
+  constructor() {
+    super(...arguments);
+    this.fontSize = 20;
+    this.fontFamily = "Arial";
+  }
+  setFontSize(size) {
+    this.fontSize = size;
+    return this;
+  }
+  setFontFamily(fontFamily) {
+    this.fontFamily = fontFamily;
+    return this;
+  }
+  static get default() {
+    return new FontTheme().setFillStyle(Colors.black);
+  }
+};
+
+// src/Elements/TextElement.ts
+var TextElement = class extends CubismElement {
+  constructor(content, id = null) {
+    super(id);
+    this.theme = FontTheme.default;
+    this.content = "NO CONTENT";
+    this.content = content;
+  }
+  setFontSize(size) {
+    this.theme.fontSize = size;
+  }
+  draw() {
+    super.draw();
+    let c = this.c;
+    c.setFont(`${this.theme.fontSize}px ${this.theme.fontFamily}`);
+    c.translate(this.position);
+    c.setFillStyle(this.theme.fillStyle);
+    c.setStrokeStyle(this.theme.strokeStyle);
+    let textWidth = c.measureText(this.content).width;
+    let textHeight = this.theme.fontSize;
+    c.fillText(this.content, 0, textHeight);
+    c.restoreTranslate();
+  }
+};
+
+// src/Elements/ButtonElement.ts
+var ButtonElement = class extends PointerInteractThemeElement {
+  constructor() {
+    super(...arguments);
+    this._icon = null;
+    this._text = null;
+  }
+  set icon(icon) {
+    this._icon = icon;
+    if (icon !== null) {
+      this.addChildren(icon);
+    }
+  }
+  get icon() {
+    return this._icon;
+  }
+  get text() {
+    return this._text;
+  }
+  set text(text) {
+    this._text = text;
+    if (text !== null) {
+      if (this.icon !== null) {
+        text.position.x += this.icon.width;
+      }
+      this.addChildren(text);
+    }
+  }
+  draw() {
+    super.draw();
+    this.c.translate(this.position);
+    this.c.ctx.strokeRect(0, 0, this.width, this.height);
+    if (this.icon !== null) {
+      this.icon.draw();
+    }
+    this.c.restoreTranslate();
+  }
+  internalAddChildren() {
+    super.internalAddChildren();
+  }
+  setIcon(icon) {
+    this.icon = icon;
+    return this;
+  }
+  setText(text) {
+    if (typeof text === "string") {
+      text = new TextElement(text);
+    }
+    this.text = text;
+    return this;
+  }
+};
+
+// src/Elements/Icons/BasicIcon.ts
+var BasicIcon = class extends CubismElement {
+  constructor() {
+    super(...arguments);
+    this._size = new Point2D(20, 20);
+  }
+  draw() {
+    super.draw();
+    this.c.translate(this.position);
+    this.drawIcon();
+    this.c.restoreTranslate();
+  }
+  drawIcon() {
+    throw new Error("Not implemented");
+  }
+};
+
+// src/Elements/Icons/CloseIcon.ts
+var CloseIcon = class extends BasicIcon {
+  drawIcon() {
+    let size = this.size.min;
+    this.c.ctx.beginPath();
+    this.c.ctx.moveTo(0, 0);
+    this.c.ctx.lineTo(size, size);
+    this.c.ctx.moveTo(size, 0);
+    this.c.ctx.lineTo(0, size);
+    this.c.ctx.stroke();
+  }
+};
+
+// src/Elements/Icons/AddIcon.ts
+var AddIcon = class extends BasicIcon {
+  drawIcon() {
+    let size = this.size.min;
+    this.c.ctx.beginPath();
+    this.c.ctx.moveTo(0, size / 2);
+    this.c.ctx.lineTo(size, size / 2);
+    this.c.ctx.moveTo(size / 2, 0);
+    this.c.ctx.lineTo(size / 2, size);
+    this.c.ctx.stroke();
+  }
+};
+
+// src/Elements/Icons/OkIcon.ts
+var OkIcon = class extends BasicIcon {
+  drawIcon() {
+    let size = this.size.min;
+    this.c.ctx.beginPath();
+    this.c.ctx.moveTo(0, size / 2);
+    this.c.ctx.lineTo(size / 2, size);
+    this.c.ctx.lineTo(size, 0);
+    this.c.ctx.stroke();
+  }
+};
+
+// src/Elements/Icons/ZoomInIcon.ts
+var ZoomInIcon = class extends BasicIcon {
+  drawIcon() {
+    let size = this.size.min;
+    this.c.ctx.beginPath();
+    this.c.ctx.moveTo(0, size / 2);
+    this.c.ctx.lineTo(size, size / 2);
+    this.c.ctx.moveTo(size / 2, 0);
+    this.c.ctx.lineTo(size / 2, size);
+    this.c.ctx.stroke();
+    this.c.ctx.beginPath();
+    this.c.ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+    this.c.ctx.stroke();
   }
 };
 
@@ -1859,6 +2065,18 @@ var DemoFunctions = class {
       ).setPosFromXY(0, 0)
     );
   }
+  testButton() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new VerticalLayout(
+        null,
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new CloseIcon()).setText("Close"),
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add"),
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In")
+      ).setPosFromXY(50, 50)
+    );
+  }
 };
 __decorateClass([
   demoFunction()
@@ -1878,8 +2096,9 @@ __decorateClass([
 __decorateClass([
   demoFunction("Demo function for theme changing")
 ], DemoFunctions.prototype, "themedElements", 1);
-var canvas = document.getElementById("mainCanvas");
-var canvasRecorder = new CanvasRecorder(canvas, 60);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "testButton", 1);
 function main() {
   initConsole();
 }

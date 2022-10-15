@@ -3,8 +3,8 @@ import {Colors} from "../../Constants/Colors";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 import {Point2D} from "../../Datatypes/Point";
 import {CubismElement} from "../Basic/CubismElement";
-import PhysicalPoint2D from "../../Physics/Physics2D/PhysicalPoint2D";
-import {needsRedrawAccessor} from "../../NeedsRedraw";
+import PhysicalPoint2D from "../../Utils/Physics/Physics2D/PhysicalPoint2D";
+import {needsRedrawAccessor} from "../../Utils/Decorators/NeedsRedraw";
 
 export default class RecursiveRect extends PointerHandlerParentElement {
     lastPoint: PointerPoint | null = null;

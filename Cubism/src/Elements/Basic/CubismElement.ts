@@ -1,9 +1,9 @@
 import {Point2D} from "../../Datatypes/Point";
-import {CanvasDrawer} from "../../CanvasDrawer";
+import {CanvasDrawer} from "../../Drawer/CanvasDrawer";
 import {Cubism} from "../../Cubism";
 import {CubismEventSystem} from "../../Events/CubismEventSystem";
 import SizeKeys from "../../Constants/SizeKeys";
-import {needsRedrawAccessor} from "../../NeedsRedraw";
+import {needsRedrawAccessor} from "../../Utils/Decorators/NeedsRedraw";
 
 /**
  * Base class for all elements that can be rendered on the canvas
@@ -212,6 +212,8 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
         }
         return this.cubism.canvasDrawer;
     }
+
+
 
     /**
      * Render this element
