@@ -155,7 +155,7 @@ class DemoFunctions {
     }
 
     @demoFunction()
-    buttonLayoutDemo() {
+    buttonAndLayoutDemo() {
         let app = Cubism.createFromId("mainCanvas");
 
 

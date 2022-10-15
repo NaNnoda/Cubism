@@ -2072,7 +2072,7 @@ var DemoFunctions = class {
       ).setPosFromXY(0, 0)
     );
   }
-  buttonLayoutDemo() {
+  buttonAndLayoutDemo() {
     let app = Cubism.createFromId("mainCanvas");
     let verticalLayout = new VerticalLayout("Add Button Vertical Layout");
     let itemList = [];
@@ -2122,7 +2122,7 @@ __decorateClass([
 ], DemoFunctions.prototype, "themedElements", 1);
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "buttonLayoutDemo", 1);
+], DemoFunctions.prototype, "buttonAndLayoutDemo", 1);
 function main() {
   initConsole();
 }
