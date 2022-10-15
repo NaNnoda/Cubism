@@ -1,7 +1,7 @@
-import {LinearLayout} from "./LinearLayout";
+import {LayoutElement} from "./LayoutElement";
 import {Point2D} from "../../Utils/Math/Point";
 
-export class VerticalLayout extends LinearLayout {
+export class VerticalLayout extends LayoutElement {
     updateChildrenPosition() {
         let maxChildWidth = 0;
         super.updateChildrenPosition();
@@ -9,6 +9,10 @@ export class VerticalLayout extends LinearLayout {
         let y = 0;
         for (let child of this.children) {
             child.position = new Point2D(x, y);
+            if (child instanceof LayoutElement) {
+                child.height = child.getCumulativeHeight();
+                child.width = child.getCumulativeWidth();
+            }
             if (child.width > maxChildWidth) {
                 maxChildWidth = child.width;
             }
@@ -17,14 +21,8 @@ export class VerticalLayout extends LinearLayout {
         this.absWidth = maxChildWidth;
         this.absHeight = y;
     }
-    // pointerInRange(point: Point2D): boolean {
-    //
-    //     if (point.x >= this.position.x && point.x <= this.getMaxWidth() + this.position.x) {
-    //         if (point.y >= this.position.y && point.y <= this.getCumulativeHeight() + this.position.y) {
-    //             console.log(`Pointer in range of ${this}`);
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
+
+    getCumulativeWidth(): number {
+        return this.getMaxElementWidth();
+    }
 }

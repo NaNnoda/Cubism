@@ -1,8 +1,8 @@
 import PointerHandlerParentElement from "../Basic/PointerHanderParentElement";
 import {Point2D} from "../../Utils/Math/Point";
 
-export abstract class LinearLayout extends PointerHandlerParentElement {
-    getMaxWidth(): number {
+export abstract class LayoutElement extends PointerHandlerParentElement {
+    getMaxElementWidth(): number {
         let maxWidth = 0;
         for (let child of this.children) {
             if (child.absWidth > maxWidth) {
@@ -18,7 +18,7 @@ export abstract class LinearLayout extends PointerHandlerParentElement {
         }
         return width;
     }
-    getMaxHeight(): number {
+    getMaxElementHeight(): number {
         let maxHeight = 0;
         for (let child of this.children) {
             if (child.absHeight > maxHeight) {

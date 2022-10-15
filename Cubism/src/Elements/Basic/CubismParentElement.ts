@@ -68,10 +68,10 @@ export default class CubismParentElement extends CubismElement {
             return this;
         }
         for (let child of children) {
-
             this.children.push(child);
             if (this._cubism) {
                 child.setCubism(this.cubism);
+                this.updateChildrenShape();
             }
         }
         return this;

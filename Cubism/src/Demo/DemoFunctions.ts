@@ -21,6 +21,7 @@ import {AddIcon} from "../Elements/Icons/AddIcon";
 import {OkIcon} from "../Elements/Icons/OkIcon";
 import {ZoomInIcon} from "../Elements/Icons/ZoomInIcon";
 import {UnknownIcon} from "../Elements/Icons/UnknownIcon";
+import {CubismElement} from "../Elements/Basic/CubismElement";
 
 console.log("loading DemoFunctions.ts");
 
@@ -154,28 +155,37 @@ class DemoFunctions {
     }
 
     @demoFunction()
-    testButton() {
+    buttonLayoutDemo() {
         let app = Cubism.createFromId("mainCanvas");
+
+
+        let verticalLayout = new VerticalLayout("Add Button Vertical Layout");
+
+        let itemList: CubismElement[] = [];
+        let horizontalLayout = new HorizontalLayout("Horizontal Layout",
+            new ButtonElement("AddBtn").setWidth(100).setHeight(50)
+                .setIcon(new AddIcon()).setText("Add")
+                .setOnClick(() => {
+                    console.log("Add button clicked");
+                    let item = new ButtonElement().setWidth(250).setHeight(50).setText(`Item ${itemList.length + 1}`);
+                    itemList.push(item);
+                    verticalLayout.addChildren(item);
+                }),
+            new ButtonElement("RemoveBtn").setWidth(150).setHeight(50)
+                .setIcon(new CloseIcon()).setText("Remove")
+
+                .setOnClick(() => {
+                        console.log("Remove button clicked");
+                        if (itemList.length > 0) {
+                            verticalLayout.removeChild(itemList.pop() as CubismElement);
+                        }
+                    }
+                )
+        );
         app.init(
-            new VerticalLayout(
-                null,
-                new ButtonElement()
-                    .setWidth(100).setHeight(30)
-                    .setIcon(new CloseIcon()).setText("Close"),
-                new ButtonElement()
-                    .setWidth(100).setHeight(50)
-                    .setIcon(new AddIcon()).setText("Add"),
-                new ButtonElement().setWidth(100).setHeight(50)
-                    .setIcon(new OkIcon()).setText("OK"),
-                new ButtonElement().setWidth(150).setHeight(50)
-                    .setIcon(new ZoomInIcon()).setText("ZoomIn"),
-                new ButtonElement().setWidth(200).setHeight(50)
-                    .setIcon(new UnknownIcon()).setText("Unknown"),
-                new ButtonElement().setWidth(200).setHeight(50)
-                    .setText("Text Only"),
-                new ButtonElement().setWidth(200).setHeight(50)
-                    .setIcon(new UnknownIcon()),
-            ).setPosFromXY(50, 50)
+            new VerticalLayout(null,
+                horizontalLayout, verticalLayout
+            ).setPosFromXY(75, 25)
         )
     }
 

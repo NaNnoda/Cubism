@@ -3,10 +3,13 @@ import BasicIcon from "./Icons/BasicIcon";
 import {VerticalLayout} from "./Layouts/VerticalLayout";
 import {TextElement} from "./TextElement";
 import {Point2D} from "../Utils/Math/Point";
+import {PointerPoint} from "../Datatypes/PointerPoint";
 
 export class ButtonElement extends PointerInteractThemeElement {
     _icon: BasicIcon | null = null;
     _text: TextElement | null = null;
+
+    _onClick: (point:PointerPoint) => void = () => {};
 
     iconXOffset = 10;
     textXOffset = 10;
@@ -38,6 +41,16 @@ export class ButtonElement extends PointerInteractThemeElement {
             }
             this.addChildren(text);
         }
+    }
+
+    setOnClick(func:(point:Point2D)=>void) {
+        this._onClick = func;
+        return this;
+    }
+
+    onUp(point: PointerPoint): void {
+        super.onUp(point);
+        this._onClick(point);
     }
 
     draw() {

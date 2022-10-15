@@ -257,6 +257,7 @@ var CanvasDrawer = class extends CubismPart {
   }
   clear() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.canvas.width = this.cubism.width;
   }
   setFillStyle(style) {
     this.ctx.fillStyle = style;
@@ -932,6 +933,7 @@ var CubismParentElement = class extends CubismElement {
       this.children.push(child);
       if (this._cubism) {
         child.setCubism(this.cubism);
+        this.updateChildrenShape();
       }
     }
     return this;
@@ -1579,9 +1581,9 @@ function demoFunction(...descriptionLines) {
   };
 }
 
-// src/Elements/Layouts/LinearLayout.ts
-var LinearLayout = class extends PointerHandlerParentElement {
-  getMaxWidth() {
+// src/Elements/Layouts/LayoutElement.ts
+var LayoutElement = class extends PointerHandlerParentElement {
+  getMaxElementWidth() {
     let maxWidth = 0;
     for (let child of this.children) {
       if (child.absWidth > maxWidth) {
@@ -1597,7 +1599,7 @@ var LinearLayout = class extends PointerHandlerParentElement {
     }
     return width;
   }
-  getMaxHeight() {
+  getMaxElementHeight() {
     let maxHeight = 0;
     for (let child of this.children) {
       if (child.absHeight > maxHeight) {
@@ -1619,7 +1621,7 @@ var LinearLayout = class extends PointerHandlerParentElement {
 };
 
 // src/Elements/Layouts/VerticalLayout.ts
-var VerticalLayout = class extends LinearLayout {
+var VerticalLayout = class extends LayoutElement {
   updateChildrenPosition() {
     let maxChildWidth = 0;
     super.updateChildrenPosition();
@@ -1627,6 +1629,10 @@ var VerticalLayout = class extends LinearLayout {
     let y = 0;
     for (let child of this.children) {
       child.position = new Point2D(x, y);
+      if (child instanceof LayoutElement) {
+        child.height = child.getCumulativeHeight();
+        child.width = child.getCumulativeWidth();
+      }
       if (child.width > maxChildWidth) {
         maxChildWidth = child.width;
       }
@@ -1634,6 +1640,9 @@ var VerticalLayout = class extends LinearLayout {
     }
     this.absWidth = maxChildWidth;
     this.absHeight = y;
+  }
+  getCumulativeWidth() {
+    return this.getMaxElementWidth();
   }
 };
 
@@ -1774,7 +1783,7 @@ var CircleElement = class extends PointerInteractThemeElement {
 };
 
 // src/Elements/Layouts/HorizontalLayout.ts
-var HorizontalLayout = class extends LinearLayout {
+var HorizontalLayout = class extends LayoutElement {
   updateChildrenPosition() {
     let maxChildHeight = 0;
     super.updateChildrenPosition();
@@ -1782,6 +1791,10 @@ var HorizontalLayout = class extends LinearLayout {
     let y = 0;
     for (let child of this.children) {
       child.position = new Point2D(x, y);
+      if (child instanceof LayoutElement) {
+        child.height = child.getCumulativeHeight();
+        child.width = child.getCumulativeWidth();
+      }
       if (child.height > maxChildHeight) {
         maxChildHeight = child.height;
       }
@@ -1789,6 +1802,9 @@ var HorizontalLayout = class extends LinearLayout {
     }
     this.absHeight = maxChildHeight;
     this.absWidth = x;
+  }
+  getCumulativeHeight() {
+    return this.getMaxElementHeight();
   }
 };
 
@@ -1863,6 +1879,8 @@ var ButtonElement = class extends PointerInteractThemeElement {
     super(...arguments);
     this._icon = null;
     this._text = null;
+    this._onClick = () => {
+    };
     this.iconXOffset = 10;
     this.textXOffset = 10;
   }
@@ -1890,6 +1908,14 @@ var ButtonElement = class extends PointerInteractThemeElement {
       }
       this.addChildren(text);
     }
+  }
+  setOnClick(func) {
+    this._onClick = func;
+    return this;
+  }
+  onUp(point) {
+    super.onUp(point);
+    this._onClick(point);
   }
   draw() {
     this.updateCanvasDrawerTheme();
@@ -1954,50 +1980,6 @@ var AddIcon = class extends BasicIcon {
     this.c.ctx.moveTo(0, size / 2);
     this.c.ctx.lineTo(size, size / 2);
     this.c.ctx.moveTo(size / 2, 0);
-    this.c.ctx.lineTo(size / 2, size);
-    this.c.ctx.stroke();
-  }
-};
-
-// src/Elements/Icons/OkIcon.ts
-var OkIcon = class extends BasicIcon {
-  drawIcon() {
-    let size = this.size.min;
-    this.c.ctx.beginPath();
-    this.c.ctx.moveTo(0, size / 2);
-    this.c.ctx.lineTo(size / 2, size);
-    this.c.ctx.lineTo(size, 0);
-    this.c.ctx.stroke();
-  }
-};
-
-// src/Elements/Icons/ZoomInIcon.ts
-var ZoomInIcon = class extends BasicIcon {
-  drawIcon() {
-    let size = this.size.min;
-    this.c.ctx.beginPath();
-    this.c.ctx.moveTo(0, size / 2);
-    this.c.ctx.lineTo(size, size / 2);
-    this.c.ctx.moveTo(size / 2, 0);
-    this.c.ctx.lineTo(size / 2, size);
-    this.c.ctx.stroke();
-    this.c.ctx.beginPath();
-    this.c.ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
-    this.c.ctx.stroke();
-  }
-};
-
-// src/Elements/Icons/UnknownIcon.ts
-var UnknownIcon = class extends BasicIcon {
-  drawIcon() {
-    let size = this.size.min;
-    this.c.ctx.beginPath();
-    this.c.ctx.moveTo(0, size / 2);
-    this.c.ctx.lineTo(size / 2, size);
-    this.c.ctx.lineTo(size, size / 2);
-    this.c.ctx.lineTo(size / 2, 0);
-    this.c.ctx.lineTo(0, size / 2);
-    this.c.ctx.moveTo(size / 2, size / 2);
     this.c.ctx.lineTo(size / 2, size);
     this.c.ctx.stroke();
   }
@@ -2090,19 +2072,33 @@ var DemoFunctions = class {
       ).setPosFromXY(0, 0)
     );
   }
-  testButton() {
+  buttonLayoutDemo() {
     let app = Cubism.createFromId("mainCanvas");
+    let verticalLayout = new VerticalLayout("Add Button Vertical Layout");
+    let itemList = [];
+    let horizontalLayout = new HorizontalLayout(
+      "Horizontal Layout",
+      new ButtonElement("AddBtn").setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add").setOnClick(() => {
+        console.log("Add button clicked");
+        let item = new ButtonElement().setWidth(250).setHeight(50).setText(`Item ${itemList.length + 1}`);
+        itemList.push(item);
+        verticalLayout.addChildren(item);
+      }),
+      new ButtonElement("RemoveBtn").setWidth(150).setHeight(50).setIcon(new CloseIcon()).setText("Remove").setOnClick(
+        () => {
+          console.log("Remove button clicked");
+          if (itemList.length > 0) {
+            verticalLayout.removeChild(itemList.pop());
+          }
+        }
+      )
+    );
     app.init(
       new VerticalLayout(
         null,
-        new ButtonElement().setWidth(100).setHeight(30).setIcon(new CloseIcon()).setText("Close"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
-        new ButtonElement().setWidth(150).setHeight(50).setIcon(new ZoomInIcon()).setText("ZoomIn"),
-        new ButtonElement().setWidth(200).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown"),
-        new ButtonElement().setWidth(200).setHeight(50).setText("Text Only"),
-        new ButtonElement().setWidth(200).setHeight(50).setIcon(new UnknownIcon())
-      ).setPosFromXY(50, 50)
+        horizontalLayout,
+        verticalLayout
+      ).setPosFromXY(75, 25)
     );
   }
 };
@@ -2126,7 +2122,7 @@ __decorateClass([
 ], DemoFunctions.prototype, "themedElements", 1);
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "testButton", 1);
+], DemoFunctions.prototype, "buttonLayoutDemo", 1);
 function main() {
   initConsole();
 }

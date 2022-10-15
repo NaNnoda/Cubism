@@ -77,6 +77,7 @@ export class CanvasDrawer extends CubismPart {
      */
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvas.width = this.cubism.width;
     }
 
     /**
