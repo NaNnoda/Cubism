@@ -2036,6 +2036,12 @@ var MaterialIcons = class extends BasicIcon {
   static get settings() {
     return new MaterialIcons("settings");
   }
+  static get arrow_back() {
+    return new MaterialIcons("arrow_back");
+  }
+  static get arrow_forward() {
+    return new MaterialIcons("arrow_forward");
+  }
 };
 
 // src/Demo/DemoFunctions.ts
@@ -2160,7 +2166,7 @@ var DemoFunctions = class {
       new VerticalLayout(
         "SVG Test",
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.add).setText("Add"),
-        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.close).setText("Close"),
+        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.arrow_back).setText("arrow_back"),
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.edit).setText("Edit"),
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search")
       )

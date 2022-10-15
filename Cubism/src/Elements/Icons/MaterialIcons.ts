@@ -59,4 +59,12 @@ export class MaterialIcons extends BasicIcon {
     static get settings() {
         return new MaterialIcons("settings");
     }
+
+    static get arrow_back() {
+        return new MaterialIcons("arrow_back");
+    }
+
+    static get arrow_forward() {
+        return new MaterialIcons("arrow_forward");
+    }
 }

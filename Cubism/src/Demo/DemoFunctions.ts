@@ -197,7 +197,7 @@ class DemoFunctions {
             new VerticalLayout(
                 "SVG Test",
                 new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.add).setText("Add"),
-                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.close).setText("Close"),
+                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.arrow_back).setText("arrow_back"),
                 new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.edit).setText("Edit"),
                 new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search"),
             )
