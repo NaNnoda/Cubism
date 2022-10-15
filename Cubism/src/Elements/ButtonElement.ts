@@ -33,21 +33,16 @@ export class ButtonElement extends PointerInteractThemeElement {
         }
     }
 
-    // _layout: VerticalLayout | undefined;
-    //
-    // get layout(): VerticalLayout {
-    //     if (this._layout === undefined) {
-    //         this._layout = new VerticalLayout();
-    //     }
-    //     return this._layout;
-    // }
-
     draw() {
-        super.draw();
+        // super.draw();
+        this.updateCanvasDrawerTheme();
         this.c.translate(this.position);
-        this.c.ctx.strokeRect(0, 0, this.width, this.height);
+        this.c.drawRectWithPoints(this.size);
         if (this.icon !== null) {
             this.icon.draw();
+        }
+        if (this.text !== null) {
+            this.text.draw();
         }
         this.c.restoreTranslate();
     }

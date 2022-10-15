@@ -20,6 +20,7 @@ import {CloseIcon} from "../Elements/Icons/CloseIcon";
 import {AddIcon} from "../Elements/Icons/AddIcon";
 import {OkIcon} from "../Elements/Icons/OkIcon";
 import {ZoomInIcon} from "../Elements/Icons/ZoomInIcon";
+import {UnknownIcon} from "../Elements/Icons/UnknownIcon";
 
 console.log("loading DemoFunctions.ts");
 
@@ -166,10 +167,10 @@ class DemoFunctions {
                     .setIcon(new AddIcon()).setText("Add"),
                 new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
                 new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In"),
+                new ButtonElement().setWidth(100).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown"),
+
             ).setPosFromXY(50, 50)
-
         )
-
     }
 
 }

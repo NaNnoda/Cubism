@@ -1883,11 +1883,14 @@ var ButtonElement = class extends PointerInteractThemeElement {
     }
   }
   draw() {
-    super.draw();
+    this.updateCanvasDrawerTheme();
     this.c.translate(this.position);
-    this.c.ctx.strokeRect(0, 0, this.width, this.height);
+    this.c.drawRectWithPoints(this.size);
     if (this.icon !== null) {
       this.icon.draw();
+    }
+    if (this.text !== null) {
+      this.text.draw();
     }
     this.c.restoreTranslate();
   }
@@ -1974,6 +1977,22 @@ var ZoomInIcon = class extends BasicIcon {
     this.c.ctx.stroke();
     this.c.ctx.beginPath();
     this.c.ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+    this.c.ctx.stroke();
+  }
+};
+
+// src/Elements/Icons/UnknownIcon.ts
+var UnknownIcon = class extends BasicIcon {
+  drawIcon() {
+    let size = this.size.min;
+    this.c.ctx.beginPath();
+    this.c.ctx.moveTo(0, size / 2);
+    this.c.ctx.lineTo(size / 2, size);
+    this.c.ctx.lineTo(size, size / 2);
+    this.c.ctx.lineTo(size / 2, 0);
+    this.c.ctx.lineTo(0, size / 2);
+    this.c.ctx.moveTo(size / 2, size / 2);
+    this.c.ctx.lineTo(size / 2, size);
     this.c.ctx.stroke();
   }
 };
@@ -2073,7 +2092,8 @@ var DemoFunctions = class {
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new CloseIcon()).setText("Close"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In")
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In"),
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown")
       ).setPosFromXY(50, 50)
     );
   }
