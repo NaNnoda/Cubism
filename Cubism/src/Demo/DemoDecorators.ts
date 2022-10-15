@@ -4,7 +4,7 @@ import {StaticDemo} from "./StaticDemo";
  * Decorator for demo functions
  * adds the function to the StaticDemo instance
  */
-export function demoFunction(...descriptionLines: string[] ) {
+export function demoFunction(...descriptionLines: string[]) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         let demo = StaticDemo.i;
         let currFunction = target[propertyKey];
@@ -13,7 +13,7 @@ export function demoFunction(...descriptionLines: string[] ) {
             descriptionLines.push("[No description]");
         }
 
-        let description = descriptionLines.join("\n");
+        let description = "Description:\n" + descriptionLines.join("\n");
 
         // Add space before capital letters
         let name = propertyKey.replace(/([A-Z])/g, ' $1').trim();

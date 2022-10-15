@@ -22,6 +22,8 @@ import {OkIcon} from "../Elements/Icons/OkIcon";
 import {ZoomInIcon} from "../Elements/Icons/ZoomInIcon";
 import {UnknownIcon} from "../Elements/Icons/UnknownIcon";
 import {CubismElement} from "../Elements/Basic/CubismElement";
+import {WebSvgIcon} from "../Elements/Icons/SVGIcon";
+import {MaterialIcons} from "../Elements/Icons/MaterialIcons";
 
 console.log("loading DemoFunctions.ts");
 
@@ -158,7 +160,6 @@ class DemoFunctions {
     buttonAndLayoutDemo() {
         let app = Cubism.createFromId("mainCanvas");
 
-
         let verticalLayout = new VerticalLayout("Add Button Vertical Layout");
 
         let itemList: CubismElement[] = [];
@@ -189,6 +190,20 @@ class DemoFunctions {
         )
     }
 
+    @demoFunction()
+    SVGTest() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.init(
+            new VerticalLayout(
+                "SVG Test",
+                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.add).setText("Add"),
+                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.close).setText("Close"),
+                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.edit).setText("Edit"),
+                new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search"),
+            )
+        )
+
+    }
 }
 
 function main() {

@@ -29,11 +29,13 @@ export class CanvasDrawer extends CubismPart {
         this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         this.state = new CubismCanvasState(canvas, this.ctx);
     }
+
     setCubism(cubism: Cubism) {
         super.setCubism(cubism);
 
         this.registerFrameUpdate();
     }
+
     get width() {
         return this.canvas.width;
     }
@@ -233,5 +235,15 @@ export class CanvasDrawer extends CubismPart {
      */
     triggerRedraw() {
         this.eventSystem.triggerEvent(EventKeys.REDRAW);
+    }
+
+    drawSVG(svg: string) {
+        const img = new Image();
+        img.src = "data:image/svg+xml;base64," + btoa(svg);
+        this.ctx.drawImage(img, 0, 0);
+    }
+
+    drawImage(image: HTMLImageElement, x: number = 0, y: number = 0, width: number = 0, height: number = 0) {
+        this.ctx.drawImage(image, x, y, width, height);
     }
 }

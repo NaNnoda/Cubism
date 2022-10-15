@@ -337,6 +337,14 @@ var CanvasDrawer = class extends CubismPart {
   triggerRedraw() {
     this.eventSystem.triggerEvent(EventKeys.REDRAW);
   }
+  drawSVG(svg) {
+    const img = new Image();
+    img.src = "data:image/svg+xml;base64," + btoa(svg);
+    this.ctx.drawImage(img, 0, 0);
+  }
+  drawImage(image, x = 0, y = 0, width = 0, height = 0) {
+    this.ctx.drawImage(image, x, y, width, height);
+  }
 };
 
 // src/Events/CubismEventSystem.ts
@@ -1574,7 +1582,7 @@ function demoFunction(...descriptionLines) {
     if (descriptionLines.length === 0) {
       descriptionLines.push("[No description]");
     }
-    let description = descriptionLines.join("\n");
+    let description = "Description:\n" + descriptionLines.join("\n");
     let name = propertyKey.replace(/([A-Z])/g, " $1").trim();
     name = name.charAt(0).toUpperCase() + name.slice(1);
     demo.addDemoFunction(name, currFunction, description);
@@ -1985,6 +1993,51 @@ var AddIcon = class extends BasicIcon {
   }
 };
 
+// src/Elements/Icons/SVGIcon.ts
+var WebSvgIcon = class extends BasicIcon {
+  constructor(svgUrl) {
+    super();
+    this.svgImg = new Image();
+    this.svgImg.src = svgUrl;
+  }
+  draw() {
+    this.c.translate(this.position);
+    this.c.drawImage(this.svgImg, 0, 0, this.width, this.height);
+    this.c.restoreTranslate();
+  }
+};
+
+// src/Elements/Icons/MaterialIcons.ts
+var MaterialIcons = class extends WebSvgIcon {
+  constructor(iconName) {
+    super("https://fonts.gstatic.com/s/i/materialicons/" + iconName + "/v8/20px.svg");
+  }
+  static get add() {
+    return new MaterialIcons("add");
+  }
+  static get close() {
+    return new MaterialIcons("close");
+  }
+  static get done() {
+    return new MaterialIcons("done");
+  }
+  static get edit() {
+    return new MaterialIcons("edit");
+  }
+  static get menu() {
+    return new MaterialIcons("menu");
+  }
+  static get more_vert() {
+    return new MaterialIcons("more_vert");
+  }
+  static get search() {
+    return new MaterialIcons("search");
+  }
+  static get settings() {
+    return new MaterialIcons("settings");
+  }
+};
+
 // src/Demo/DemoFunctions.ts
 console.log("loading DemoFunctions.ts");
 var DemoFunctions = class {
@@ -2101,6 +2154,18 @@ var DemoFunctions = class {
       ).setPosFromXY(75, 25)
     );
   }
+  SVGTest() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.init(
+      new VerticalLayout(
+        "SVG Test",
+        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.add).setText("Add"),
+        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.close).setText("Close"),
+        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.edit).setText("Edit"),
+        new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search")
+      )
+    );
+  }
 };
 __decorateClass([
   demoFunction()
@@ -2123,6 +2188,9 @@ __decorateClass([
 __decorateClass([
   demoFunction()
 ], DemoFunctions.prototype, "buttonAndLayoutDemo", 1);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "SVGTest", 1);
 function main() {
   initConsole();
 }
