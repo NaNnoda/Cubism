@@ -2092,7 +2092,7 @@ var DemoFunctions = class {
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new CloseIcon()).setText("Close"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new AddIcon()).setText("Add"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new OkIcon()).setText("OK"),
-        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("Zoom In"),
+        new ButtonElement().setWidth(100).setHeight(50).setIcon(new ZoomInIcon()).setText("ZoomIn"),
         new ButtonElement().setWidth(100).setHeight(50).setIcon(new UnknownIcon()).setText("Unknown")
       ).setPosFromXY(50, 50)
     );
