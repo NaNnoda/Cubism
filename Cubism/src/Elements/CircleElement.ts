@@ -5,10 +5,10 @@ export class CircleElement extends PointerInteractThemeElement {
     draw(): void {
         super.draw();
         let c = this.c;
-        let center = this.centerPoint;
+        // let center = this.centerPoint;
         c.translate(this.position);
         c.drawCircle(this.width/2, this.height/2, this.size.min / 2);
-        console.log("Drawing circle at: ", center);
+        // console.log("Drawing circle at: ", center);
         c.restoreTranslate();
     }
     pointerInRange(point: Point2D): boolean {

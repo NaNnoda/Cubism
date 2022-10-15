@@ -7,7 +7,7 @@ import {Point2D} from "../Datatypes/Point";
 import {demoFunction} from "./DemoDecorators";
 import {EventKeys} from "../Constants/EventKeys";
 import SizeKeys from "../Constants/SizeKeys";
-import CanvasRecorder from "../CanvasRecorder";
+import CanvasRecorder from "./CanvasRecorder";
 import {PointerInteractThemeElement} from "../Elements/Basic/PointerInteractThemeElement";
 import {VerticalLayout} from "../Elements/Layouts/VerticalLayout";
 import {RectElement} from "../Elements/RectElement";
@@ -94,13 +94,13 @@ class DemoFunctions {
         app.init(
             new PointerHandlerParentElement(
                 null,
-                new PointerInteractThemeElement()
-                    .setWidth(100).setHeight(100)
+                new CircleElement()
+                    .setWidth(200).setHeight(200)
+                    .setPosFromXY(100, 100)
             )
         )
         app.initializer.initializeFPSCounter();
         app.eventSystem.registerEvent(EventKeys.FPS_UPDATE, (fps: number) => {
-            // console.log(fps);
             if (document.getElementById("fps") === null) {
                 let fpsCounter = document.createElement("div");
                 fpsCounter.id = "fps";
@@ -130,7 +130,7 @@ class DemoFunctions {
                 new Background().setColor(Colors.blue700),
                 new VerticalLayout("Outer Vertical Layout",
                     new RectElement()
-                        .setWidth(100).setHeight(100),
+                        .setWidth(100).setHeight(50),
                     new CircleElement()
                         .setWidth(100).setHeight(100),
                     new HorizontalLayout(
@@ -142,7 +142,7 @@ class DemoFunctions {
                         new CircleElement()
                             .setWidth(100).setHeight(100),
                     )
-                ).setPosFromXY(50, 50)
+                ).setPosFromXY(50, 75)
             ).setPosFromXY(0, 0)
         )
     }

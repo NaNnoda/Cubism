@@ -1,6 +1,6 @@
-import IHasCubism from "../../Interface/IGlobalHandler";
-import CubismPart from "../../CubismPart";
-import IEventManger from "../../Interface/IEventManger";
+import IHasCubism from "../Interface/IGlobalHandler";
+import CubismPart from "../CubismPart";
+import IEventManger from "../Interface/IEventManger";
 
 /**
  * System that handles the registration and trigger of global events

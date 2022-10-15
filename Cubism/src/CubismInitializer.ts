@@ -1,4 +1,4 @@
-import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
+import {CubismEventSystem} from "./Events/CubismEventSystem";
 import IGlobalHandler from "./Interface/IGlobalHandler";
 import IHasCubism from "./Interface/IGlobalHandler";
 import CubismPart from "./CubismPart";

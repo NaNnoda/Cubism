@@ -1,5 +1,5 @@
 import {CubismOuterGlobal} from "../Global/Outer/CubismOuterGlobal";
-import CanvasRecorder from "../CanvasRecorder";
+import CanvasRecorder from "./CanvasRecorder";
 
 export class StaticDemo {
     private static _instance: StaticDemo;
@@ -238,7 +238,7 @@ class DemoFunction {
                 // newString += "\n" + line;
                 // Replace all spaces with 5 spaces
 
-                let lineToAppend = line.replace(/\)\./gm, `)\n${spaces}.`);
+                let lineToAppend = line.replace(/\(\)\./gm, `()\n${spaces}.`);
                 newString += "\n" + lineToAppend;
             }
         }

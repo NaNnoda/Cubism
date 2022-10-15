@@ -1,4 +1,4 @@
-import {CubismEventSystem} from "../Inter/CubismEventSystem";
+import {CubismEventSystem} from "../../Events/CubismEventSystem";
 import {Cubism} from "../../Cubism";
 
 /**

@@ -332,7 +332,7 @@ var CanvasDrawer = class extends CubismPart {
   }
 };
 
-// src/Global/Inter/CubismEventSystem.ts
+// src/Events/CubismEventSystem.ts
 var CubismEventSystem = class extends CubismPart {
   constructor() {
     super(...arguments);
@@ -433,7 +433,7 @@ var Point2D = class {
     return new Point2D(this.x * n, this.y * n);
   }
   toString() {
-    return `(${this.x}, ${this.y})`;
+    return `[${this.x}, ${this.y}]`;
   }
   euclideanDistance(other) {
     return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
@@ -688,7 +688,6 @@ var Cubism = class extends CubismElementManger {
     parts.forEach(
       (part) => {
         part.cubism = this;
-        console.log(`Initializing cubism part [${part}]`);
       }
     );
   }
@@ -725,8 +724,6 @@ function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = true) {
   return function(target, propertyKey, descriptor) {
     if (descriptor) {
       if (descriptor.set && needsRedrawSet) {
-        console.log("descriptor.set is:");
-        console.log(descriptor.set);
         let oldSet = descriptor.set;
         descriptor.set = function(value) {
           oldSet.call(this, value);
@@ -1317,7 +1314,7 @@ var ChangingRainbowBackground = class extends CubismElement {
   }
 };
 
-// src/CanvasRecorder.ts
+// src/Demo/CanvasRecorder.ts
 var CanvasRecorder = class {
   constructor(canvas2, fps = 60) {
     this.recorder = null;
@@ -1533,7 +1530,7 @@ var DemoFunction = class {
 `;
         }
         let spaces = new Array(currLeadingSpacesCount + 5).join(" ");
-        let lineToAppend = line.replace(/\)\./gm, `)
+        let lineToAppend = line.replace(/\(\)\./gm, `()
 ${spaces}.`);
         newString += "\n" + lineToAppend;
       }
@@ -1568,6 +1565,64 @@ function demoFunction(...descriptionLines) {
     demo.addDemoFunction(name, currFunction, description);
   };
 }
+
+// src/Elements/Layouts/LinearLayout.ts
+var LinearLayout = class extends PointerHandlerParentElement {
+  getMaxWidth() {
+    let maxWidth = 0;
+    for (let child of this.children) {
+      if (child.absWidth > maxWidth) {
+        maxWidth = child.absWidth;
+      }
+    }
+    return maxWidth;
+  }
+  getCumulativeWidth() {
+    let width = 0;
+    for (let child of this.children) {
+      width += child.absWidth;
+    }
+    return width;
+  }
+  getMaxHeight() {
+    let maxHeight = 0;
+    for (let child of this.children) {
+      if (child.absHeight > maxHeight) {
+        maxHeight = child.absHeight;
+      }
+    }
+    return maxHeight;
+  }
+  getCumulativeHeight() {
+    let height = 0;
+    for (let child of this.children) {
+      height += child.absHeight;
+    }
+    return height;
+  }
+  pointerInRange(point) {
+    return true;
+  }
+};
+
+// src/Elements/Layouts/VerticalLayout.ts
+var VerticalLayout = class extends LinearLayout {
+  updateChildrenPosition() {
+    let maxChildWidth = 0;
+    super.updateChildrenPosition();
+    let x = 0;
+    let y = 0;
+    for (let child of this.children) {
+      child.position = new Point2D(x, y);
+      if (child.width > maxChildWidth) {
+        maxChildWidth = child.width;
+      }
+      y += child.height;
+    }
+    this.absWidth = maxChildWidth;
+    this.absHeight = y;
+  }
+};
 
 // src/Theme/BasicTheme.ts
 var BasicTheme = class {
@@ -1654,64 +1709,6 @@ var PointerInteractThemeElement = class extends ThemedElement {
   }
 };
 
-// src/Elements/Layouts/LinearLayout.ts
-var LinearLayout = class extends PointerHandlerParentElement {
-  getMaxWidth() {
-    let maxWidth = 0;
-    for (let child of this.children) {
-      if (child.absWidth > maxWidth) {
-        maxWidth = child.absWidth;
-      }
-    }
-    return maxWidth;
-  }
-  getCumulativeWidth() {
-    let width = 0;
-    for (let child of this.children) {
-      width += child.absWidth;
-    }
-    return width;
-  }
-  getMaxHeight() {
-    let maxHeight = 0;
-    for (let child of this.children) {
-      if (child.absHeight > maxHeight) {
-        maxHeight = child.absHeight;
-      }
-    }
-    return maxHeight;
-  }
-  getCumulativeHeight() {
-    let height = 0;
-    for (let child of this.children) {
-      height += child.absHeight;
-    }
-    return height;
-  }
-  pointerInRange(point) {
-    return true;
-  }
-};
-
-// src/Elements/Layouts/VerticalLayout.ts
-var VerticalLayout = class extends LinearLayout {
-  updateChildrenPosition() {
-    let maxChildWidth = 0;
-    super.updateChildrenPosition();
-    let x = 0;
-    let y = 0;
-    for (let child of this.children) {
-      child.position = new Point2D(x, y);
-      if (child.width > maxChildWidth) {
-        maxChildWidth = child.width;
-      }
-      y += child.height;
-    }
-    this.absWidth = maxChildWidth;
-    this.absHeight = y;
-  }
-};
-
 // src/Elements/RectElement.ts
 var RectElement = class extends PointerInteractThemeElement {
   draw() {
@@ -1728,10 +1725,8 @@ var CircleElement = class extends PointerInteractThemeElement {
   draw() {
     super.draw();
     let c = this.c;
-    let center = this.centerPoint;
     c.translate(this.position);
     c.drawCircle(this.width / 2, this.height / 2, this.size.min / 2);
-    console.log("Drawing circle at: ", center);
     c.restoreTranslate();
   }
   pointerInRange(point) {
@@ -1820,7 +1815,7 @@ var DemoFunctions = class {
     app.init(
       new PointerHandlerParentElement(
         null,
-        new PointerInteractThemeElement().setWidth(100).setHeight(100)
+        new CircleElement().setWidth(200).setHeight(200).setPosFromXY(100, 100)
       )
     );
     app.initializer.initializeFPSCounter();
@@ -1852,7 +1847,7 @@ var DemoFunctions = class {
         new Background().setColor(Colors.blue700),
         new VerticalLayout(
           "Outer Vertical Layout",
-          new RectElement().setWidth(100).setHeight(100),
+          new RectElement().setWidth(100).setHeight(50),
           new CircleElement().setWidth(100).setHeight(100),
           new HorizontalLayout(
             "Inner Horizontal Layout",
@@ -1860,7 +1855,7 @@ var DemoFunctions = class {
             new RectElement().setWidth(100).setHeight(100),
             new CircleElement().setWidth(100).setHeight(100)
           )
-        ).setPosFromXY(50, 50)
+        ).setPosFromXY(50, 75)
       ).setPosFromXY(0, 0)
     );
   }

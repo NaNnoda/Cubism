@@ -9,8 +9,8 @@ export function needsRedrawAccessor(needsRedrawGet = false, needsRedrawSet = tru
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
             if (descriptor.set && needsRedrawSet) {
-                console.log("descriptor.set is:");
-                console.log(descriptor.set);
+                // console.log("descriptor.set is:");
+                // console.log(descriptor.set);
                 let oldSet = descriptor.set;
                 descriptor.set = function (value: any) {
                     oldSet.call(this, value);

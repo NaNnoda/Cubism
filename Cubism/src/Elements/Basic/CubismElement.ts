@@ -1,7 +1,7 @@
 import {Point2D} from "../../Datatypes/Point";
 import {CanvasDrawer} from "../../CanvasDrawer";
 import {Cubism} from "../../Cubism";
-import {CubismEventSystem} from "../../Global/Inter/CubismEventSystem";
+import {CubismEventSystem} from "../../Events/CubismEventSystem";
 import SizeKeys from "../../Constants/SizeKeys";
 import {needsRedrawAccessor} from "../../NeedsRedraw";
 

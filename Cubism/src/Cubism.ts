@@ -1,5 +1,5 @@
 import {CanvasDrawer} from "./CanvasDrawer";
-import {CubismEventSystem} from "./Global/Inter/CubismEventSystem";
+import {CubismEventSystem} from "./Events/CubismEventSystem";
 import {EventKeys} from "./Constants/EventKeys";
 import {Point2D} from "./Datatypes/Point";
 import {PointerPoint} from "./Datatypes/PointerPoint";
@@ -155,7 +155,7 @@ export class Cubism extends CubismElementManger {
     initParts(...parts: CubismPart[]) {
         parts.forEach(part => {
                 part.cubism = this;
-                console.log(`Initializing cubism part [${part}]`);
+                // console.log(`Initializing cubism part [${part}]`);
             }
         );
     }
