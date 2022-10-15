@@ -45,5 +45,5 @@ app.init(
   )
 );
 ```
-Try it out in [here](/Cubism/index.html)
+Try it out in [here](https://nannoda.github.io/Cubism/)
 
