@@ -12,7 +12,7 @@ export class WebSvgIcon extends BasicIcon {
     }
 
     draw() {
-        this.c.translate(this.position);
+        this.c.offset(this.position);
         this.c.drawImage(this.svgImg, 0, 0, this.width, this.height);
         this.c.restoreTranslate();
     }

@@ -31,7 +31,7 @@ export class ChangingRainbowBackground extends CubismElement{
     }
     draw() {
         this.frameCount++;
-        this.c.translate(this.position);
+        this.c.offset(this.position);
         let currHue = this.frameCount * this.changingSpeed % 360;
         let currColor = `hsl(${currHue}, ${this.saturation}%, ${this.lightness}%)`;
 

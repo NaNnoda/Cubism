@@ -110,7 +110,7 @@ export default class CubismParentElement extends CubismElement {
      * Draws the children
      */
     drawChildren() {
-        this.c.translate(this.position);
+        this.c.offset(this.position);
         for (let child of this.children) {
             child.draw();
         }

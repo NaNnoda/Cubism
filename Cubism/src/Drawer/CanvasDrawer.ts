@@ -110,8 +110,23 @@ export class CanvasDrawer extends CubismPart {
      * Translate the canvas
      * @param offset
      */
-    translate(offset: Point2D) {
-        this.state.translate = offset;
+    offset(offset: Point2D) {
+        this.state.offset(offset);
+    }
+
+    offsetXY(x: number, y: number) {
+        this.state.offset(new Point2D(x, y));
+    }
+
+    rotate(angle: number) {
+        this.state.rotate(angle);
+    }
+
+    scale(scale: Point2D | number) {
+        if (typeof scale === "number") {
+            scale = Point2D.fromNumber(scale);
+        }
+        this.state.scale(scale);
     }
 
 
@@ -119,7 +134,6 @@ export class CanvasDrawer extends CubismPart {
      * Restore translation and rotation to previous state
      */
     restoreTranslate() {
-
         this.state.restoreTranslate();
     }
 
@@ -161,6 +175,7 @@ export class CanvasDrawer extends CubismPart {
         this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
         this.closeDraw();
     }
+
     drawPoint(point: IPoint2D, radius: number = 5) {
         this.drawCircle(point.x, point.y, radius);
     }
@@ -249,5 +264,21 @@ export class CanvasDrawer extends CubismPart {
 
     drawImage(image: HTMLImageElement, x: number = 0, y: number = 0, width: number = 0, height: number = 0) {
         this.ctx.drawImage(image, x, y, width, height);
+    }
+
+    drawArrow(pos: Point2D, rotation: number, length: number=10) {
+
+        this.offset(pos);
+        this.rotate(rotation);
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, 0);
+        this.ctx.lineTo(length, 0);
+        this.ctx.lineTo(length - 5, -5);
+        this.ctx.moveTo(length, 0);
+        this.ctx.lineTo(length - 5, 5);
+        this.closeDraw();
+        this.restoreTranslate();
+        this.restoreTranslate();
+        this.restoreTranslate();
     }
 }

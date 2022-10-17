@@ -15,10 +15,24 @@ export class CubismCanvasState {
 
     private translates: TransformMatrix2D[] = [TransformMatrix2D.identity()];
 
-    set translate(offset: Point2D) {
-        let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
+    translate(translateMatrix: TransformMatrix2D) {
         this.translates.push(translateMatrix);
         this.setCtxTransform(translateMatrix);
+    }
+
+    offset(offset: Point2D) {
+        let translateMatrix = this.translateMatrix.clone().offsetPoint(offset);
+        this.translate(translateMatrix);
+    }
+
+    rotate(angle: number) {
+        let translateMatrix = this.translateMatrix.clone().rotate(angle);
+        this.translate(translateMatrix);
+    }
+
+    scale(scale: Point2D) {
+        let translateMatrix = this.translateMatrix.clone().scale(scale.x, scale.y);
+        this.translate(translateMatrix);
     }
 
     setCtxTransform(t: TransformMatrix2D) {

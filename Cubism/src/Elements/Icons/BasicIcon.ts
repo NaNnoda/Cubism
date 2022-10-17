@@ -6,7 +6,7 @@ export default class BasicIcon extends CubismElement {
 
     draw() {
         super.draw();
-        this.c.translate(this.position);
+        this.c.offset(this.position);
         this.drawIcon();
         this.c.restoreTranslate();
     }

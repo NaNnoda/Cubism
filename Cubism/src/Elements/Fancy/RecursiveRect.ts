@@ -48,7 +48,7 @@ export default class RecursiveRect extends PointerHandlerParentElement {
 
     draw() {
         this.frameCount++;
-        this.c.translate(this.position);
+        this.c.offset(this.position);
 
         this.position.update();
         if (!this.pressed) {
@@ -67,7 +67,7 @@ export default class RecursiveRect extends PointerHandlerParentElement {
         for (let i = 1; i < this.recursionCount + 1; i++) {
             let relaSpeedI = relaSpeed * i;
             let relaSizeI = relaSize * i;
-            this.c.translate(relaPos.scale(relaSpeedI));
+            this.c.offset(relaPos.scale(relaSpeedI));
             this.c.drawRect(relaSizeI, relaSizeI, this.width - relaSizeI, this.height - relaSizeI);
             this.c.restoreTranslate();
         }

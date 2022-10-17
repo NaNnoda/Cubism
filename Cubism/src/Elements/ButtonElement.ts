@@ -55,7 +55,7 @@ export class ButtonElement extends PointerInteractThemeElement {
 
     draw() {
         this.updateCanvasDrawerTheme();
-        this.c.translate(this.position);
+        this.c.offset(this.position);
         this.c.drawRectWithPoints(this.size);
         if (this.icon !== null) {
 

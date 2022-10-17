@@ -16,6 +16,13 @@ export class Point2D implements IPoint2D {
         return new Point2D(i.x, i.y);
     }
 
+    static fromArray(arr: number[]): Point2D {
+        return new Point2D(arr[0], arr[1]);
+    }
+    static fromNumber(n: number): Point2D {
+        return new Point2D(n, n);
+    }
+
     static getRandom(min: number | null = null, max: number | null = null) {
 
         if (max === null) {
@@ -120,5 +127,12 @@ export class Point2D implements IPoint2D {
 
     euclideanDistance(other: Point2D): number {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
+    }
+
+    manhattanDistance(other: Point2D): number {
+        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
+    }
+    angleTo(other: Point2D): number {
+        return Math.atan2(other.y - this.y, other.x - this.x);
     }
 }

@@ -41,9 +41,11 @@ export function bSpline(t: number) {
 export function dHermite(t: number) {
     return new IJMatrix(1, 4)
         .set(
-            [6 * t * t - 6 * t,
-            3 * t * t - 4 * t + 1,
-            -6 * t * t + 6 * t,
-            3 * t * t - 2 * t]
+            [
+                6 * t ** 2 - 6 * t,
+                3 * t ** 2 - 4 * t + 1,
+                -6 * t ** 2 + 6 * t,
+                3 * t ** 2 - 2 * t
+            ]
         );
 }

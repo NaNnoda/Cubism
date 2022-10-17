@@ -131,8 +131,11 @@ export class TransformMatrix2D {
         return newMatrix;
     }
 
-    translate(x: number, y: number): TransformMatrix2D {
+    offsetXY(x: number, y: number): TransformMatrix2D {
         return this.multiply(TransformMatrix2D.translation(x, y));
+    }
+    offsetPoint(point: Point2D): TransformMatrix2D {
+        return this.offsetXY(point.x, point.y);
     }
 
     rotate(angle: number): TransformMatrix2D {

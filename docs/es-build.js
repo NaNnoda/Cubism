@@ -10,6 +10,106 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 
+// src/Utils/Math/Point.ts
+var Point2D = class {
+  constructor(x, y) {
+    this.arr = [x, y];
+  }
+  static get zero() {
+    return new Point2D(0, 0);
+  }
+  static fromIPoint(i) {
+    return new Point2D(i.x, i.y);
+  }
+  static fromArray(arr) {
+    return new Point2D(arr[0], arr[1]);
+  }
+  static fromNumber(n) {
+    return new Point2D(n, n);
+  }
+  static getRandom(min = null, max = null) {
+    if (max === null) {
+      if (min !== null) {
+        max = min;
+        min = 0;
+      } else {
+        max = 1;
+        min = 0;
+      }
+    }
+    min = min || 0;
+    return new Point2D(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
+  }
+  get x() {
+    return this.arr[0];
+  }
+  set x(value) {
+    this.arr[0] = value;
+  }
+  get y() {
+    return this.arr[1];
+  }
+  set y(value) {
+    this.arr[1] = value;
+  }
+  clone() {
+    return new Point2D(this.x, this.y);
+  }
+  setXY(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+  get max() {
+    return Math.max(this.x, this.y);
+  }
+  get min() {
+    return Math.min(this.x, this.y);
+  }
+  set(point) {
+    this.x = point.x;
+    this.y = point.y;
+    return this;
+  }
+  offset(offset) {
+    this.x += offset.x;
+    this.y += offset.y;
+    return this;
+  }
+  nOffset(offset) {
+    this.x -= offset.x;
+    this.y -= offset.y;
+    return this;
+  }
+  add(other) {
+    return this.clone().offset(other);
+  }
+  sub(other) {
+    return this.clone().nOffset(other);
+  }
+  subXY(x, y) {
+    return this.sub(new Point2D(x, y));
+  }
+  mul(other) {
+    return new Point2D(this.x * other.x, this.y * other.y);
+  }
+  scale(n) {
+    return new Point2D(this.x * n, this.y * n);
+  }
+  toString() {
+    return `[${this.x}, ${this.y}]`;
+  }
+  euclideanDistance(other) {
+    return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
+  }
+  manhattanDistance(other) {
+    return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
+  }
+  angleTo(other) {
+    return Math.atan2(other.y - this.y, other.x - this.x);
+  }
+};
+
 // src/Utils/Math/TransformMatrix2D.ts
 var TransformMatrix2D = class {
   constructor(m11, m12, m21, m22, dx, dy) {
@@ -104,8 +204,11 @@ var TransformMatrix2D = class {
     }
     return newMatrix;
   }
-  translate(x, y) {
+  offsetXY(x, y) {
     return this.multiply(TransformMatrix2D.translation(x, y));
+  }
+  offsetPoint(point) {
+    return this.offsetXY(point.x, point.y);
   }
   rotate(angle) {
     return this.multiply(TransformMatrix2D.rotation(angle));
@@ -127,10 +230,21 @@ var CubismCanvasState = class {
     this.canvas = canvas;
     this.ctx = ctx;
   }
-  set translate(offset) {
-    let translateMatrix = this.translateMatrix.translate(offset.x, offset.y);
+  translate(translateMatrix) {
     this.translates.push(translateMatrix);
     this.setCtxTransform(translateMatrix);
+  }
+  offset(offset) {
+    let translateMatrix = this.translateMatrix.clone().offsetPoint(offset);
+    this.translate(translateMatrix);
+  }
+  rotate(angle) {
+    let translateMatrix = this.translateMatrix.clone().rotate(angle);
+    this.translate(translateMatrix);
+  }
+  scale(scale) {
+    let translateMatrix = this.translateMatrix.clone().scale(scale.x, scale.y);
+    this.translate(translateMatrix);
   }
   setCtxTransform(t) {
     this.ctx.setTransform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy);
@@ -268,8 +382,20 @@ var CanvasDrawer = class extends CubismPart {
   setStrokeWidth(width) {
     this.ctx.lineWidth = width;
   }
-  translate(offset) {
-    this.state.translate = offset;
+  offset(offset) {
+    this.state.offset(offset);
+  }
+  offsetXY(x, y) {
+    this.state.offset(new Point2D(x, y));
+  }
+  rotate(angle) {
+    this.state.rotate(angle);
+  }
+  scale(scale) {
+    if (typeof scale === "number") {
+      scale = Point2D.fromNumber(scale);
+    }
+    this.state.scale(scale);
   }
   restoreTranslate() {
     this.state.restoreTranslate();
@@ -348,6 +474,20 @@ var CanvasDrawer = class extends CubismPart {
   drawImage(image, x = 0, y = 0, width = 0, height = 0) {
     this.ctx.drawImage(image, x, y, width, height);
   }
+  drawArrow(pos, rotation, length = 10) {
+    this.offset(pos);
+    this.rotate(rotation);
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(length, 0);
+    this.ctx.lineTo(length - 5, -5);
+    this.ctx.moveTo(length, 0);
+    this.ctx.lineTo(length - 5, 5);
+    this.closeDraw();
+    this.restoreTranslate();
+    this.restoreTranslate();
+    this.restoreTranslate();
+  }
 };
 
 // src/Events/CubismEventSystem.ts
@@ -386,94 +526,6 @@ var CubismEventSystem = class extends CubismPart {
   }
   hasEvent(event) {
     return this._globalEventListeners[event] !== void 0;
-  }
-};
-
-// src/Utils/Math/Point.ts
-var Point2D = class {
-  constructor(x, y) {
-    this.arr = [x, y];
-  }
-  static get zero() {
-    return new Point2D(0, 0);
-  }
-  static fromIPoint(i) {
-    return new Point2D(i.x, i.y);
-  }
-  static getRandom(min = null, max = null) {
-    if (max === null) {
-      if (min !== null) {
-        max = min;
-        min = 0;
-      } else {
-        max = 1;
-        min = 0;
-      }
-    }
-    min = min || 0;
-    return new Point2D(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
-  }
-  get x() {
-    return this.arr[0];
-  }
-  set x(value) {
-    this.arr[0] = value;
-  }
-  get y() {
-    return this.arr[1];
-  }
-  set y(value) {
-    this.arr[1] = value;
-  }
-  clone() {
-    return new Point2D(this.x, this.y);
-  }
-  setXY(x, y) {
-    this.x = x;
-    this.y = y;
-    return this;
-  }
-  get max() {
-    return Math.max(this.x, this.y);
-  }
-  get min() {
-    return Math.min(this.x, this.y);
-  }
-  set(point) {
-    this.x = point.x;
-    this.y = point.y;
-    return this;
-  }
-  offset(offset) {
-    this.x += offset.x;
-    this.y += offset.y;
-    return this;
-  }
-  nOffset(offset) {
-    this.x -= offset.x;
-    this.y -= offset.y;
-    return this;
-  }
-  add(other) {
-    return this.clone().offset(other);
-  }
-  sub(other) {
-    return this.clone().nOffset(other);
-  }
-  subXY(x, y) {
-    return this.sub(new Point2D(x, y));
-  }
-  mul(other) {
-    return new Point2D(this.x * other.x, this.y * other.y);
-  }
-  scale(n) {
-    return new Point2D(this.x * n, this.y * n);
-  }
-  toString() {
-    return `[${this.x}, ${this.y}]`;
-  }
-  euclideanDistance(other) {
-    return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
   }
 };
 
@@ -984,7 +1036,7 @@ var CubismParentElement = class extends CubismElement {
     this.drawChildren();
   }
   drawChildren() {
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     for (let child of this.children) {
       child.draw();
     }
@@ -1280,7 +1332,7 @@ var RecursiveRect = class extends PointerHandlerParentElement {
   }
   draw() {
     this.frameCount++;
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     this.position.update();
     if (!this.pressed) {
       this.wiggle();
@@ -1298,7 +1350,7 @@ var RecursiveRect = class extends PointerHandlerParentElement {
     for (let i = 1; i < this.recursionCount + 1; i++) {
       let relaSpeedI = relaSpeed * i;
       let relaSizeI = relaSize * i;
-      this.c.translate(relaPos.scale(relaSpeedI));
+      this.c.offset(relaPos.scale(relaSpeedI));
       this.c.drawRect(relaSizeI, relaSizeI, this.width - relaSizeI, this.height - relaSizeI);
       this.c.restoreTranslate();
     }
@@ -1348,7 +1400,7 @@ var ChangingRainbowBackground = class extends CubismElement {
   }
   draw() {
     this.frameCount++;
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     let currHue = this.frameCount * this.changingSpeed % 360;
     let currColor = `hsl(${currHue}, ${this.saturation}%, ${this.lightness}%)`;
     this.c.setFillStyle(currColor);
@@ -1790,7 +1842,7 @@ var RectElement = class extends PointerInteractThemeElement {
   draw() {
     super.draw();
     let c = this.c;
-    c.translate(this.position);
+    c.offset(this.position);
     c.drawRectWithPoints(this.absSize);
     c.restoreTranslate();
   }
@@ -1801,7 +1853,7 @@ var CircleElement = class extends PointerInteractThemeElement {
   draw() {
     super.draw();
     let c = this.c;
-    c.translate(this.position);
+    c.offset(this.position);
     c.drawCircle(this.width / 2, this.height / 2, this.size.min / 2);
     c.restoreTranslate();
   }
@@ -1893,7 +1945,7 @@ var TextElement = class extends CubismElement {
     super.draw();
     let c = this.c;
     c.setFont(`${this.theme.fontSize}px ${this.theme.fontFamily}`);
-    c.translate(this.position);
+    c.offset(this.position);
     c.setFillStyle(this.theme.fillStyle);
     c.setStrokeStyle(this.theme.strokeStyle);
     let textWidth = c.measureText(this.content).width;
@@ -1949,7 +2001,7 @@ var ButtonElement = class extends PointerInteractThemeElement {
   }
   draw() {
     this.updateCanvasDrawerTheme();
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     this.c.drawRectWithPoints(this.size);
     if (this.icon !== null) {
       this.icon.draw();
@@ -1980,7 +2032,7 @@ var BasicIcon = class extends CubismElement {
   }
   draw() {
     super.draw();
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     this.drawIcon();
     this.c.restoreTranslate();
   }
@@ -2029,7 +2081,7 @@ var MaterialIcons = class extends BasicIcon {
     this.svgImg.src = "data:image/svg+xml;base64," + btoa(rawSvg);
   }
   draw() {
-    this.c.translate(this.position);
+    this.c.offset(this.position);
     this.c.setFillStyle(this.theme.fillStyle);
     this.c.drawImage(this.svgImg, 0, 0, this.width, this.height);
     this.c.restoreTranslate();
@@ -2181,6 +2233,16 @@ function hermite(t) {
     ]
   );
 }
+function dHermite(t) {
+  return new IJMatrix(1, 4).set(
+    [
+      6 * t ** 2 - 6 * t,
+      3 * t ** 2 - 4 * t + 1,
+      -6 * t ** 2 + 6 * t,
+      3 * t ** 2 - 2 * t
+    ]
+  );
+}
 
 // src/Elements/CurveElement.ts
 var CurveElement = class extends CubismElement {
@@ -2216,6 +2278,13 @@ var CurveElement = class extends CubismElement {
       } else {
         d1 = p1.sub(p0).scale(0.5);
       }
+      if (i > 0) {
+        let tangent = this.getTangent(t, p0, p1, d0, d1);
+        let rotation = -Math.atan2(tangent.y, tangent.x);
+        this.c.offsetXY(100, 100);
+        this.c.restoreTranslate();
+        this.c.drawArrow(Point2D.fromIPoint(this.points[i]), rotation, 30);
+      }
       while (t < 1) {
         let point = this.getPoint(t, p0, p1, d0, d1);
         this.c.drawLineWithPoints(lastPoint, point);
@@ -2224,6 +2293,20 @@ var CurveElement = class extends CubismElement {
       }
       lastD = d1;
     }
+  }
+  getTangent(t, p0, p1, d0, d1) {
+    let pointMatrix = new IJMatrix(4, 2).set([
+      p0.x,
+      p0.y,
+      d0.x,
+      d0.y,
+      p1.x,
+      p1.y,
+      d1.x,
+      d1.y
+    ]);
+    let out = cubic(dHermite, pointMatrix, t);
+    return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
   }
   getPoint(t, p0, p1, d0, d1) {
     let pointMatrix = new IJMatrix(4, 2).set([

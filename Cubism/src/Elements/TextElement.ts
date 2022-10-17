@@ -22,7 +22,7 @@ export class TextElement extends CubismElement {
         super.draw();
         let c = this.c;
         c.setFont(`${this.theme.fontSize}px ${this.theme.fontFamily}`);
-        c.translate(this.position);
+        c.offset(this.position);
         c.setFillStyle(this.theme.fillStyle);
         c.setStrokeStyle(this.theme.strokeStyle);
 
