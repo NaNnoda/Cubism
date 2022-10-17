@@ -39,7 +39,7 @@ export class CurveElement extends CubismElement {
         let step = 0.1;
 
 
-        let lastD = Point2D.getRandom(400);
+        let lastD = Point2D.zero;
 
         for (let i = 0; i < this.points.length - 1; i++) {
             let p0 = Point2D.fromIPoint(this.points[i]);
@@ -48,8 +48,7 @@ export class CurveElement extends CubismElement {
             let lastPoint:IPoint2D = p0;
 
             let d0 = lastD;
-            let d1 = Point2D.getRandom(400);
-
+            let d1 = p1.sub(p0);
 
             while (t < 1) {
                 let point = this.getPoint(t, p0, p1, d0, d1);

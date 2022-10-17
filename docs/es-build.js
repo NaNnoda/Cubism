@@ -2202,14 +2202,14 @@ var CurveElement = class extends CubismElement {
       this.c.drawPoint(p);
     }
     let step = 0.1;
-    let lastD = Point2D.getRandom(400);
+    let lastD = Point2D.zero;
     for (let i = 0; i < this.points.length - 1; i++) {
       let p0 = Point2D.fromIPoint(this.points[i]);
       let p1 = Point2D.fromIPoint(this.points[i + 1]);
       let t = 0;
       let lastPoint = p0;
       let d0 = lastD;
-      let d1 = Point2D.getRandom(400);
+      let d1 = p1.sub(p0);
       while (t < 1) {
         let point = this.getPoint(t, p0, p1, d0, d1);
         this.c.drawLineWithPoints(lastPoint, point);
