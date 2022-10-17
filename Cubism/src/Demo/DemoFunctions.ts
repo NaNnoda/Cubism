@@ -211,13 +211,44 @@ class DemoFunctions {
         let app = Cubism.createFromId("mainCanvas");
         app.width = 500;
         app.height = 500;
-        app.init(
-            new PointerHandlerParentElement(
-                null,
-                new DraggableCircle().setSizeFromXY(10, 10).setPosFromXY(100, 100),
-                new CurveElement().setPosFromXY(100, 100).setWidth(300).setHeight(300)
-            )
+
+        let points: DraggableCircle[] = [];
+
+
+        let root = new PointerHandlerParentElement("Root")
+
+        function addPoint() {
+            let point = new DraggableCircle()
+                .setPosFromPoint(Point2D.getRandom(100, 400));
+            points.push(point);
+            root.addChildren(point);
+        }
+        function removePoint() {
+            if (points.length > 0) {
+                root.removeChild(points.pop() as CubismElement);
+            }
+        }
+
+        root.addChildren(
+            new Background().setColor(Colors.white),
+            // new DraggableCircle().setSizeFromXY(10, 10).setPosFromXY(100, 100),ss
+            new CurveElement(null, points),
+            new ButtonElement().setWidth(150).setHeight(50).setIcon(MaterialIcons.add).setText("Add Point").setPosFromXY(0, 450)
+                .setOnClick(() => {
+                    addPoint();
+                }),
+            new ButtonElement().setWidth(190).setHeight(50).setIcon(MaterialIcons.remove).setText("Remove Point").setPosFromXY(150, 450)
+                .setOnClick(() => {
+                    removePoint();
+                })
         )
+
+
+        for (let i = 0; i < 4; i++) {
+            addPoint();
+        }
+
+        app.init(root)
     }
 }
 

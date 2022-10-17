@@ -8,16 +8,21 @@ export class DraggableCircle extends CircleElement implements IPoint2D {
     _dragStartPos: Point2D | null = null;
 
     get x(): number {
-        return this.position.x;
+        return this.centerPoint.x;
     }
-    set x(x: number) {
-        this.setPosFromXY(x, this.y);
-    }
+    // set x(x: number) {
+    //     this.setPosFromXY(x, this.y);
+    // }
     get y(): number {
-        return this.position.y;
+        return this.centerPoint.y;
     }
-    set y(y: number) {
-        this.setPosFromXY(this.x, y);
+    // set y(y: number) {
+    //     this.setPosFromXY(this.x, y);
+    // }
+
+    onCreate() {
+        super.onCreate();
+        this.setSizeFromXY(20, 20);
     }
 
 

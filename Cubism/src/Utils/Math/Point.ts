@@ -8,6 +8,31 @@ export class Point2D implements IPoint2D {
         this.arr = [x, y];
     }
 
+    static get zero() {
+        return new Point2D(0, 0);
+    }
+
+    static fromIPoint(i:IPoint2D){
+        return new Point2D(i.x, i.y);
+    }
+
+    static getRandom(min: number | null = null, max: number | null = null) {
+
+        if (max === null) {
+            if (min !== null) {
+                max = min;
+                min = 0;
+            } else {
+                max = 1;
+                min = 0;
+            }
+        }
+
+        min = min || 0;
+
+        return new Point2D(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
+    }
+
     get x() {
         return this.arr[0];
     }
@@ -34,10 +59,11 @@ export class Point2D implements IPoint2D {
         return this;
     }
 
-    get max(){
+    get max() {
         return Math.max(this.x, this.y);
     }
-    get min(){
+
+    get min() {
         return Math.min(this.x, this.y);
     }
 

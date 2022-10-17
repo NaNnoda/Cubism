@@ -138,7 +138,7 @@ export class CanvasDrawer extends CubismPart {
      * @param begin the beginning of the line
      * @param end the end of the line
      */
-    drawLineWithPoints(begin: Point2D, end: Point2D) {
+    drawLineWithPoints(begin: IPoint2D, end: IPoint2D) {
         this.drawLine(begin.x, begin.y, end.x, end.y);
     }
 
@@ -161,8 +161,12 @@ export class CanvasDrawer extends CubismPart {
         this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
         this.closeDraw();
     }
+    drawPoint(point: IPoint2D, radius: number = 5) {
+        this.drawCircle(point.x, point.y, radius);
+    }
 
-    drawShape(points: Point2D[]) {
+
+    drawShape(points: IPoint2D[]) {
         this.ctx.beginPath();
         this.ctx.moveTo(points[0].x, points[0].y);
         for (let i = 1; i < points.length; i++) {

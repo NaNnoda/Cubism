@@ -291,6 +291,9 @@ var CanvasDrawer = class extends CubismPart {
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
     this.closeDraw();
   }
+  drawPoint(point, radius = 5) {
+    this.drawCircle(point.x, point.y, radius);
+  }
   drawShape(points) {
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
@@ -390,6 +393,25 @@ var CubismEventSystem = class extends CubismPart {
 var Point2D = class {
   constructor(x, y) {
     this.arr = [x, y];
+  }
+  static get zero() {
+    return new Point2D(0, 0);
+  }
+  static fromIPoint(i) {
+    return new Point2D(i.x, i.y);
+  }
+  static getRandom(min = null, max = null) {
+    if (max === null) {
+      if (min !== null) {
+        max = min;
+        min = 0;
+      } else {
+        max = 1;
+        min = 0;
+      }
+    }
+    min = min || 0;
+    return new Point2D(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
   }
   get x() {
     return this.arr[0];
@@ -2033,6 +2055,9 @@ var MaterialIcons = class extends BasicIcon {
   static get search() {
     return new MaterialIcons("search");
   }
+  static get remove() {
+    return new MaterialIcons("remove");
+  }
   static get settings() {
     return new MaterialIcons("settings");
   }
@@ -2053,16 +2078,14 @@ var DraggableCircle = class extends CircleElement {
     this._dragStartPos = null;
   }
   get x() {
-    return this.position.x;
-  }
-  set x(x) {
-    this.setPosFromXY(x, this.y);
+    return this.centerPoint.x;
   }
   get y() {
-    return this.position.y;
+    return this.centerPoint.y;
   }
-  set y(y) {
-    this.setPosFromXY(this.x, y);
+  onCreate() {
+    super.onCreate();
+    this.setSizeFromXY(20, 20);
   }
   get isDragging() {
     return this._isDragging;
@@ -2161,64 +2184,54 @@ function hermite(t) {
 
 // src/Elements/CurveElement.ts
 var CurveElement = class extends CubismElement {
-  constructor() {
-    super(...arguments);
-    this.p0 = new Point2D(0, 0);
-    this.d0 = new Point2D(0, 50);
-    this.p1 = new Point2D(50, 20);
-    this.d1 = new Point2D(20, 40);
+  constructor(id = null, points = []) {
+    super(id);
+    this._points = points;
   }
-  setD0(d0) {
-    this.d0 = d0;
-    return this;
+  get points() {
+    return this._points;
   }
-  setD1(d1) {
-    this.d1 = d1;
-    return this;
-  }
-  setP0(p0) {
-    this.p0 = p0;
-    return this;
-  }
-  setP1(p1) {
-    this.p1 = p1;
-    return this;
+  onCreate() {
+    super.onCreate();
+    this.width = 500;
+    this.height = 500;
   }
   draw() {
     super.draw();
-    let step = 0.01;
-    let t = 0;
-    let lastPoint = this.p0;
-    this.c.drawCircle(this.p0.x, this.p0.y, 5);
-    this.c.drawCircle(this.p1.x, this.p1.y, 5);
-    this.c.drawCircle(this.d0.x, this.d0.y, 5);
-    this.c.drawCircle(this.d1.x, this.d1.y, 5);
-    while (t < 1) {
-      let point = this.getPoint(t);
-      this.c.drawRectWithPoints(lastPoint, point);
-      lastPoint = point;
-      t += step;
+    for (let p of this.points) {
+      this.c.drawPoint(p);
+    }
+    let step = 0.1;
+    let lastD = Point2D.getRandom(400);
+    for (let i = 0; i < this.points.length - 1; i++) {
+      let p0 = Point2D.fromIPoint(this.points[i]);
+      let p1 = Point2D.fromIPoint(this.points[i + 1]);
+      let t = 0;
+      let lastPoint = p0;
+      let d0 = lastD;
+      let d1 = Point2D.getRandom(400);
+      while (t < 1) {
+        let point = this.getPoint(t, p0, p1, d0, d1);
+        this.c.drawLineWithPoints(lastPoint, point);
+        lastPoint = point;
+        t += step;
+      }
+      lastD = d1;
     }
   }
-  getPoint(t) {
+  getPoint(t, p0, p1, d0, d1) {
     let pointMatrix = new IJMatrix(4, 2).set([
-      this.p0.x,
-      this.p0.y,
-      this.d0.x,
-      this.d0.y,
-      this.p1.x,
-      this.p1.y,
-      this.d1.x,
-      this.d1.y
+      p0.x,
+      p0.y,
+      d0.x,
+      d0.y,
+      p1.x,
+      p1.y,
+      d1.x,
+      d1.y
     ]);
-    let out = cubic(
-      hermite,
-      pointMatrix,
-      t
-    );
+    let out = cubic(hermite, pointMatrix, t);
     return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
-  }
-  drawCurve() {
   }
 };
 
@@ -2354,13 +2367,32 @@ var DemoFunctions = class {
     let app = Cubism.createFromId("mainCanvas");
     app.width = 500;
     app.height = 500;
-    app.init(
-      new PointerHandlerParentElement(
-        null,
-        new DraggableCircle().setSizeFromXY(10, 10).setPosFromXY(100, 100),
-        new CurveElement().setPosFromXY(100, 100).setWidth(300).setHeight(300)
-      )
+    let points = [];
+    let root = new PointerHandlerParentElement("Root");
+    function addPoint() {
+      let point = new DraggableCircle().setPosFromPoint(Point2D.getRandom(100, 400));
+      points.push(point);
+      root.addChildren(point);
+    }
+    function removePoint() {
+      if (points.length > 0) {
+        root.removeChild(points.pop());
+      }
+    }
+    root.addChildren(
+      new Background().setColor(Colors.white),
+      new CurveElement(null, points),
+      new ButtonElement().setWidth(150).setHeight(50).setIcon(MaterialIcons.add).setText("Add Point").setPosFromXY(0, 450).setOnClick(() => {
+        addPoint();
+      }),
+      new ButtonElement().setWidth(190).setHeight(50).setIcon(MaterialIcons.remove).setText("Remove Point").setPosFromXY(150, 450).setOnClick(() => {
+        removePoint();
+      })
     );
+    for (let i = 0; i < 4; i++) {
+      addPoint();
+    }
+    app.init(root);
   }
 };
 __decorateClass([

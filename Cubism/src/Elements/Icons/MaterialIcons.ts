@@ -56,6 +56,10 @@ export class MaterialIcons extends BasicIcon {
         return new MaterialIcons("search");
     }
 
+    static get remove() {
+        return new MaterialIcons("remove");
+    }
+
     static get settings() {
         return new MaterialIcons("settings");
     }
