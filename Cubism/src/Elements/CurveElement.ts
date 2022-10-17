@@ -48,7 +48,13 @@ export class CurveElement extends CubismElement {
             let lastPoint:IPoint2D = p0;
 
             let d0 = lastD;
-            let d1 = p1.sub(p0);
+            let d1 = null;
+            if(i < this.points.length - 2){
+                let p2 = Point2D.fromIPoint(this.points[i + 2]);
+                d1 = p2.sub(p0).scale(0.5);
+            }else{
+                d1 = p1.sub(p0).scale(0.5);
+            }
 
             while (t < 1) {
                 let point = this.getPoint(t, p0, p1, d0, d1);
