@@ -25,7 +25,7 @@ import {CubismElement} from "../Elements/Basic/CubismElement";
 import {WebSvgIcon} from "../Elements/Icons/SVGIcon";
 import {MaterialIcons} from "../Elements/Icons/MaterialIcons";
 
-console.log("loading DemoFunctions.ts");
+console.log("loading DemoFunctions.ts ...");
 
 class DemoFunctions {
     @demoFunction()

@@ -2045,7 +2045,7 @@ var MaterialIcons = class extends BasicIcon {
 };
 
 // src/Demo/DemoFunctions.ts
-console.log("loading DemoFunctions.ts");
+console.log("loading DemoFunctions.ts ...");
 var DemoFunctions = class {
   testFunction() {
     console.log("demoFunction");
