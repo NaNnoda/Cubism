@@ -1,7 +1,7 @@
 /**
  * A representation of a point in 2D space.
  */
-export class Point2D {
+export class Point2D implements IPoint2D {
     arr: number[]
 
     constructor(x: number, y: number) {

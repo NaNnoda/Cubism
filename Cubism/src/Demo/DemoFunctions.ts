@@ -24,6 +24,8 @@ import {UnknownIcon} from "../Elements/Icons/UnknownIcon";
 import {CubismElement} from "../Elements/Basic/CubismElement";
 import {WebSvgIcon} from "../Elements/Icons/SVGIcon";
 import {MaterialIcons} from "../Elements/Icons/MaterialIcons";
+import {DraggableCircle} from "../Elements/DraggableCircle";
+import {CurveElement} from "../Elements/CurveElement";
 
 console.log("loading DemoFunctions.ts ...");
 
@@ -97,7 +99,7 @@ class DemoFunctions {
     }
 
 
-    @demoFunction("Demo function for events")
+    // @demoFunction("Demo function for events")
     eventDemo() {
         let app = Cubism.createFromId("mainCanvas");
         app.init(
@@ -191,7 +193,7 @@ class DemoFunctions {
     }
 
     @demoFunction()
-    SVGTest() {
+    SvgTest() {
         let app = Cubism.createFromId("mainCanvas");
         app.init(
             new VerticalLayout(
@@ -202,7 +204,20 @@ class DemoFunctions {
                 new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search"),
             )
         )
+    }
 
+    @demoFunction()
+    CurveDemo() {
+        let app = Cubism.createFromId("mainCanvas");
+        app.width = 500;
+        app.height = 500;
+        app.init(
+            new PointerHandlerParentElement(
+                null,
+                new DraggableCircle().setSizeFromXY(10, 10).setPosFromXY(100, 100),
+                new CurveElement().setPosFromXY(100, 100).setWidth(300).setHeight(300)
+            )
+        )
     }
 }
 

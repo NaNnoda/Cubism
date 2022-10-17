@@ -171,7 +171,7 @@ export class CanvasDrawer extends CubismPart {
         this.closeDraw();
     }
 
-    drawRectWithPoints(p1: Point2D, p2: Point2D | null = null) {
+    drawRectWithPoints(p1: IPoint2D, p2: IPoint2D | null = null) {
         if (p2 === null) {
             this.drawRect(0, 0, p1.x, p1.y);
         } else {

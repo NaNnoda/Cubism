@@ -2044,6 +2044,184 @@ var MaterialIcons = class extends BasicIcon {
   }
 };
 
+// src/Elements/DraggableCircle.ts
+var DraggableCircle = class extends CircleElement {
+  constructor() {
+    super(...arguments);
+    this._isDragging = false;
+    this._dragStartPoint = null;
+    this._dragStartPos = null;
+  }
+  get x() {
+    return this.position.x;
+  }
+  set x(x) {
+    this.setPosFromXY(x, this.y);
+  }
+  get y() {
+    return this.position.y;
+  }
+  set y(y) {
+    this.setPosFromXY(this.x, y);
+  }
+  get isDragging() {
+    return this._isDragging;
+  }
+  onDown(point) {
+    super.onDown(point);
+    this._isDragging = true;
+    this._dragStartPoint = point;
+    this._dragStartPos = this.position;
+  }
+  onUp(point) {
+    super.onUp(point);
+    this._isDragging = false;
+    this._dragStartPoint = null;
+    this._dragStartPos = null;
+  }
+  onMove(point) {
+    super.onMove(point);
+  }
+  onParentMove(point) {
+    super.onParentMove(point);
+    if (this._isDragging) {
+      if (this._dragStartPoint !== null && this._dragStartPos !== null) {
+        let diff = point.sub(this._dragStartPoint);
+        this.position = this._dragStartPos.add(diff);
+      }
+    }
+  }
+};
+
+// src/Utils/Math/NNMatrix.ts
+var IJMatrix = class {
+  constructor(rows, cols) {
+    this.arr = [];
+    for (let i = 0; i < rows; i++) {
+      this.arr.push([]);
+      for (let j = 0; j < cols; j++) {
+        this.arr[i].push(0);
+      }
+    }
+  }
+  setIJ(i, j, value) {
+    this.arr[i][j] = value;
+    return this;
+  }
+  getIJ(i, j) {
+    return this.arr[i][j];
+  }
+  set(arr) {
+    let i = 0;
+    for (let row of this.arr) {
+      for (let j = 0; j < row.length; j++) {
+        row[j] = arr[i];
+        i++;
+      }
+    }
+    return this;
+  }
+  setFrom2DArray(arr) {
+    this.arr = arr;
+    return this;
+  }
+  multiply(other) {
+    let result = new IJMatrix(this.arr.length, other.arr[0].length);
+    for (let i = 0; i < this.arr.length; i++) {
+      for (let j = 0; j < other.arr[0].length; j++) {
+        for (let k = 0; k < this.arr[0].length; k++) {
+          result.arr[i][j] += this.arr[i][k] * other.arr[k][j];
+        }
+      }
+    }
+    return result;
+  }
+};
+
+// src/Curve/Curve2D/Cubic.ts
+function cubic(cubicFunctionBasis, pointMatrix, t) {
+  let b = cubicFunctionBasis(t);
+  let result = new IJMatrix(1, 2);
+  for (let i = 0; i < 4; i++) {
+    result.setIJ(0, 0, result.getIJ(0, 0) + pointMatrix.getIJ(i, 0) * b.getIJ(0, i));
+    result.setIJ(0, 1, result.getIJ(0, 1) + pointMatrix.getIJ(i, 1) * b.getIJ(0, i));
+  }
+  return result;
+}
+function hermite(t) {
+  return new IJMatrix(1, 4).set(
+    [
+      2 * t * t * t - 3 * t * t + 1,
+      t * t * t - 2 * t * t + t,
+      -2 * t * t * t + 3 * t * t,
+      t * t * t - t * t
+    ]
+  );
+}
+
+// src/Elements/CurveElement.ts
+var CurveElement = class extends CubismElement {
+  constructor() {
+    super(...arguments);
+    this.p0 = new Point2D(0, 0);
+    this.d0 = new Point2D(0, 50);
+    this.p1 = new Point2D(50, 20);
+    this.d1 = new Point2D(20, 40);
+  }
+  setD0(d0) {
+    this.d0 = d0;
+    return this;
+  }
+  setD1(d1) {
+    this.d1 = d1;
+    return this;
+  }
+  setP0(p0) {
+    this.p0 = p0;
+    return this;
+  }
+  setP1(p1) {
+    this.p1 = p1;
+    return this;
+  }
+  draw() {
+    super.draw();
+    let step = 0.01;
+    let t = 0;
+    let lastPoint = this.p0;
+    this.c.drawCircle(this.p0.x, this.p0.y, 5);
+    this.c.drawCircle(this.p1.x, this.p1.y, 5);
+    this.c.drawCircle(this.d0.x, this.d0.y, 5);
+    this.c.drawCircle(this.d1.x, this.d1.y, 5);
+    while (t < 1) {
+      let point = this.getPoint(t);
+      this.c.drawRectWithPoints(lastPoint, point);
+      lastPoint = point;
+      t += step;
+    }
+  }
+  getPoint(t) {
+    let pointMatrix = new IJMatrix(4, 2).set([
+      this.p0.x,
+      this.p0.y,
+      this.d0.x,
+      this.d0.y,
+      this.p1.x,
+      this.p1.y,
+      this.d1.x,
+      this.d1.y
+    ]);
+    let out = cubic(
+      hermite,
+      pointMatrix,
+      t
+    );
+    return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
+  }
+  drawCurve() {
+  }
+};
+
 // src/Demo/DemoFunctions.ts
 console.log("loading DemoFunctions.ts ...");
 var DemoFunctions = class {
@@ -2160,7 +2338,7 @@ var DemoFunctions = class {
       ).setPosFromXY(75, 25)
     );
   }
-  SVGTest() {
+  SvgTest() {
     let app = Cubism.createFromId("mainCanvas");
     app.init(
       new VerticalLayout(
@@ -2169,6 +2347,18 @@ var DemoFunctions = class {
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.arrow_back).setText("arrow_back"),
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.edit).setText("Edit"),
         new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.search).setText("Search")
+      )
+    );
+  }
+  CurveDemo() {
+    let app = Cubism.createFromId("mainCanvas");
+    app.width = 500;
+    app.height = 500;
+    app.init(
+      new PointerHandlerParentElement(
+        null,
+        new DraggableCircle().setSizeFromXY(10, 10).setPosFromXY(100, 100),
+        new CurveElement().setPosFromXY(100, 100).setWidth(300).setHeight(300)
       )
     );
   }
@@ -2186,9 +2376,6 @@ __decorateClass([
   )
 ], DemoFunctions.prototype, "animatedRecursiveRect", 1);
 __decorateClass([
-  demoFunction("Demo function for events")
-], DemoFunctions.prototype, "eventDemo", 1);
-__decorateClass([
   demoFunction("Demo function for theme changing")
 ], DemoFunctions.prototype, "themedElements", 1);
 __decorateClass([
@@ -2196,7 +2383,10 @@ __decorateClass([
 ], DemoFunctions.prototype, "buttonAndLayoutDemo", 1);
 __decorateClass([
   demoFunction()
-], DemoFunctions.prototype, "SVGTest", 1);
+], DemoFunctions.prototype, "SvgTest", 1);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "CurveDemo", 1);
 function main() {
   initConsole();
 }

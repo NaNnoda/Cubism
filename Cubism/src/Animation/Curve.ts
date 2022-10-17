@@ -14,12 +14,12 @@ class QuadraticCurve implements IAnimationCurve {
         return start + (end - start) * t * t;
     }
 }
-
-class CubicCurve implements IAnimationCurve {
-    getDelta(start: number, end: number, t: number): number {
-        return start + (end - start) * t * t * t;
-    }
-}
+//
+// class CubicCurve implements IAnimationCurve {
+//     getDelta(start: number, end: number, t: number): number {
+//         return start + (end - start) * t * t * t;
+//     }
+// }
 
 class NCurve implements IAnimationCurve {
     constructor(private n: number) {
