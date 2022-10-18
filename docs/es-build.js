@@ -1512,7 +1512,7 @@ var StaticDemo = class {
         this.canvasRecorder.stopRecording();
         recordBtn.innerText = recordText;
       } else {
-        this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`);
+        this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`, "mp4");
         recordBtn.innerText = stopText;
       }
     };
@@ -2440,7 +2440,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     this._curves = [];
     this._drawing = false;
     this._isPlayingAnimation = false;
-    this.animationLength = 300;
+    this.animationLength = 50;
     this.circleSize = 20;
     this.mode = {
       draw: 0,
@@ -2902,7 +2902,7 @@ __decorateClass([
   demoFunction()
 ], DemoFunctions.prototype, "CurveDemo", 1);
 __decorateClass([
-  demoFunction()
+  demoFunction("Try to draw something with the mouse", "You can also try to change the drawing by changing to the moving mode.", "After drawing, you can click the play button to see the animation.")
 ], DemoFunctions.prototype, "curveCanvas", 1);
 function main() {
   initConsole();

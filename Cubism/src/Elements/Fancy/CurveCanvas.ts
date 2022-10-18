@@ -12,7 +12,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
     _drawing: boolean = false;
 
     _isPlayingAnimation: boolean = false;
-    animationLength: number = 300;
+    animationLength: number = 50;
 
     circleSize = 20;
 

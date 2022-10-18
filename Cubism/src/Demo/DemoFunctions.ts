@@ -254,7 +254,7 @@ class DemoFunctions {
         app.init(root)
     }
 
-    @demoFunction()
+    @demoFunction("Try to draw something with the mouse", "You can also try to change the drawing by changing to the moving mode.", "After drawing, you can click the play button to see the animation.")
     curveCanvas() {
         let app = Cubism.createFromId("mainCanvas");
         let width = 500;
@@ -317,7 +317,6 @@ class DemoFunctions {
 
 function main() {
     initConsole();
-
 }
 
 main();

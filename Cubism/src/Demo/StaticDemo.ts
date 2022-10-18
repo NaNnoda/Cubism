@@ -39,7 +39,7 @@ export class StaticDemo {
                 recordBtn.innerText = recordText;
             } else {
 
-                this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`);
+                this.canvasRecorder.startRecording(`${this.selector.value}-${new Date().toLocaleString()}`, "mp4");
                 recordBtn.innerText = stopText;
             }
         }
