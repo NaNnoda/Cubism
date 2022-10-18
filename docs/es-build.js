@@ -2459,6 +2459,10 @@ var CurveCanvas = class extends PointerHandlerParentElement {
   }
   onUp(point) {
     super.onUp(point);
+    if (this._currMode === this.mode.draw) {
+      this._curves[this._curves.length - 1].push(point.sub(this.position));
+      this._curves[this._curves.length - 1].push(point.sub(this.position));
+    }
     this.drawing = false;
   }
   playAnimation() {

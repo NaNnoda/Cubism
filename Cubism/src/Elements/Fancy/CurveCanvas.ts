@@ -58,6 +58,13 @@ export class CurveCanvas extends PointerHandlerParentElement {
 
     onUp(point: PointerPoint) {
         super.onUp(point);
+        if (this._currMode === this.mode.draw) {
+            this._curves[this._curves.length - 1].push(point.sub(this.position));
+            // Add another point to make sure the curve can be animated correctly
+            this._curves[this._curves.length - 1].push(point.sub(this.position));
+        }
+
+
         this.drawing = false;
     }
 
@@ -216,7 +223,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
 
                 if (this._isPlayingAnimation) {
                     this.c.setStrokeWidth(10);
-                    let currColor = `hsl(${100}, ${0}%, ${20+(1 - ratio) * 80}%)`;
+                    let currColor = `hsl(${100}, ${0}%, ${20 + (1 - ratio) * 80}%)`;
                     this.c.setStrokeStyle(currColor);
                 }
                 this.c.drawLineWithPoints(lastPoint, point);
