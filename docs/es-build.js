@@ -2574,7 +2574,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
       this.c.setStrokeWidth(3);
     }
     if (this.currMode === this.mode.draw) {
-      this.c.setStrokeWidth(10);
+      this.c.setStrokeWidth(4);
     }
     for (let curve of this._curves) {
       this.drawHermitCurve(curve);
@@ -2587,7 +2587,6 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     this.c.restoreTranslate();
   }
   drawHermitCurve(points, ratio = 1) {
-    let step = 0.01;
     let lastD = Point2D.zero;
     let fullEnd = points.length;
     let end = Math.floor(fullEnd * ratio);
@@ -2615,10 +2614,11 @@ var CurveCanvas = class extends PointerHandlerParentElement {
         }
       }
       let lastPoint = p0;
-      while (t <= segEnd) {
+      let step = 0.05;
+      while (t <= segEnd + step) {
         let point = this.getPoint(t, p0, p1, d0, d1);
         if (this._isPlayingAnimation) {
-          this.c.setStrokeWidth(10);
+          this.c.setStrokeWidth(3);
         }
         this.c.drawLineWithPoints(lastPoint, point);
         lastPoint = point;
