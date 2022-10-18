@@ -11,9 +11,9 @@ export class CurveCanvas extends PointerHandlerParentElement {
     _drawing: boolean = false;
 
     _isPlayingAnimation: boolean = false;
-    animationLength: number = 100;
+    animationLength: number = 30;
 
-    circleSize = 10;
+    circleSize = 20;
 
     mode = {
         draw: 0,
@@ -137,6 +137,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
         }
         this.c.setRedraw(true);
     }
+
     clear() {
         while (this._curves.length > 0) {
             this.undo();
@@ -184,42 +185,47 @@ export class CurveCanvas extends PointerHandlerParentElement {
         let fullEnd = points.length;
         let end = Math.floor(fullEnd * ratio);
 
-        for (let i = 0; i < end - 1; i++) {
-            let p0 = Point2D.fromIPoint(points[i]);
-            let p1 = Point2D.fromIPoint(points[i + 1]);
+        if (fullEnd < 1) {
+            return;
+        }
+
+        for (let i = 1; i < end; i++) {
+            let p0 = Point2D.fromIPoint(points[i - 1]);
+            let p1 = Point2D.fromIPoint(points[i]);
             let t = 0;
-            let lastPoint: IPoint2D = p0;
+
             let d0 = lastD;
             let d1 = null;
-            if (i < end - 2) {
-                let p2 = Point2D.fromIPoint(points[i + 2]);
+            if (i < end - 3) {
+                let p2 = Point2D.fromIPoint(points[i + 1]);
                 d1 = p2.sub(p0).scale(0.5);
             } else {
                 d1 = p1.sub(p0).scale(0.5);
             }
             let segEnd = 1;
             let isEdge = false;
-            if (this._isPlayingAnimation){
-                if (i === end - 2) {
+            if (this._isPlayingAnimation) {
+                if (i === end - 1) {
                     isEdge = true;
-                    segEnd = fullEnd * ratio - end;
+                    segEnd = (fullEnd * ratio - end);
                 }
             }
-
+            let lastPoint: IPoint2D = p0;
             while (t <= segEnd) {
                 let point = this.getPoint(t, p0, p1, d0, d1);
-                if (this._isPlayingAnimation){
+
+                if (this._isPlayingAnimation) {
                     this.c.setStrokeWidth(10);
-                    let currColor = `hsl(${100}, ${10}%, ${(1-ratio)*100}%)`;
+                    let currColor = `hsl(${100}, ${0}%, ${20+(1 - ratio) * 80}%)`;
                     this.c.setStrokeStyle(currColor);
                 }
                 this.c.drawLineWithPoints(lastPoint, point);
                 lastPoint = point;
                 t += step;
             }
-            if (this._isPlayingAnimation){
+            if (this._isPlayingAnimation) {
                 let point = this.getPoint(t, p0, p1, d0, d1);
-                if (isEdge){
+                if (isEdge) {
                     let tangent = this.getTangent(t, p0, p1, d0, d1);
                     this.c.setStrokeWidth(20);
                     let endPoint = point.sub(tangent.identity().scale(20));
