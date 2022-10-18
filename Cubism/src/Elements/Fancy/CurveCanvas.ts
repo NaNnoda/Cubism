@@ -11,7 +11,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
     _drawing: boolean = false;
 
     _isPlayingAnimation: boolean = false;
-    animationLength: number = 30;
+    animationLength: number = 300;
 
     circleSize = 20;
 
@@ -112,7 +112,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
             if (this._currMode === this.mode.draw) {
                 let lastCurve = this._curves[this._curves.length - 1];
                 let lastPoint = lastCurve[lastCurve.length - 1];
-                if (Point2D.fromIPoint(lastPoint).manhattanDistance(relaPoint) > 80) {
+                if (Point2D.fromIPoint(lastPoint).manhattanDistance(relaPoint) > 100) {
                     lastCurve.push(relaPoint);
                 }
             }
@@ -156,10 +156,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
 
         // console.log("Drawing curves: ", this._curves);
         super.draw();
-        if (this._isPlayingAnimation) {
-            // console.log("Is playing");
-            return;
-        }
+
 
         this.c.offset(this.position);
         // this.c.setFillStyle("black");
@@ -167,6 +164,11 @@ export class CurveCanvas extends PointerHandlerParentElement {
         this.c.setFillStyle(Colors.white);
         this.c.drawRect(0, 0, this.size.x, this.size.y);
         this.c.setStrokeStyle(Colors.black);
+        if (this._isPlayingAnimation) {
+            // console.log("Is playing");
+            this.c.restoreTranslate();
+            return;
+        }
         if (this.currMode === this.mode.move) {
             this.c.setStrokeStyle(Colors.blue700);
             this.c.setStrokeWidth(3);
@@ -223,7 +225,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
 
                 if (this._isPlayingAnimation) {
                     this.c.setStrokeWidth(10);
-                    let currColor = `hsl(${100}, ${0}%, ${20 + (1 - ratio) * 80}%)`;
+                    let currColor = `hsl(${ratio * 100}, ${20}%, ${20 + (1 - ratio) * 80}%)`;
                     this.c.setStrokeStyle(currColor);
                 }
                 this.c.drawLineWithPoints(lastPoint, point);
@@ -234,9 +236,11 @@ export class CurveCanvas extends PointerHandlerParentElement {
                 let point = this.getPoint(t, p0, p1, d0, d1);
                 if (isEdge) {
                     let tangent = this.getTangent(t, p0, p1, d0, d1);
-                    this.c.setStrokeWidth(20);
-                    let endPoint = point.sub(tangent.identity().scale(20));
-                    this.c.drawLineWithPoints(point, endPoint);
+                    // this.c.setStrokeWidth(20);
+                    let rotation = -Math.atan2(tangent.y, tangent.x);
+                    this.c.setStrokeWidth(2)
+                    this.c.setFillStyle(Colors.white);
+                    this.c.drawArrow(point, rotation, 20);
                 }
             }
             lastD = d1;

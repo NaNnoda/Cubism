@@ -1,4 +1,4 @@
-import {CanvasDrawer} from "./Drawer/CanvasDrawer";
+import {CubismCanvasDrawer} from "./Drawer/CubismCanvasDrawer";
 import {CubismEventSystem} from "./Events/CubismEventSystem";
 import {EventKeys} from "./Constants/EventKeys";
 import {Point2D} from "./Utils/Math/Point";
@@ -17,7 +17,7 @@ export class Cubism extends CubismElementManger {
     _root: CubismElement | null = null;
     readonly canvas: HTMLCanvasElement;
     readonly cubismId: string;
-    readonly canvasDrawer: CanvasDrawer;
+    readonly canvasDrawer: CubismCanvasDrawer;
     readonly eventSystem: CubismEventSystem;
 
     get width() {
@@ -56,7 +56,7 @@ export class Cubism extends CubismElementManger {
         super();
         this.canvas = canvas;
         this.eventSystem = new CubismEventSystem();
-        this.canvasDrawer = new CanvasDrawer(canvas);
+        this.canvasDrawer = new CubismCanvasDrawer(canvas);
         this._initializer = new CubismEventManager();
 
         this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);

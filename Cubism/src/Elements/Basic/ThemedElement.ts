@@ -1,4 +1,4 @@
-import {CanvasDrawer} from "../../Drawer/CanvasDrawer";
+import {CubismCanvasDrawer} from "../../Drawer/CubismCanvasDrawer";
 import {PointerPoint} from "../../Datatypes/PointerPoint";
 
 import PointerHandlerParentElement from "./PointerHanderParentElement";

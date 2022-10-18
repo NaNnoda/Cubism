@@ -1,5 +1,5 @@
 import {Point2D} from "../../Utils/Math/Point";
-import {CanvasDrawer} from "../../Drawer/CanvasDrawer";
+import {CubismCanvasDrawer} from "../../Drawer/CubismCanvasDrawer";
 import {Cubism} from "../../Cubism";
 import {CubismEventSystem} from "../../Events/CubismEventSystem";
 import SizeKeys from "../../Constants/SizeKeys";
@@ -205,7 +205,7 @@ export class CubismElement extends CubismEventSystem implements IDrawable {
     /**
      * Get canvas drawer
      */
-    get c(): CanvasDrawer {
+    get c(): CubismCanvasDrawer {
         if (!this.cubism) {
             console.log(this.cubism)
             throw new Error(`Cubism instance not set for ${this}`);

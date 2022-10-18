@@ -9,7 +9,7 @@ import {EventKeys} from "../Constants/EventKeys";
  * with the ability to draw on it
  * and handle events
  */
-export class CanvasDrawer extends CubismPart {
+export class CubismCanvasDrawer extends CubismPart {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
@@ -266,17 +266,21 @@ export class CanvasDrawer extends CubismPart {
         this.ctx.drawImage(image, x, y, width, height);
     }
 
-    drawArrow(pos: Point2D, rotation: number, length: number=10) {
+    drawArrow(pos: Point2D, rotation: number, length: number = 10) {
+        this.state.save();
         this.offset(pos);
         this.rotate(rotation);
         this.ctx.beginPath();
         this.ctx.moveTo(0, 0);
         this.ctx.lineTo(length, 0);
         this.ctx.lineTo(length - 5, -5);
+        this.ctx.stroke();
+        this.ctx.beginPath();
         this.ctx.moveTo(length, 0);
         this.ctx.lineTo(length - 5, 5);
         this.restoreTranslate();
         this.restoreTranslate();
+        this.state.restoreSave();
         this.closeDraw();
         // this.restoreTranslate();
         // this.restoreTranslate();

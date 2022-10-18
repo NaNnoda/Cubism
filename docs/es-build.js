@@ -229,10 +229,14 @@ var TransformMatrix2D = class {
 // src/Drawer/CubismCanvasState.ts
 var CubismCanvasState = class {
   constructor(canvas, ctx) {
-    this.translates = [TransformMatrix2D.identity()];
+    this._translates = [TransformMatrix2D.identity()];
+    this._saves = [];
     this._needsRedraw = true;
     this.canvas = canvas;
     this.ctx = ctx;
+  }
+  get translates() {
+    return this._translates;
   }
   translate(translateMatrix) {
     this.translates.push(translateMatrix);
@@ -249,6 +253,15 @@ var CubismCanvasState = class {
   scale(scale) {
     let translateMatrix = this.translateMatrix.clone().scale(scale.x, scale.y);
     this.translate(translateMatrix);
+  }
+  save() {
+    this._saves.push(this.translateMatrix.clone());
+  }
+  restoreSave() {
+    let lastSave = this._saves.pop();
+    if (lastSave) {
+      this.setCtxTransform(lastSave);
+    }
   }
   setCtxTransform(t) {
     this.ctx.setTransform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy);
@@ -337,8 +350,8 @@ EventKeys.MINUTE_UPDATE = "onMinuteUpdate";
 EventKeys.HOUR_UPDATE = "onHourUpdate";
 EventKeys.DRAW_COUNT_UPDATE = "onDrawCountUpdate";
 
-// src/Drawer/CanvasDrawer.ts
-var CanvasDrawer = class extends CubismPart {
+// src/Drawer/CubismCanvasDrawer.ts
+var CubismCanvasDrawer = class extends CubismPart {
   constructor(canvas) {
     super();
     this.canvas = canvas;
@@ -479,16 +492,20 @@ var CanvasDrawer = class extends CubismPart {
     this.ctx.drawImage(image, x, y, width, height);
   }
   drawArrow(pos, rotation, length = 10) {
+    this.state.save();
     this.offset(pos);
     this.rotate(rotation);
     this.ctx.beginPath();
     this.ctx.moveTo(0, 0);
     this.ctx.lineTo(length, 0);
     this.ctx.lineTo(length - 5, -5);
+    this.ctx.stroke();
+    this.ctx.beginPath();
     this.ctx.moveTo(length, 0);
     this.ctx.lineTo(length - 5, 5);
     this.restoreTranslate();
     this.restoreTranslate();
+    this.state.restoreSave();
     this.closeDraw();
   }
 };
@@ -700,7 +717,7 @@ var Cubism = class extends CubismElementManger {
     this._root = null;
     this.canvas = canvas;
     this.eventSystem = new CubismEventSystem();
-    this.canvasDrawer = new CanvasDrawer(canvas);
+    this.canvasDrawer = new CubismCanvasDrawer(canvas);
     this._initializer = new CubismEventManager();
     this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
     this.registerRedraw();
@@ -2423,7 +2440,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     this._curves = [];
     this._drawing = false;
     this._isPlayingAnimation = false;
-    this.animationLength = 30;
+    this.animationLength = 300;
     this.circleSize = 20;
     this.mode = {
       draw: 0,
@@ -2503,7 +2520,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
       if (this._currMode === this.mode.draw) {
         let lastCurve = this._curves[this._curves.length - 1];
         let lastPoint = lastCurve[lastCurve.length - 1];
-        if (Point2D.fromIPoint(lastPoint).manhattanDistance(relaPoint) > 80) {
+        if (Point2D.fromIPoint(lastPoint).manhattanDistance(relaPoint) > 100) {
           lastCurve.push(relaPoint);
         }
       }
@@ -2541,14 +2558,15 @@ var CurveCanvas = class extends PointerHandlerParentElement {
   }
   draw() {
     super.draw();
-    if (this._isPlayingAnimation) {
-      return;
-    }
     this.c.offset(this.position);
     this.c.setStrokeStyle(Colors.white);
     this.c.setFillStyle(Colors.white);
     this.c.drawRect(0, 0, this.size.x, this.size.y);
     this.c.setStrokeStyle(Colors.black);
+    if (this._isPlayingAnimation) {
+      this.c.restoreTranslate();
+      return;
+    }
     if (this.currMode === this.mode.move) {
       this.c.setStrokeStyle(Colors.blue700);
       this.c.setStrokeWidth(3);
@@ -2599,7 +2617,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
         let point = this.getPoint(t, p0, p1, d0, d1);
         if (this._isPlayingAnimation) {
           this.c.setStrokeWidth(10);
-          let currColor = `hsl(${100}, ${0}%, ${20 + (1 - ratio) * 80}%)`;
+          let currColor = `hsl(${ratio * 100}, ${20}%, ${20 + (1 - ratio) * 80}%)`;
           this.c.setStrokeStyle(currColor);
         }
         this.c.drawLineWithPoints(lastPoint, point);
@@ -2610,9 +2628,10 @@ var CurveCanvas = class extends PointerHandlerParentElement {
         let point = this.getPoint(t, p0, p1, d0, d1);
         if (isEdge) {
           let tangent = this.getTangent(t, p0, p1, d0, d1);
-          this.c.setStrokeWidth(20);
-          let endPoint = point.sub(tangent.identity().scale(20));
-          this.c.drawLineWithPoints(point, endPoint);
+          let rotation = -Math.atan2(tangent.y, tangent.x);
+          this.c.setStrokeWidth(2);
+          this.c.setFillStyle(Colors.white);
+          this.c.drawArrow(point, rotation, 20);
         }
       }
       lastD = d1;
@@ -2848,6 +2867,7 @@ var DemoFunctions = class {
     app.init(
       new PointerHandlerParentElement(
         "SVG Test",
+        new Background().setColor(Colors.blue100),
         curveCanvas,
         undoBtn,
         modeBtn,

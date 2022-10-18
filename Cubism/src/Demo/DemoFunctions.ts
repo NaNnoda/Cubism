@@ -303,6 +303,7 @@ class DemoFunctions {
         app.init(
             new PointerHandlerParentElement(
                 "SVG Test",
+                new Background().setColor(Colors.blue100),
                 // new CubismAnimation(100).setPlaying(true),
                 curveCanvas,
                 undoBtn,

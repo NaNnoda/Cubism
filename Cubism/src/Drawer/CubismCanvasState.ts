@@ -13,7 +13,13 @@ export class CubismCanvasState {
         this.ctx = ctx;
     }
 
-    private translates: TransformMatrix2D[] = [TransformMatrix2D.identity()];
+    private _translates: TransformMatrix2D[] = [TransformMatrix2D.identity()];
+    get translates() {
+        return this._translates;
+    }
+
+    private _saves: TransformMatrix2D[] = [];
+
 
     translate(translateMatrix: TransformMatrix2D) {
         this.translates.push(translateMatrix);
@@ -34,6 +40,19 @@ export class CubismCanvasState {
         let translateMatrix = this.translateMatrix.clone().scale(scale.x, scale.y);
         this.translate(translateMatrix);
     }
+
+    save() {
+        this._saves.push(this.translateMatrix.clone());
+
+    }
+
+    restoreSave() {
+        let lastSave = this._saves.pop();
+        if (lastSave) {
+            this.setCtxTransform(lastSave);
+        }
+    }
+
 
     setCtxTransform(t: TransformMatrix2D) {
         this.ctx.setTransform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy);
