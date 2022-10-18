@@ -115,6 +115,12 @@ export default class PointerHandlerParentElement extends CubismParentElement {
             // console.log("Children pointer point: ", childrenPointerPoint);
             for (let child of this.children) {
                 // console.log(`Triggering child ${child}`);
+                if (child instanceof PointerHandlerParentElement) {
+                    if (child.pointerInRange(point)) {
+                        child.triggerThisPointerEvent(point);
+                        break;
+                    }
+                }
                 child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
             }
         }

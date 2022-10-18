@@ -71,4 +71,52 @@ export class MaterialIcons extends BasicIcon {
     static get arrow_forward() {
         return new MaterialIcons("arrow_forward");
     }
+    static get undo() {
+        return new MaterialIcons("undo");
+    }
+    static get redo() {
+        return new MaterialIcons("redo");
+    }
+    static get save() {
+        return new MaterialIcons("save");
+    }
+    static get delete() {
+        return new MaterialIcons("delete");
+    }
+    static get add_circle() {
+        return new MaterialIcons("add_circle");
+    }
+    static get remove_circle() {
+        return new MaterialIcons("remove_circle");
+    }
+    static get pencil() {
+        return MaterialIcons.edit;
+    }
+    static get clear() {
+        return new MaterialIcons("clear");
+    }
+    static get check() {
+        return new MaterialIcons("check");
+    }
+    static get check_circle() {
+        return new MaterialIcons("check_circle");
+    }
+    static get cancel() {
+        return new MaterialIcons("cancel");
+    }
+    static get move() {
+        return MaterialIcons.open_with;
+    }
+    static get open_with() {
+        return new MaterialIcons("open_with");
+    }
+    static get zoom_in() {
+        return new MaterialIcons("zoom_in");
+    }
+    static get zoom_out() {
+        return new MaterialIcons("zoom_out");
+    }
+    static get play_arrow() {
+        return new MaterialIcons("play_arrow");
+    }
 }

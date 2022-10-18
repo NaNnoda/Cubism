@@ -5,9 +5,9 @@ import {Point2D} from "./Utils/Math/Point";
 import {PointerPoint} from "./Datatypes/PointerPoint";
 import {CubismOuterGlobal} from "./Global/Outer/CubismOuterGlobal";
 import CubismPart from "./CubismPart";
-import CubismInitializer from "./CubismInitializer";
 import CubismElementManger from "./CubismElementManger";
 import {CubismElement} from "./Elements/Basic/CubismElement";
+import CubismEventManager from "./CubismEventManager";
 
 /**
  * Entry point of the application
@@ -33,7 +33,7 @@ export class Cubism extends CubismElementManger {
         this.canvas.height = height;
     }
 
-    _initializer: CubismInitializer;
+    _initializer: CubismEventManager;
     get initializer() {
         return this._initializer;
     }
@@ -57,7 +57,7 @@ export class Cubism extends CubismElementManger {
         this.canvas = canvas;
         this.eventSystem = new CubismEventSystem();
         this.canvasDrawer = new CanvasDrawer(canvas);
-        this._initializer = new CubismInitializer();
+        this._initializer = new CubismEventManager();
 
         this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
         this.registerRedraw();

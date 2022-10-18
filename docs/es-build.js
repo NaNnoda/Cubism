@@ -483,10 +483,9 @@ var CanvasDrawer = class extends CubismPart {
     this.ctx.lineTo(length - 5, -5);
     this.ctx.moveTo(length, 0);
     this.ctx.lineTo(length - 5, 5);
+    this.restoreTranslate();
+    this.restoreTranslate();
     this.closeDraw();
-    this.restoreTranslate();
-    this.restoreTranslate();
-    this.restoreTranslate();
   }
 };
 
@@ -574,8 +573,45 @@ var CubismOuterGlobal = class {
   }
 };
 
-// src/CubismInitializer.ts
-var CubismInitializer = class extends CubismPart {
+// src/CubismElementManger.ts
+var CubismElementManger = class {
+  constructor() {
+    this._elementsWithId = {};
+    this._elementsWithClass = {};
+  }
+  registerElementId(id, element) {
+    console.log("registering element with id " + id);
+    if (this._elementsWithId[id] === void 0) {
+      this._elementsWithId[id] = element;
+    } else {
+      throw new Error("Element with that id already exists");
+    }
+  }
+  getElementById(id) {
+    return this._elementsWithId[id];
+  }
+  removeElementWithId(id) {
+    delete this._elementsWithId[id];
+  }
+  registerElementClass(className, element) {
+    if (this._elementsWithClass[className] === void 0) {
+      this._elementsWithClass[className] = [];
+    }
+    this._elementsWithClass[className].push(element);
+  }
+  getElementsByClass(className) {
+    return this._elementsWithClass[className];
+  }
+  removeElementWithClass(className, element) {
+    this._elementsWithClass[className].splice(this._elementsWithClass[className].indexOf(element), 1);
+  }
+  removeClass(className) {
+    delete this._elementsWithClass[className];
+  }
+};
+
+// src/CubismEventManager.ts
+var CubismEventManager = class extends CubismPart {
   constructor() {
     super(...arguments);
     this.frameCount = 0;
@@ -632,6 +668,10 @@ var CubismInitializer = class extends CubismPart {
   triggerRedraw() {
     this.eventSystem.triggerEvent(EventKeys.REDRAW);
   }
+  stopAlwaysRedraw() {
+    this.eventSystem.unregisterEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
+    return this;
+  }
   initializeDrawsPerSecondCounter() {
     this.eventSystem.registerEvent(EventKeys.REDRAW, this.onRedraw.bind(this));
     if (!this.eventSystem.hasEvent(EventKeys.SECOND_UPDATE)) {
@@ -649,43 +689,6 @@ var CubismInitializer = class extends CubismPart {
   }
 };
 
-// src/CubismElementManger.ts
-var CubismElementManger = class {
-  constructor() {
-    this._elementsWithId = {};
-    this._elementsWithClass = {};
-  }
-  registerElementId(id, element) {
-    console.log("registering element with id " + id);
-    if (this._elementsWithId[id] === void 0) {
-      this._elementsWithId[id] = element;
-    } else {
-      throw new Error("Element with that id already exists");
-    }
-  }
-  getElementById(id) {
-    return this._elementsWithId[id];
-  }
-  removeElementWithId(id) {
-    delete this._elementsWithId[id];
-  }
-  registerElementClass(className, element) {
-    if (this._elementsWithClass[className] === void 0) {
-      this._elementsWithClass[className] = [];
-    }
-    this._elementsWithClass[className].push(element);
-  }
-  getElementsByClass(className) {
-    return this._elementsWithClass[className];
-  }
-  removeElementWithClass(className, element) {
-    this._elementsWithClass[className].splice(this._elementsWithClass[className].indexOf(element), 1);
-  }
-  removeClass(className) {
-    delete this._elementsWithClass[className];
-  }
-};
-
 // src/Cubism.ts
 var Cubism = class extends CubismElementManger {
   constructor(canvas) {
@@ -694,7 +697,7 @@ var Cubism = class extends CubismElementManger {
     this.canvas = canvas;
     this.eventSystem = new CubismEventSystem();
     this.canvasDrawer = new CanvasDrawer(canvas);
-    this._initializer = new CubismInitializer();
+    this._initializer = new CubismEventManager();
     this.initParts(this.canvasDrawer, this.eventSystem, this.initializer);
     this.registerRedraw();
     this.registerGlobalPointerEvents();
@@ -1126,6 +1129,12 @@ var PointerHandlerParentElement = class extends CubismParentElement {
   triggerChildrenPointerEvent(point) {
     if (this.pointerInRange(point)) {
       for (let child of this.children) {
+        if (child instanceof PointerHandlerParentElement) {
+          if (child.pointerInRange(point)) {
+            child.triggerThisPointerEvent(point);
+            break;
+          }
+        }
         child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
       }
     }
@@ -2119,6 +2128,54 @@ var MaterialIcons = class extends BasicIcon {
   static get arrow_forward() {
     return new MaterialIcons("arrow_forward");
   }
+  static get undo() {
+    return new MaterialIcons("undo");
+  }
+  static get redo() {
+    return new MaterialIcons("redo");
+  }
+  static get save() {
+    return new MaterialIcons("save");
+  }
+  static get delete() {
+    return new MaterialIcons("delete");
+  }
+  static get add_circle() {
+    return new MaterialIcons("add_circle");
+  }
+  static get remove_circle() {
+    return new MaterialIcons("remove_circle");
+  }
+  static get pencil() {
+    return MaterialIcons.edit;
+  }
+  static get clear() {
+    return new MaterialIcons("clear");
+  }
+  static get check() {
+    return new MaterialIcons("check");
+  }
+  static get check_circle() {
+    return new MaterialIcons("check_circle");
+  }
+  static get cancel() {
+    return new MaterialIcons("cancel");
+  }
+  static get move() {
+    return MaterialIcons.open_with;
+  }
+  static get open_with() {
+    return new MaterialIcons("open_with");
+  }
+  static get zoom_in() {
+    return new MaterialIcons("zoom_in");
+  }
+  static get zoom_out() {
+    return new MaterialIcons("zoom_out");
+  }
+  static get play_arrow() {
+    return new MaterialIcons("play_arrow");
+  }
 };
 
 // src/Elements/DraggableCircle.ts
@@ -2324,6 +2381,251 @@ var CurveElement = class extends CubismElement {
   }
 };
 
+// src/Animation/Animation.ts
+var CubismAnimation = class extends CubismPart {
+  constructor(cubism, endFrame = 0) {
+    super();
+    this._isPlaying = false;
+    this._currFrame = 0;
+    this._animationCallBacks = [];
+    this.setCubism(cubism);
+    this._endFrame = endFrame;
+  }
+  setPlaying(playing) {
+    this._isPlaying = playing;
+    if (playing) {
+      this.cubism.initializer.initializeAlwaysRedraw();
+      this.cubism.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.play.bind(this));
+    }
+    return this;
+  }
+  setAnimationEvent(callback) {
+    this._animationCallBacks.push(callback);
+  }
+  onAnimationUpdate() {
+    for (const callback of this._animationCallBacks) {
+      callback(this._currFrame);
+    }
+  }
+  play() {
+    this.onAnimationUpdate();
+    this._currFrame++;
+    if (this._currFrame > this._endFrame) {
+      this._isPlaying = false;
+      this._currFrame = 0;
+      this.cubism.initializer.stopAlwaysRedraw();
+    }
+  }
+};
+
+// src/Elements/Fancy/CurveCanvas.ts
+var CurveCanvas = class extends PointerHandlerParentElement {
+  constructor() {
+    super(...arguments);
+    this._curves = [];
+    this._drawing = false;
+    this._isPlayingAnimation = false;
+    this.animationLength = 300;
+    this.circleSize = 10;
+    this.mode = {
+      draw: 0,
+      move: 1
+    };
+    this._currMode = this.mode.draw;
+  }
+  set currMode(mode) {
+    console.log("Setting mode to: ", mode);
+    this._currMode = mode;
+  }
+  get currMode() {
+    return this._currMode;
+  }
+  set drawing(drawing) {
+    this._drawing = drawing;
+  }
+  changeToMoveMode() {
+    this.currMode = this.mode.move;
+  }
+  changeToDrawMode() {
+    this.currMode = this.mode.draw;
+  }
+  get drawing() {
+    return this._drawing;
+  }
+  onDown(point) {
+    super.onDown(point);
+    this.drawing = true;
+    if (this._currMode === this.mode.draw) {
+      this._curves.push([point.sub(this.position)]);
+    }
+  }
+  onUp(point) {
+    super.onUp(point);
+    this.drawing = false;
+  }
+  playAnimation() {
+    console.log("Playing animation");
+    if (this._isPlayingAnimation) {
+      return;
+    }
+    let animation = new CubismAnimation(this.cubism, this.animationLength);
+    this._isPlayingAnimation = true;
+    animation.setAnimationEvent(this.animationCallback.bind(this));
+    animation.setPlaying(true);
+    this.c.setRedraw(true);
+  }
+  animationCallback(t) {
+    if (t === this.animationLength) {
+      this._isPlayingAnimation = false;
+      return;
+    }
+    let ratio = t / this.animationLength;
+    if (this._curves.length === 0) {
+      return;
+    }
+    this.c.offset(this.position);
+    for (let i = 0; i < this._curves.length; i++) {
+      let curve = this._curves[i];
+      let point = curve[i];
+      this.drawHermitCurve(curve, ratio);
+    }
+    this.c.restoreTranslate();
+  }
+  onMove(point) {
+    super.onMove(point);
+    let relaPoint = point.sub(this.position);
+    if (this.drawing) {
+      if (this._currMode === this.mode.draw) {
+        let lastCurve = this._curves[this._curves.length - 1];
+        let lastPoint = lastCurve[lastCurve.length - 1];
+        if (Point2D.fromIPoint(lastPoint).manhattanDistance(relaPoint) > 80) {
+          lastCurve.push(relaPoint);
+        }
+      }
+      if (this._currMode === this.mode.move) {
+        let dragPoint = null;
+        for (let curve of this._curves) {
+          for (let point2 of curve) {
+            if (Point2D.fromIPoint(point2).euclideanDistance(relaPoint) < this.circleSize) {
+              dragPoint = point2;
+              break;
+            }
+          }
+        }
+        if (dragPoint !== null) {
+          dragPoint.x = relaPoint.x;
+          dragPoint.y = relaPoint.y;
+        }
+      }
+    }
+    this.c.setRedraw(true);
+  }
+  undo() {
+    if (this._curves.length > 0) {
+      this._curves.pop();
+      console.log(this._curves);
+      console.log("Undoing");
+    }
+    this.c.setRedraw(true);
+  }
+  draw() {
+    super.draw();
+    if (this._isPlayingAnimation) {
+      console.log("Is playing");
+      return;
+    }
+    this.c.offset(this.position);
+    this.c.setStrokeStyle(Colors.white);
+    this.c.setFillStyle(Colors.white);
+    this.c.drawRect(0, 0, this.size.x, this.size.y);
+    this.c.setStrokeStyle(Colors.black);
+    if (this.currMode === this.mode.move) {
+      this.c.setStrokeStyle(Colors.blue700);
+      this.c.setStrokeWidth(3);
+    }
+    if (this.currMode === this.mode.draw) {
+      this.c.setStrokeWidth(10);
+    }
+    for (let curve of this._curves) {
+      this.drawHermitCurve(curve);
+      if (this._currMode === this.mode.move) {
+        for (let point of curve) {
+          this.c.drawPoint(point, this.circleSize);
+        }
+      }
+    }
+    this.c.restoreTranslate();
+  }
+  drawHermitCurve(points, ratio = 1) {
+    let step = 0.01;
+    let lastD = Point2D.zero;
+    let fullEnd = points.length;
+    let end = Math.floor(fullEnd * ratio);
+    for (let i = 0; i < end - 1; i++) {
+      let p0 = Point2D.fromIPoint(points[i]);
+      let p1 = Point2D.fromIPoint(points[i + 1]);
+      let t = 0;
+      let lastPoint = p0;
+      let d0 = lastD;
+      let d1 = null;
+      if (i < end - 2) {
+        let p2 = Point2D.fromIPoint(points[i + 2]);
+        d1 = p2.sub(p0).scale(0.5);
+      } else {
+        d1 = p1.sub(p0).scale(0.5);
+      }
+      let segEnd = 1;
+      let isEdge = false;
+      if (i >= end - 2) {
+        isEdge = true;
+        segEnd = fullEnd * ratio - end;
+      }
+      while (t < segEnd) {
+        if (isEdge) {
+        }
+        if (this._isPlayingAnimation) {
+          this.c.setStrokeWidth(10);
+          let currColor = `hsl(${ratio * 100}, ${100}%, ${50}%)`;
+          this.c.setStrokeStyle(currColor);
+        }
+        let point = this.getPoint(t, p0, p1, d0, d1);
+        this.c.drawLineWithPoints(lastPoint, point);
+        lastPoint = point;
+        t += step;
+      }
+      lastD = d1;
+    }
+  }
+  getTangent(t, p0, p1, d0, d1) {
+    let pointMatrix = new IJMatrix(4, 2).set([
+      p0.x,
+      p0.y,
+      d0.x,
+      d0.y,
+      p1.x,
+      p1.y,
+      d1.x,
+      d1.y
+    ]);
+    let out = cubic(dHermite, pointMatrix, t);
+    return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
+  }
+  getPoint(t, p0, p1, d0, d1) {
+    let pointMatrix = new IJMatrix(4, 2).set([
+      p0.x,
+      p0.y,
+      d0.x,
+      d0.y,
+      p1.x,
+      p1.y,
+      d1.x,
+      d1.y
+    ]);
+    let out = cubic(hermite, pointMatrix, t);
+    return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
+  }
+};
+
 // src/Demo/DemoFunctions.ts
 console.log("loading DemoFunctions.ts ...");
 var DemoFunctions = class {
@@ -2483,6 +2785,50 @@ var DemoFunctions = class {
     }
     app.init(root);
   }
+  curveCanvas() {
+    let app = Cubism.createFromId("mainCanvas");
+    let width = 500;
+    let height = 500;
+    app.width = width;
+    app.height = height;
+    let curveCanvas = new CurveCanvas().setWidth(width).setHeight(height).setPosFromXY(0, 50);
+    let modeBtn = new ButtonElement().setWidth(200).setHeight(50).setIcon(MaterialIcons.pencil).setText("Drawing Mode").setPosFromXY(0, 0).setOnClick(() => {
+      console.log(`Current mode: ${curveCanvas._currMode}`);
+      if (curveCanvas._currMode === curveCanvas.mode.draw) {
+        console.log("curveCanvas._currMode === curveCanvas.mode.draw");
+      }
+      if (curveCanvas._currMode === curveCanvas.mode.move) {
+        console.log("curveCanvas._currMode === curveCanvas.mode.move");
+      }
+      if (curveCanvas._currMode === curveCanvas.mode.draw) {
+        modeBtn.setIcon(MaterialIcons.move);
+        modeBtn.setText("Move Mode");
+        curveCanvas.changeToMoveMode();
+      } else {
+        console.log("Switching to drawing mode");
+        modeBtn.setIcon(MaterialIcons.pencil);
+        modeBtn.setText("Drawing Mode");
+        curveCanvas.changeToDrawMode();
+      }
+    });
+    let undoBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
+      console.log("Undo");
+      curveCanvas.undo();
+    }).setPosFromXY(200, 0);
+    let playBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
+      console.log("Play");
+      curveCanvas.playAnimation();
+    }).setPosFromXY(320, 0);
+    app.init(
+      new PointerHandlerParentElement(
+        "SVG Test",
+        curveCanvas,
+        undoBtn,
+        modeBtn,
+        playBtn
+      )
+    );
+  }
 };
 __decorateClass([
   demoFunction()
@@ -2508,6 +2854,9 @@ __decorateClass([
 __decorateClass([
   demoFunction()
 ], DemoFunctions.prototype, "CurveDemo", 1);
+__decorateClass([
+  demoFunction()
+], DemoFunctions.prototype, "curveCanvas", 1);
 function main() {
   initConsole();
 }

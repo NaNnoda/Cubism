@@ -267,7 +267,6 @@ export class CanvasDrawer extends CubismPart {
     }
 
     drawArrow(pos: Point2D, rotation: number, length: number=10) {
-
         this.offset(pos);
         this.rotate(rotation);
         this.ctx.beginPath();
@@ -276,9 +275,11 @@ export class CanvasDrawer extends CubismPart {
         this.ctx.lineTo(length - 5, -5);
         this.ctx.moveTo(length, 0);
         this.ctx.lineTo(length - 5, 5);
+        this.restoreTranslate();
+        this.restoreTranslate();
         this.closeDraw();
-        this.restoreTranslate();
-        this.restoreTranslate();
-        this.restoreTranslate();
+        // this.restoreTranslate();
+        // this.restoreTranslate();
+        // this.restoreTranslate();
     }
 }

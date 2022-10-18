@@ -5,7 +5,7 @@ import CubismPart from "./CubismPart";
 import {triggerAsyncId} from "async_hooks";
 import {EventKeys} from "./Constants/EventKeys";
 
-export default class CubismInitializer extends CubismPart {
+export default class CubismEventManager extends CubismPart {
     get eventSystem(): CubismEventSystem {
         return this.cubism.eventSystem;
     }
@@ -31,6 +31,7 @@ export default class CubismInitializer extends CubismPart {
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
         return this;
     }
+
     doFrameUpdate() {
         this.eventSystem.triggerEvent(EventKeys.FRAME_UPDATE);
         window.requestAnimationFrame(this.doFrameUpdate.bind(this));
@@ -62,14 +63,18 @@ export default class CubismInitializer extends CubismPart {
         this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.incrementFrameCount.bind(this));
         return this;
     }
+
     frameCount: number = 0;
+
     triggerFPSUpdate() {
         this.eventSystem.triggerEvent(EventKeys.FPS_UPDATE, this.frameCount);
         this.frameCount = 0;
     }
+
     incrementFrameCount() {
         this.frameCount++;
     }
+
     /**
      * Update canvas every frame
      */
@@ -77,9 +82,22 @@ export default class CubismInitializer extends CubismPart {
         this.eventSystem.registerEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
         return this;
     }
+
     triggerRedraw() {
         this.eventSystem.triggerEvent(EventKeys.REDRAW);
     }
+
+    /**
+     * Stop always redraw
+     */
+    public stopAlwaysRedraw() {
+        this.eventSystem.unregisterEvent(EventKeys.FRAME_UPDATE, this.triggerRedraw.bind(this));
+        return this;
+    }
+
+    /**
+     * Initialize the draw count counter
+     */
     public initializeDrawsPerSecondCounter() {
         this.eventSystem.registerEvent(EventKeys.REDRAW, this.onRedraw.bind(this));
         if (!this.eventSystem.hasEvent(EventKeys.SECOND_UPDATE)) {
@@ -88,10 +106,13 @@ export default class CubismInitializer extends CubismPart {
         this.eventSystem.registerEvent(EventKeys.SECOND_UPDATE, this.doDrawCountUpdate.bind(this));
         return this;
     }
+
     drawCount: number = 0;
+
     onRedraw() {
         this.drawCount++;
     }
+
     doDrawCountUpdate() {
         this.eventSystem.triggerEvent(EventKeys.DRAW_COUNT_UPDATE, this.drawCount);
         this.drawCount = 0;

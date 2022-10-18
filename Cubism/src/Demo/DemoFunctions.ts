@@ -26,6 +26,8 @@ import {WebSvgIcon} from "../Elements/Icons/SVGIcon";
 import {MaterialIcons} from "../Elements/Icons/MaterialIcons";
 import {DraggableCircle} from "../Elements/DraggableCircle";
 import {CurveElement} from "../Elements/CurveElement";
+import {CurveCanvas} from "../Elements/Fancy/CurveCanvas";
+import {CubismAnimation} from "../Animation/Animation";
 
 console.log("loading DemoFunctions.ts ...");
 
@@ -223,6 +225,7 @@ class DemoFunctions {
             points.push(point);
             root.addChildren(point);
         }
+
         function removePoint() {
             if (points.length > 0) {
                 root.removeChild(points.pop() as CubismElement);
@@ -249,6 +252,59 @@ class DemoFunctions {
         }
 
         app.init(root)
+    }
+
+    @demoFunction()
+    curveCanvas() {
+        let app = Cubism.createFromId("mainCanvas");
+        let width = 500;
+        let height = 500;
+        app.width = width;
+        app.height = height;
+
+        let curveCanvas = new CurveCanvas().setWidth(width).setHeight(height).setPosFromXY(0, 50);
+
+
+        let modeBtn = new ButtonElement().setWidth(200).setHeight(50).setIcon(MaterialIcons.pencil).setText("Drawing Mode").setPosFromXY(0, 0)
+            .setOnClick(() => {
+                console.log(`Current mode: ${curveCanvas._currMode}`);
+                if(curveCanvas._currMode === curveCanvas.mode.draw){
+                    console.log("curveCanvas._currMode === curveCanvas.mode.draw")
+                }
+                if (curveCanvas._currMode === curveCanvas.mode.move) {
+                    console.log("curveCanvas._currMode === curveCanvas.mode.move")
+                }
+                if (curveCanvas._currMode === curveCanvas.mode.draw) {
+                    modeBtn.setIcon(MaterialIcons.move);
+                    modeBtn.setText("Move Mode");
+                    curveCanvas.changeToMoveMode()
+                }else{
+                    console.log("Switching to drawing mode");
+                    modeBtn.setIcon(MaterialIcons.pencil);
+                    modeBtn.setText("Drawing Mode");
+                    curveCanvas.changeToDrawMode();
+                }
+            })
+
+        let undoBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
+            console.log("Undo");
+            curveCanvas.undo();
+        }).setPosFromXY(200, 0);
+        let playBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
+            console.log("Play");
+            curveCanvas.playAnimation();
+        }).setPosFromXY(320, 0);
+
+        app.init(
+            new PointerHandlerParentElement(
+                "SVG Test",
+                // new CubismAnimation(100).setPlaying(true),
+                curveCanvas,
+                undoBtn,
+                modeBtn,
+                playBtn
+            )
+        )
     }
 }
 
