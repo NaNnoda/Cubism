@@ -12,13 +12,14 @@ export class Point2D implements IPoint2D {
         return new Point2D(0, 0);
     }
 
-    static fromIPoint(i:IPoint2D){
+    static fromIPoint(i: IPoint2D) {
         return new Point2D(i.x, i.y);
     }
 
     static fromArray(arr: number[]): Point2D {
         return new Point2D(arr[0], arr[1]);
     }
+
     static fromNumber(n: number): Point2D {
         return new Point2D(n, n);
     }
@@ -91,6 +92,14 @@ export class Point2D implements IPoint2D {
         return this;
     }
 
+    identity(): Point2D {
+
+        let rotation = Math.atan2(this.y, this.x);
+        // let length = this.euclideanDistance(Point2D.zero);
+
+        return new Point2D(Math.cos(rotation) , Math.sin(rotation) );
+    }
+
     /**
      * Offset the point by the negative given amount.
      * @param offset
@@ -132,6 +141,7 @@ export class Point2D implements IPoint2D {
     manhattanDistance(other: Point2D): number {
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
     }
+
     angleTo(other: Point2D): number {
         return Math.atan2(other.y - this.y, other.x - this.x);
     }

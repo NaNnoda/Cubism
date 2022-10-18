@@ -268,7 +268,7 @@ class DemoFunctions {
         let modeBtn = new ButtonElement().setWidth(200).setHeight(50).setIcon(MaterialIcons.pencil).setText("Drawing Mode").setPosFromXY(0, 0)
             .setOnClick(() => {
                 console.log(`Current mode: ${curveCanvas._currMode}`);
-                if(curveCanvas._currMode === curveCanvas.mode.draw){
+                if (curveCanvas._currMode === curveCanvas.mode.draw) {
                     console.log("curveCanvas._currMode === curveCanvas.mode.draw")
                 }
                 if (curveCanvas._currMode === curveCanvas.mode.move) {
@@ -278,7 +278,7 @@ class DemoFunctions {
                     modeBtn.setIcon(MaterialIcons.move);
                     modeBtn.setText("Move Mode");
                     curveCanvas.changeToMoveMode()
-                }else{
+                } else {
                     console.log("Switching to drawing mode");
                     modeBtn.setIcon(MaterialIcons.pencil);
                     modeBtn.setText("Drawing Mode");
@@ -286,14 +286,19 @@ class DemoFunctions {
                 }
             })
 
-        let undoBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
+        let undoBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
             console.log("Undo");
             curveCanvas.undo();
         }).setPosFromXY(200, 0);
-        let playBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
+        let playBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
             console.log("Play");
             curveCanvas.playAnimation();
-        }).setPosFromXY(320, 0);
+        }).setPosFromXY(300, 0);
+
+        let deleteBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.delete).setText("Clear").setOnClick(() => {
+            console.log("Delete");
+            curveCanvas.clear();
+        }).setPosFromXY(400, 0);
 
         app.init(
             new PointerHandlerParentElement(
@@ -302,7 +307,8 @@ class DemoFunctions {
                 curveCanvas,
                 undoBtn,
                 modeBtn,
-                playBtn
+                playBtn,
+                deleteBtn
             )
         )
     }

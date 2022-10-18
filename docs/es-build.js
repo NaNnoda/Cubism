@@ -76,6 +76,10 @@ var Point2D = class {
     this.y += offset.y;
     return this;
   }
+  identity() {
+    let rotation = Math.atan2(this.y, this.x);
+    return new Point2D(Math.cos(rotation), Math.sin(rotation));
+  }
   nOffset(offset) {
     this.x -= offset.x;
     this.y -= offset.y;
@@ -1129,12 +1133,6 @@ var PointerHandlerParentElement = class extends CubismParentElement {
   triggerChildrenPointerEvent(point) {
     if (this.pointerInRange(point)) {
       for (let child of this.children) {
-        if (child instanceof PointerHandlerParentElement) {
-          if (child.pointerInRange(point)) {
-            child.triggerThisPointerEvent(point);
-            break;
-          }
-        }
         child.triggerEvent(EventKeys.ON_POINTER_EVENT, point);
       }
     }
@@ -2425,7 +2423,7 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     this._curves = [];
     this._drawing = false;
     this._isPlayingAnimation = false;
-    this.animationLength = 300;
+    this.animationLength = 100;
     this.circleSize = 10;
     this.mode = {
       draw: 0,
@@ -2468,6 +2466,9 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     if (this._isPlayingAnimation) {
       return;
     }
+    if (this._curves.length === 0) {
+      return;
+    }
     let animation = new CubismAnimation(this.cubism, this.animationLength);
     this._isPlayingAnimation = true;
     animation.setAnimationEvent(this.animationCallback.bind(this));
@@ -2481,12 +2482,12 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     }
     let ratio = t / this.animationLength;
     if (this._curves.length === 0) {
+      console.log("No curves");
       return;
     }
     this.c.offset(this.position);
     for (let i = 0; i < this._curves.length; i++) {
       let curve = this._curves[i];
-      let point = curve[i];
       this.drawHermitCurve(curve, ratio);
     }
     this.c.restoreTranslate();
@@ -2528,10 +2529,15 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     }
     this.c.setRedraw(true);
   }
+  clear() {
+    while (this._curves.length > 0) {
+      this.undo();
+    }
+    this.c.setRedraw(true);
+  }
   draw() {
     super.draw();
     if (this._isPlayingAnimation) {
-      console.log("Is playing");
       return;
     }
     this.c.offset(this.position);
@@ -2576,22 +2582,31 @@ var CurveCanvas = class extends PointerHandlerParentElement {
       }
       let segEnd = 1;
       let isEdge = false;
-      if (i >= end - 2) {
-        isEdge = true;
-        segEnd = fullEnd * ratio - end;
-      }
-      while (t < segEnd) {
-        if (isEdge) {
+      if (this._isPlayingAnimation) {
+        if (i === end - 2) {
+          isEdge = true;
+          segEnd = fullEnd * ratio - end;
         }
+      }
+      while (t <= segEnd) {
+        let point = this.getPoint(t, p0, p1, d0, d1);
         if (this._isPlayingAnimation) {
           this.c.setStrokeWidth(10);
-          let currColor = `hsl(${ratio * 100}, ${100}%, ${50}%)`;
+          let currColor = `hsl(${100}, ${10}%, ${(1 - ratio) * 100}%)`;
           this.c.setStrokeStyle(currColor);
         }
-        let point = this.getPoint(t, p0, p1, d0, d1);
         this.c.drawLineWithPoints(lastPoint, point);
         lastPoint = point;
         t += step;
+      }
+      if (this._isPlayingAnimation) {
+        let point = this.getPoint(t, p0, p1, d0, d1);
+        if (isEdge) {
+          let tangent = this.getTangent(t, p0, p1, d0, d1);
+          this.c.setStrokeWidth(20);
+          let endPoint = point.sub(tangent.identity().scale(20));
+          this.c.drawLineWithPoints(point, endPoint);
+        }
       }
       lastD = d1;
     }
@@ -2811,21 +2826,26 @@ var DemoFunctions = class {
         curveCanvas.changeToDrawMode();
       }
     });
-    let undoBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
+    let undoBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.undo).setText("Undo").setOnClick(() => {
       console.log("Undo");
       curveCanvas.undo();
     }).setPosFromXY(200, 0);
-    let playBtn = new ButtonElement().setWidth(120).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
+    let playBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.play_arrow).setText("Play").setOnClick(() => {
       console.log("Play");
       curveCanvas.playAnimation();
-    }).setPosFromXY(320, 0);
+    }).setPosFromXY(300, 0);
+    let deleteBtn = new ButtonElement().setWidth(100).setHeight(50).setIcon(MaterialIcons.delete).setText("Clear").setOnClick(() => {
+      console.log("Delete");
+      curveCanvas.clear();
+    }).setPosFromXY(400, 0);
     app.init(
       new PointerHandlerParentElement(
         "SVG Test",
         curveCanvas,
         undoBtn,
         modeBtn,
-        playBtn
+        playBtn,
+        deleteBtn
       )
     );
   }

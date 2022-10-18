@@ -11,7 +11,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
     _drawing: boolean = false;
 
     _isPlayingAnimation: boolean = false;
-    animationLength: number = 300;
+    animationLength: number = 100;
 
     circleSize = 10;
 
@@ -66,6 +66,9 @@ export class CurveCanvas extends PointerHandlerParentElement {
         if (this._isPlayingAnimation) {
             return;
         }
+        if (this._curves.length === 0) {
+            return;
+        }
         let animation = new CubismAnimation(this.cubism, this.animationLength);
         this._isPlayingAnimation = true;
         animation.setAnimationEvent(this.animationCallback.bind(this));
@@ -82,18 +85,13 @@ export class CurveCanvas extends PointerHandlerParentElement {
         let ratio = t / this.animationLength;
 
         if (this._curves.length === 0) {
+            console.log("No curves");
             return;
         }
-
-
         this.c.offset(this.position);
         for (let i = 0; i < this._curves.length; i++) {
             let curve = this._curves[i];
-            // for (let i = 0; i < Math.floor(curve.length * ratio); i++) {
-            let point = curve[i];
             this.drawHermitCurve(curve, ratio);
-            //     this.c.drawPoint(point, this.circleSize);
-            // }
         }
 
         this.c.restoreTranslate();
@@ -139,13 +137,19 @@ export class CurveCanvas extends PointerHandlerParentElement {
         }
         this.c.setRedraw(true);
     }
+    clear() {
+        while (this._curves.length > 0) {
+            this.undo();
+        }
+        this.c.setRedraw(true);
+    }
 
     draw() {
 
         // console.log("Drawing curves: ", this._curves);
         super.draw();
         if (this._isPlayingAnimation) {
-            console.log("Is playing");
+            // console.log("Is playing");
             return;
         }
 
@@ -179,12 +183,12 @@ export class CurveCanvas extends PointerHandlerParentElement {
         let lastD = Point2D.zero;
         let fullEnd = points.length;
         let end = Math.floor(fullEnd * ratio);
+
         for (let i = 0; i < end - 1; i++) {
             let p0 = Point2D.fromIPoint(points[i]);
             let p1 = Point2D.fromIPoint(points[i + 1]);
             let t = 0;
             let lastPoint: IPoint2D = p0;
-
             let d0 = lastD;
             let d1 = null;
             if (i < end - 2) {
@@ -195,27 +199,32 @@ export class CurveCanvas extends PointerHandlerParentElement {
             }
             let segEnd = 1;
             let isEdge = false;
-            if (i >= end - 2) {
-                // console.log("Edge");
-                isEdge = true;
-                segEnd = fullEnd * ratio - end;
-                // console.log("Seg end: ", segEnd);
-            }
-            while (t < segEnd) {
-                if (isEdge) {
-                    // console.log("Edge: ", t);
-                    // this.c.setStrokeWidth(40 * (t));
-
+            if (this._isPlayingAnimation){
+                if (i === end - 2) {
+                    isEdge = true;
+                    segEnd = fullEnd * ratio - end;
                 }
+            }
+
+            while (t <= segEnd) {
+                let point = this.getPoint(t, p0, p1, d0, d1);
                 if (this._isPlayingAnimation){
                     this.c.setStrokeWidth(10);
-                    let currColor = `hsl(${ratio * 100}, ${100}%, ${50}%)`;
+                    let currColor = `hsl(${100}, ${10}%, ${(1-ratio)*100}%)`;
                     this.c.setStrokeStyle(currColor);
                 }
-                let point = this.getPoint(t, p0, p1, d0, d1);
                 this.c.drawLineWithPoints(lastPoint, point);
                 lastPoint = point;
                 t += step;
+            }
+            if (this._isPlayingAnimation){
+                let point = this.getPoint(t, p0, p1, d0, d1);
+                if (isEdge){
+                    let tangent = this.getTangent(t, p0, p1, d0, d1);
+                    this.c.setStrokeWidth(20);
+                    let endPoint = point.sub(tangent.identity().scale(20));
+                    this.c.drawLineWithPoints(point, endPoint);
+                }
             }
             lastD = d1;
         }
@@ -234,7 +243,7 @@ export class CurveCanvas extends PointerHandlerParentElement {
         return new Point2D(out.getIJ(0, 0), out.getIJ(0, 1));
     }
 
-    getPoint(t: number, p0: IPoint2D, p1: IPoint2D, d0: IPoint2D, d1: IPoint2D): IPoint2D {
+    getPoint(t: number, p0: IPoint2D, p1: IPoint2D, d0: IPoint2D, d1: IPoint2D): Point2D {
         let pointMatrix = new IJMatrix(4, 2)
             .set([
                 p0.x, p0.y,
