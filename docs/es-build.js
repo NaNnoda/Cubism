@@ -2509,6 +2509,8 @@ var CurveCanvas = class extends PointerHandlerParentElement {
     this.c.offset(this.position);
     for (let i = 0; i < this._curves.length; i++) {
       let curve = this._curves[i];
+      let currColor = `hsl(${(1 - i / (this._curves.length - 1)) * 360}, ${35}%, ${70}%)`;
+      this.c.setStrokeStyle(currColor);
       this.drawHermitCurve(curve, ratio);
     }
     this.c.restoreTranslate();
@@ -2617,8 +2619,6 @@ var CurveCanvas = class extends PointerHandlerParentElement {
         let point = this.getPoint(t, p0, p1, d0, d1);
         if (this._isPlayingAnimation) {
           this.c.setStrokeWidth(10);
-          let currColor = `hsl(${ratio * 100}, ${20}%, ${20 + (1 - ratio) * 80}%)`;
-          this.c.setStrokeStyle(currColor);
         }
         this.c.drawLineWithPoints(lastPoint, point);
         lastPoint = point;
